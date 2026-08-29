@@ -43,5 +43,25 @@
   "file": "r09_vinilo_mint.png",
   "caption": "Vinilo verde menta mate",
   "cost": 0.03434325
+ },
+ {
+  "file": "r27_lejos_montana.png",
+  "caption": "Vista aérea de paso de montaña",
+  "cost": 0.034223
+ },
+ {
+  "file": "r28_espejo_agua.png",
+  "caption": "Reflejo en agua quieta a la hora azul",
+  "cost": 0.03361325
+ },
+ {
+  "file": "r29_desierto_ruta66.png",
+  "caption": "Carretera desértica estilo Ruta 66",
+  "cost": 0.034345
+ },
+ {
+  "file": "r30_granja_campo.png",
+  "caption": "Campo de trigo en hora dorada",
+  "cost": 0.03361425
  }
 ]

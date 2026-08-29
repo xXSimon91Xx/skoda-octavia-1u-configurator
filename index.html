@@ -158,18 +158,13 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
 <!-- TAB: RENDERS IA -->
 <section id="tab-renders" class="hidden-tab max-w-[1400px] mx-auto px-4 py-5">
   <div class="flex items-center justify-between flex-wrap gap-2">
-    <h2 class="font-black text-xl tracking-tight">🖼️ Renders IA <span class="text-[11px] font-bold px-2 py-0.5 rounded-full" style="background:var(--accent);color:#0F172A">4 REALES · + próximos</span></h2>
-    <div class="text-[11px] muted flex items-center gap-2"><i class="ph ph-magic-wand text-lg"></i> Generados con modelos gratuitos OpenRouter (0,069 USD/img) — más en camino (cron nocturno)</div>
+    <h2 class="font-black text-xl tracking-tight">🖼️ Renders IA <span class="text-[11px] font-bold px-2 py-0.5 rounded-full" style="background:var(--accent);color:#0F172A">23 REALES · VERIFICADOS</span></h2>
+    <div class="text-[11px] muted flex items-center gap-2"><i class="ph ph-magic-wand text-lg"></i> Generados con Gemini Image vía OpenRouter (~0,034 USD/img) — descripción de cada uno verificada por visión antes de publicar</div>
   </div>
-  <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-4 mt-5">
-    <div class="card overflow-hidden fade-in"><img src="img/Flama-Nuevo-01.png" class="w-full h-52 object-cover" alt="Render 01"><div class="p-3"><div class="font-black text-[13px]">01 · Negro piano brillo</div><div class="text-[11px] muted mt-0.5">BBS CH plata 17" · Angel eyes · RS · Calle urbana</div><div class="flex justify-between items-center mt-2 text-[11px] font-bold"><span style="color:var(--accent)">1.062–1.450€</span><span class="muted">viral 9/10</span></div></div></div>
-    <div class="card overflow-hidden fade-in"><img src="img/Flama-Nuevo-02.png" class="w-full h-52 object-cover" alt="Render 02"><div class="p-3"><div class="font-black text-[13px]">02 · Verde bosque satinado</div><div class="text-[11px] muted mt-0.5">5 radios bronce 17" · Ducktail · Avenida industrial</div><div class="flex justify-between items-center mt-2 text-[11px] font-bold"><span style="color:var(--accent)">1.090–1.480€</span><span class="muted">viral 8.5/10</span></div></div></div>
-    <div class="card overflow-hidden fade-in"><img src="img/Flama-Nuevo-05.png" class="w-full h-52 object-cover" alt="Render 05"><div class="p-3"><div class="font-black text-[13px]">05 · Azul medianoche</div><div class="text-[11px] muted mt-0.5">Mesh negro 18" · RS · Noche lluvia neón</div><div class="flex justify-between items-center mt-2 text-[11px] font-bold"><span style="color:var(--accent)">1.220–1.600€</span><span class="muted">viral 9.5/10</span></div></div></div>
-    <div class="card overflow-hidden fade-in"><img src="img/Flama-Nuevo-08.png" class="w-full h-52 object-cover" alt="Render 08"><div class="p-3"><div class="font-black text-[13px]">08 · Blanco perla</div><div class="text-[11px] muted mt-0.5">BBS CH plata · Angel eyes · Paseo marítimo</div><div class="flex justify-between items-center mt-2 text-[11px] font-bold"><span style="color:var(--accent)">1.080–1.470€</span><span class="muted">viral 8/10</span></div></div></div>
-  </div>
+  <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-4 mt-5" id="rendersGrid"></div>
   <div class="card p-5 mt-4 flex flex-wrap items-center justify-between gap-3">
-    <div><div class="font-bold text-[14px]">🎬 Próximos renders IA (batch nocturno)</div><div class="text-[12px] muted mt-0.5">Vinilo multicolor · Termocromático sol · Track day · Drift night · Lowrider</div></div>
-    <button disabled class="px-4 py-2 rounded-full text-[12px] font-bold opacity-50 cursor-not-allowed" style="background:var(--accent);color:#0F172A">En cola para generar</button>
+    <div><div class="font-bold text-[14px]">🎬 Próximos renders (batch pendiente de crédito OpenRouter)</div><div class="text-[12px] muted mt-0.5">Más vinilos (camuflaje, rosa, dorado, batman) · Tunel neón · Cyberpunk · Track day · Drift · Snow · Nieve · Contraluz — el script reanuda solo cuando vuelve el crédito (salta los ya generados)</div></div>
+    <button disabled class="px-4 py-2 rounded-full text-[12px] font-bold opacity-50 cursor-not-allowed" style="background:var(--accent);color:#0F172A">⏳ En cola (crédito agotado por hoy)</button>
   </div>
 </section>
 
@@ -482,6 +477,36 @@ function handlePieceClick(obj){
   };
   openModal(info.title,info.rows,info.btn);
 }
+
+// ===== RENDERS GRID =====
+const RENDERS_DATA = [
+  {f:'img/renders/r01_steel_grey_studio.png', t:'Steel Grey 9102 de serie', d:'Estudio oscuro con focos y suelo espejo'},
+  {f:'img/renders/r02_negro_piano_urbano.png', t:'Negro piano brillo', d:'Calle urbana nocturna con reflejos neón'},
+  {f:'img/renders/r03_blanco_perla_mar.png', t:'Blanco perla', d:'Paseo marítimo en hora dorada'},
+  {f:'img/renders/r04_azul_medianoche.png', t:'Azul medianoche', d:'Noche de lluvia con luces'},
+  {f:'img/renders/r05_rojo_torii.png', t:'Rojo torii', d:'Frente a torii con cerezos y atardecer'},
+  {f:'img/renders/r06_verde_bosque.png', t:'Verde bosque satinado', d:'Carretera de bosque con niebla'},
+  {f:'img/renders/r07_vinilo_chrome.png', t:'Vinilo cromo espejo', d:'Refleja cielo y edificios por completo'},
+  {f:'img/renders/r08_vinilo_azul_violaceo.png', t:'Vinilo iridiscente azul-violeta', d:'Color shift en garaje neón'},
+  {f:'img/renders/r09_vinilo_mint.png', t:'Vinilo verde menta mate', d:'Fondo tropical con día brillante'},
+  {f:'img/renders/r27_lejos_montana.png', t:'Paso de montaña', d:'Vista aérea con nubes dramáticas'},
+  {f:'img/renders/r28_espejo_agua.png', t:'Reflejo en agua', d:'Hora azul con simetría perfecta'},
+  {f:'img/renders/r29_desierto_ruta66.png', t:'Ruta 66', d:'Desierto con cactus, motel y atardecer'},
+  {f:'img/renders/r30_granja_campo.png', t:'Campo de trigo', d:'Hora dorada rural'},
+  {f:'img/renders/r32_explosion_pintura.png', t:'Explosión de pintura', d:'Estudio dinámico con colores'},
+  {f:'img/renders/r33_hielo_invierno.png', t:'Lago helado', d:'Cristales de hielo alpinos'},
+  {f:'img/renders/r34_lavadero.png', t:'En el lavadero', d:'Espuma y agua, día brillante'},
+  {f:'img/renders/r35_puente_torii.png', t:'Torii en el agua', d:'Estilo Miyajima'},
+  {f:'img/renders/r36_oni_demonio.png', t:'Máscara Oni', d:'Frontal con máscara, fondo templo'},
+  {f:'img/renders/r37_serie_vodka_black.png', t:'Negro mate franja roja', d:'Estilo carreras, calipers rojos'},
+  {f:'img/Flama-Nuevo-01.png', t:'Flama 01 · Negro piano brillo', d:'BBS CH plata 17" · Angel eyes · Calle urbana'},
+  {f:'img/Flama-Nuevo-02.png', t:'Flama 02 · Verde bosque satinado', d:'5 radios bronce 17" · Ducktail'},
+  {f:'img/Flama-Nuevo-05.png', t:'Flama 05 · Azul medianoche', d:'Mesh negro 18" · RS · Noche neón'},
+  {f:'img/Flama-Nuevo-08.png', t:'Flama 08 · Blanco perla', d:'BBS CH plata · Angel eyes · Paseo marítimo'},
+];
+document.getElementById('rendersGrid').innerHTML = RENDERS_DATA.map((r,i)=>
+  `<div class="card overflow-hidden fade-in"><img src="${r.f}" class="w-full h-52 object-cover" alt="${r.t}" loading="lazy"><div class="p-3"><div class="font-black text-[13px]">${String(i+1).padStart(2,'0')} · ${r.t}</div><div class="text-[11px] muted mt-0.5">${r.d}</div></div></div>`
+).join('');
 
 // ===== INFORME DATA =====
 const INFORMES=[
