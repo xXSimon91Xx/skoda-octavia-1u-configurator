@@ -321,13 +321,21 @@ async function init3D(){
   try{
     const gltf=await new Promise((res,rej)=>{loader.load('glb/model.glb',res,undefined,rej);});
     gltfScene=gltf.scene;
-    // normalize bounds (ROBUSTO: box recalculado DESPUÉS de escalar -> suelo exacto a y=0)
+    // normalize bounds (ROBUSTO: orienta el modelo, escala, y apoya el suelo en y=0)
     const box0=new THREE.Box3().setFromObject(gltfScene);
-    const size0=box0.getSize(new THREE.Vector3());
-    const scale=3.6/size0.x; gltfScene.scale.setScalar(scale);
-    gltfScene.updateMatrixWorld(true);
+    const s0=box0.getSize(new THREE.Vector3());
+    if(s0.y>s0.x&&s0.y>s0.z){
+      // el largo del coche cae en Y (modelo de Sketchfab en vertical) -> rotar a Z
+      gltfScene.rotation.x=-Math.PI/2;
+      gltfScene.updateMatrixWorld(true);
+    }
     const box=new THREE.Box3().setFromObject(gltfScene);
-    const center=box.getCenter(new THREE.Vector3()); const min=box.min;
+    const size=box.getSize(new THREE.Vector3());
+    // normalizar por el LARGO (Octavia 1U real = 4.507m) -> medidas realistas en escena
+    const scale=4.6/size.z; gltfScene.scale.setScalar(scale);
+    gltfScene.updateMatrixWorld(true);
+    const box2=new THREE.Box3().setFromObject(gltfScene);
+    const center=box2.getCenter(new THREE.Vector3()); const min=box2.min;
     gltfScene.position.set(-center.x, -min.y, -center.z);
     gltfScene.updateMatrixWorld(true);
     // apply default paint
@@ -442,9 +450,9 @@ function applyRims(style){
       wheelAnchors.forEach((anchor, i)=>{
         anchor.getWorldPosition(tmp); anchor.getWorldQuaternion(q); anchor.getWorldScale(s);
         const rim = gltf.scene.clone(true);
-        // scale rim to match wheel: rims in model are ~0.32 radius => rim glb from tripo ~1.0
-        const rimSize = 0.62; // tune
-        rim.scale.setScalar(s.x > 0.001 ? (0.42/s.x) : 1.0);
+        // scale rim to match wheel: rim glb radio=0.5; hueco real de rueda ~0.27-0.29 mundo
+        const rimSize = 0.5; // tune visual
+        rim.scale.setScalar(s.x > 0.001 ? (rimSize/s.x) : 1.0);
         rim.position.copy(tmp);
         rim.quaternion.copy(q);
         // rotate rim to face outward: tripo model faces +Z viewer, wheel axis is X (Z on sides)
