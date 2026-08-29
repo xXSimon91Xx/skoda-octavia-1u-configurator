@@ -1,0 +1,47 @@
+[
+ {
+  "file": "r01_steel_grey_studio.png",
+  "caption": "Steel Grey 9102 de serie en estudio oscuro",
+  "cost": 0.0342395
+ },
+ {
+  "file": "r02_negro_piano_urbano.png",
+  "caption": "Negro piano brillo con reflejos neón",
+  "cost": 0.034329
+ },
+ {
+  "file": "r03_blanco_perla_mar.png",
+  "caption": "Blanco perla junto al mar al atardecer",
+  "cost": 0.0336145
+ },
+ {
+  "file": "r04_azul_medianoche.png",
+  "caption": "Azul medianoche en noche lluviosa",
+  "cost": 0.0336145
+ },
+ {
+  "file": "r05_rojo_torii.png",
+  "caption": "Rojo torii con torii y cerezos",
+  "cost": 0.03426625
+ },
+ {
+  "file": "r06_verde_bosque.png",
+  "caption": "Verde bosque satinado en carretera",
+  "cost": 0.03361375
+ },
+ {
+  "file": "r07_vinilo_chrome.png",
+  "caption": "Vinilo espejo cromo — efecto espejo total",
+  "cost": 0.0336135
+ },
+ {
+  "file": "r08_vinilo_azul_violaceo.png",
+  "caption": "Vinilo iridiscente azul-violeta (color shift)",
+  "cost": 0.03361375
+ },
+ {
+  "file": "r09_vinilo_mint.png",
+  "caption": "Vinilo verde menta mate",
+  "cost": 0.03434325
+ }
+]
