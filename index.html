@@ -289,6 +289,7 @@ async function init3D(){
   const THREE=await import('three');
   const {OrbitControls}=await import('three/addons/controls/OrbitControls.js');
   const {GLTFLoader}=await import('three/addons/loaders/GLTFLoader.js');
+  const {DRACOLoader}=await import('three/addons/loaders/DRACOLoader.js');
   window.THREE=THREE;
 
   const w=glCanvas.parentElement.clientWidth, h=glCanvas.parentElement.clientHeight||560;
@@ -305,6 +306,7 @@ async function init3D(){
   controls.minDistance=2.5; controls.maxDistance=14;
 
   const scene=new THREE.Scene();
+  window.__SCENE = scene; // raiz (identidad): los objetos en world coords se anaden aqui
   scene.add(new THREE.AmbientLight(0xffffff,0.55));
   const hemi=new THREE.HemisphereLight(0xffffff,0x444466,0.5); scene.add(hemi);
   const key=new THREE.DirectionalLight(0xffffff,2.2); key.position.set(4,6,4); key.castShadow=true; scene.add(key);
@@ -317,6 +319,9 @@ async function init3D(){
   raycaster=new THREE.Raycaster(); mouse=new THREE.Vector2();
 
   const loader=new GLTFLoader();
+  const draco=new DRACOLoader();
+  draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
+  loader.setDRACOLoader(draco);
   window.__RIM_LOADER = loader;
   try{
     const gltf=await new Promise((res,rej)=>{loader.load('glb/model.glb',res,undefined,rej);});
@@ -434,8 +439,8 @@ function applyPaint(p){
 }
 
 function applyRims(style){
-  // show/hide original rim meshes
-  (carNodes.rims.length?carNodes.rims:rimGroups.map(r=>r[0])).forEach(m=>{
+  // show/hide original rim meshes (solo ruedas reales)
+  getWheelAnchors().forEach(m=>{
     if(m&&m.visible!==undefined){m.visible=(style==='original');}
   });
   // real 3D rim swap: load BBS_CH glb and clone at each wheel position
@@ -443,11 +448,11 @@ function applyRims(style){
   if(style==='bbs' && gltfScene && window.__RIM_LOADER){
     const rimSrc = 'glb/rims/bbs_ch.glb';
     window.__RIM_LOADER.load(rimSrc, (gltf)=>{
-      const wheelAnchors = carNodes.rims.length? carNodes.rims : [];
-      if(!wheelAnchors.length){ showToast('⚠️ No se encontraron puntos de rueda en el modelo','warn'); return; }
+      const wAnchors = getWheelAnchors();
+      if(!wAnchors.length){ showToast('⚠️ No se encontraron puntos de rueda en el modelo','warn'); return; }
       window.__rimInstances = [];
       const tmp = new THREE.Vector3(); const q = new THREE.Quaternion(); const s = new THREE.Vector3();
-      wheelAnchors.forEach((anchor, i)=>{
+      wAnchors.forEach((anchor, i)=>{
         anchor.getWorldPosition(tmp); anchor.getWorldQuaternion(q); anchor.getWorldScale(s);
         const rim = gltf.scene.clone(true);
         // scale rim to match wheel: rim glb radio=0.5; hueco real de rueda ~0.27-0.29 mundo
@@ -458,7 +463,7 @@ function applyRims(style){
         // rotate rim to face outward: tripo model faces +Z viewer, wheel axis is X (Z on sides)
         rim.rotateY(i % 2 === 0 ? Math.PI/2 : Math.PI/2);
         rim.traverse(o=>{ if(o.isMesh){ o.castShadow=true; } });
-        gltfScene.add(rim);
+        (window.__SCENE||gltfScene).add(rim);
         window.__rimInstances.push(rim);
       });
       showToast('🛞 BBS CH 3D REAL aplicada (4 llantas) ✓');
@@ -569,7 +574,7 @@ function buildRimGroup(style){
 function removeProcRims(){ __procRims.forEach(m=>{if(m.parent)m.parent.remove(m);}); __procRims=[]; }
 function applyProceduralRims(style){
   removeProcRims();
-  const anchors = carNodes.rims.length? carNodes.rims : [];
+  const anchors = getWheelAnchors();
   if(!anchors.length){ showToast('⚠️ No se encontraron puntos de rueda','warn'); return; }
   const tmp=new THREE.Vector3(), q=new THREE.Quaternion();
   anchors.forEach(anchor=>{
@@ -577,8 +582,16 @@ function applyProceduralRims(style){
     const rim=buildRimGroup(style);
     rim.position.copy(tmp); rim.quaternion.copy(q);
     rim.rotateY(Math.PI/2);
-    gltfScene.add(rim); __procRims.push(rim);
+    (window.__SCENE||gltfScene).add(rim); __procRims.push(rim);
   });
+}
+// ===== WHEEL ANCHORS: solo ruedas reales (filtro por altura; el glb trae 2 objetos 'rim' falsos en el interior) =====
+function getWheelAnchors(){
+  const list = carNodes.rims.length ? carNodes.rims : rimGroups.map(r=>r[0]);
+  const out = [];
+  const p = new THREE.Vector3();
+  list.forEach(a=>{ if(a && a.visible !== undefined){ a.getWorldPosition(p); if(p.y < 0.55) out.push(a); } });
+  return out;
 }
 // ===== WHEEL POSITIONS for procedural rims =====
 function wheelPositions(){
