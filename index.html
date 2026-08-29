@@ -177,11 +177,16 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
 <!-- TAB: COMPRAS -->
 <section id="tab-compras" class="hidden-tab max-w-[1000px] mx-auto px-4 py-5">
   <h2 class="font-black text-xl tracking-tight">🛒 Catálogo de compras — precios verificados (28-08-2026)</h2>
-  <p class="text-[12px] muted mt-1">27 links verificados HTTP 200 · presupuestos por combo · doble click en el 3D te lleva aquí</p>
-  <div class="card mt-4 overflow-x-auto"><table class="w-full text-[13px]">
-    <thead><tr class="text-left text-[11px] tracking-widest muted border-b" style="border-color:var(--border)"><th class="p-3">Pieza</th><th class="p-3">Opción</th><th class="p-3">Precio</th><th class="p-3">Compatibilidad</th><th class="p-3"></th></tr></thead>
-    <tbody class="text-[12.5px]" id="comprasTable"></tbody>
-  </table></div>
+  <p class="text-[12px] muted mt-1">Links verificados HTTP 200 · presupuestos por combo · doble click en el 3D te lleva aquí · la llanta del configurador sale marcada <b style="color:var(--accent)">EN CONFIGURADOR</b></p>
+  <div class="card mt-4 p-4">
+    <div class="flex items-center gap-3">
+      <i class="ph ph-magnifying-glass text-xl muted"></i>
+      <input id="catalogoSearch" type="text" placeholder="Buscar por nombre, marca o categoría… ej. BBS, 17, 5x100, vinilo negro" oninput="renderCatalogo()">
+    </div>
+    <div class="flex flex-wrap gap-1.5 mt-3" id="catalogoPills"></div>
+  </div>
+  <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4" id="catalogoGrid"></div>
+  <div class="text-[11px] muted mt-2 mb-4">Medida homologable sin proyecto: <b>7Jx17 ET36-40 5x100 · 225/45R17</b> (−0,03 % diámetro, medida RS 1U). ET35 = pasa si no sobresale. Anillos de centrado 5-10 € si buje ≠ 57,1.</div>
   <div class="grid md:grid-cols-2 gap-3 mt-4">
     <div class="card p-4"><div class="font-bold text-[13px]">💶 Escenarios completos</div>
       <div class="mt-2 space-y-1.5 text-[12.5px]">
@@ -316,11 +321,15 @@ async function init3D(){
   try{
     const gltf=await new Promise((res,rej)=>{loader.load('glb/model.glb',res,undefined,rej);});
     gltfScene=gltf.scene;
-    // normalize bounds
+    // normalize bounds (ROBUSTO: box recalculado DESPUÉS de escalar -> suelo exacto a y=0)
+    const box0=new THREE.Box3().setFromObject(gltfScene);
+    const size0=box0.getSize(new THREE.Vector3());
+    const scale=3.6/size0.x; gltfScene.scale.setScalar(scale);
+    gltfScene.updateMatrixWorld(true);
     const box=new THREE.Box3().setFromObject(gltfScene);
-    const size=box.getSize(new THREE.Vector3()); const center=box.getCenter(new THREE.Vector3());
-    const scale=3.6/size.x; gltfScene.scale.setScalar(scale);
-    gltfScene.position.set(-center.x*scale, -center.y*scale+0.02, -center.z*scale);
+    const center=box.getCenter(new THREE.Vector3()); const min=box.min;
+    gltfScene.position.set(-center.x, -min.y, -center.z);
+    gltfScene.updateMatrixWorld(true);
     // apply default paint
     gltfScene.traverse(obj=>{
       if(obj.isMesh){
@@ -449,6 +458,8 @@ function applyRims(style){
       showToast('⚠️ Llanta 3D no cargó: '+ (e.message||e).slice(0,60),'warn');
       console.warn('rim load fail',e);
     });
+  } else if(style==='bronce'||style==='mesh'){
+    applyProceduralRims(style);
   }
 }
 function removeRimInstances(){
@@ -473,6 +484,94 @@ function applySuspension(level){
   }
 }
 
+// ===== PIEZAS VISIBLES: alerón, angel eyes, tintado, llantas procedurales =====
+var __spoilMeshes=[], __aeMeshes=[], __procRims=[];
+function removeSpoiler(){ __spoilMeshes.forEach(m=>{if(m.parent)m.parent.remove(m);}); __spoilMeshes=[]; }
+function addSpoiler(type){
+  removeSpoiler();
+  if(type==='none'||!gltfScene) return;
+  const box=new THREE.Box3().setFromObject(gltfScene);
+  const s=box.getSize(new THREE.Vector3()); const c=box.getCenter(new THREE.Vector3());
+  let zBack, yBase;
+  if(carNodes.rear){ const wp=carNodes.rear.getWorldPosition(new THREE.Vector3()); zBack=wp.z; yBase=wp.y; }
+  else { zBack=c.z+s.z/2; yBase=c.y+s.y*0.62; }
+  const dir = (zBack>c.z)?1:-1;
+  const mat=new THREE.MeshStandardMaterial({color:0x14161a,metalness:0.65,roughness:0.32});
+  if(type==='ducktail'){
+    const m=new THREE.Mesh(new THREE.BoxGeometry(1.55,0.045,0.15),mat);
+    m.position.set(c.x, yBase+0.10, zBack-dir*0.06);
+    m.rotation.x=-dir*0.06;
+    gltfScene.add(m); __spoilMeshes.push(m);
+  } else if(type==='rs'){
+    const blade=new THREE.Mesh(new THREE.BoxGeometry(1.72,0.055,0.30),mat);
+    blade.position.set(c.x, yBase+0.20, zBack-dir*0.14);
+    blade.rotation.x=-dir*0.12;
+    gltfScene.add(blade); __spoilMeshes.push(blade);
+    [-0.55,0.55].forEach(dx=>{
+      const leg=new THREE.Mesh(new THREE.BoxGeometry(0.05,0.16,0.06),mat);
+      leg.position.set(c.x+dx, yBase+0.10, zBack-dir*0.10);
+      gltfScene.add(leg); __spoilMeshes.push(leg);
+    });
+  }
+}
+function removeAE(){ __aeMeshes.forEach(m=>{if(m.parent)m.parent.remove(m);}); __aeMeshes=[]; }
+function addAngelEyes(on){
+  removeAE();
+  if(!on||!gltfScene) return;
+  if(!carNodes.front){ showToast('⚠️ No se localizaron los faros en el modelo','warn'); return; }
+  const wp=carNodes.front.getWorldPosition(new THREE.Vector3());
+  const mat=new THREE.MeshStandardMaterial({color:0xffe9a8,emissive:0xffd875,emissiveIntensity:2.4,metalness:0.1,roughness:0.2});
+  [-0.60,0.60].forEach(dx=>{
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(0.085,0.018,12,28),mat);
+    ring.position.set(wp.x+dx, wp.y-0.01, wp.z);
+    ring.rotation.y=Math.PI/2; // anillo en plano XZ mirando al frente del coche
+    gltfScene.add(ring); __aeMeshes.push(ring);
+  });
+  showToast('💡 Angel Eyes encendidos (emissive) — +130€ kit plug&play');
+}
+function applyTint(level){
+  if(!gltfScene) return;
+  const targets=[];
+  gltfScene.traverse(obj=>{ if(obj.isMesh){ const n=((obj.name||'')+' '+(obj.material&&obj.material.name||'')).toLowerCase(); if(/glass|luneta|cristal|window/i.test(n)) targets.push(obj); } });
+  if(!targets.length){ showToast('⚠️ No se encontraron cristales en el modelo','warn'); return; }
+  const op = level==='50'?0.55 : level==='80'?0.22 : 1;
+  targets.forEach(m=>{
+    const mats=Array.isArray(m.material)?m.material:[m.material];
+    mats.forEach(mt=>{ if(mt&&mt.transparent!==undefined){ mt.transparent = op<1; mt.opacity=op; mt.depthWrite = op>=1; } });
+  });
+  showToast(level==='0'?'🪟 Sin tintar (cristales originales)':'🪟 Tintado '+(level==='50'?'50%':'80%')+(level==='80'?' — SOLO traseras legal ⚠️':' — legal en traseras'));
+}
+function buildRimGroup(style){
+  const g=new THREE.Group();
+  const matAro=new THREE.MeshStandardMaterial({color:style==='bronce'?0xc8954e:0x15161a,metalness:0.75,roughness:0.35});
+  const matC=new THREE.MeshStandardMaterial({color:0x0e0e12,metalness:0.9,roughness:0.25});
+  const aro=new THREE.Mesh(new THREE.TorusGeometry(0.32,0.055,12,28),matAro);
+  g.add(aro);
+  const disc=new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.09,0.12,20),matC);
+  disc.rotation.x=Math.PI/2; g.add(disc);
+  const spokes = style==='bronce'?5:10;
+  for(let i=0;i<spokes;i++){
+    const a=(i/spokes)*Math.PI*2;
+    const sp=new THREE.Mesh(new THREE.BoxGeometry(style==='bronce'?0.06:0.03,0.42,0.09), style==='bronce'?matAro:matC);
+    sp.rotation.z=a; sp.position.set(Math.cos(a)*0.12, Math.sin(a)*0.12, 0);
+    g.add(sp);
+  }
+  return g;
+}
+function removeProcRims(){ __procRims.forEach(m=>{if(m.parent)m.parent.remove(m);}); __procRims=[]; }
+function applyProceduralRims(style){
+  removeProcRims();
+  const anchors = carNodes.rims.length? carNodes.rims : [];
+  if(!anchors.length){ showToast('⚠️ No se encontraron puntos de rueda','warn'); return; }
+  const tmp=new THREE.Vector3(), q=new THREE.Quaternion();
+  anchors.forEach(anchor=>{
+    anchor.getWorldPosition(tmp); anchor.getWorldQuaternion(q);
+    const rim=buildRimGroup(style);
+    rim.position.copy(tmp); rim.quaternion.copy(q);
+    rim.rotateY(Math.PI/2);
+    gltfScene.add(rim); __procRims.push(rim);
+  });
+}
 // ===== WHEEL POSITIONS for procedural rims =====
 function wheelPositions(){
   // true positions from the original rim meshes
@@ -544,40 +643,288 @@ document.getElementById('rendersGrid').innerHTML = RENDERS_DATA.map((r,i)=>
   `<div class="card overflow-hidden fade-in"><img src="${r.f}" class="w-full h-52 object-cover" alt="${r.t}" loading="lazy"><div class="p-3"><div class="font-black text-[13px]">${String(i+1).padStart(2,'0')} · ${r.t}</div><div class="text-[11px] muted mt-0.5">${r.d}</div></div></div>`
 ).join('');
 
-// ===== INFORME DATA =====
+// ===== INFORMES DATA (completo, desde vault) =====
 const INFORMES=[
-  {t:'🔧 Diagnóstico corte 3.000 rpm',s:'Corte de potencia a 3.000 rpm — causas probables: N75/boost leak, manguitos, MAF, EGR. Tests realizados, presupuesto 80-250€ según causa.'},
-  {t:'🔩 Mantenimiento completo 202.000 km',s:'Aceite+kit, correa distribución?, líquidos, pastillas. Agenda completa con piezas originales/precios.'},
-  {t:'⚡ Repro Stage 1 / Stage 2',s:'Stage 1: 90CV→120CV ~350€ (solo ECU). Stage 2: +downpipe+intercooler → 150CV (3.300-5.000€ total con estética). Homologación RD 866/2010: 150-350€ + ITV.'},
-  {t:'🛞 Llantas y suspensión',s:'BBS CH 17" 609€, HG12 35€/m, CSR 307€. Medidas compatibles: 205/50R17. 5x100 ET35.'},
-  {t:'📊 Mercado segunda mano',s:'Octavia 1U 2001 1.9TDI: 1.500-3.500€ según estado. Valor real para Simon (90CV ALH, mantenido): 2.000-2.800€.'},
-  {t:'🛒 Catálogo exterior',s:'27 links verificados 200 (28-08-2026): llantas, alerones, faros crystal, tintado, vinilos, manguitos. Total proyecto estética: 780-5.000€ según escenario.'},
+{t:'🔧 Diagnóstico corte 3.000 rpm', s:'Corte de potencia en seco a 3.000 rpm · motor ALH 1.9 TDI (VNT, no wastegate) · 202.000 km · EGR limpia y manguito de vacío CORTADO.',
+ b:[
+  '<b>Síntoma:</b> acelera normal hasta ~3.000 rpm, se oye "entra aire" (siseo de aspiración) y se corta EN SECO. No es fallo de combustible: la firma es de presión de soplado fuera de especificación (limp mode).',
+  '<b>Pregunta EGR respondida:</b> el pulmón de la EGR NO se abre con presión, se abre con VACÍO. Con el manguito cortado la EGR queda cerrada permanente → NO es la causa. Riesgo real: fuga de vacío abierta → taponar la toma del lado N18 (tornillo/tapón).',
+  '<b>Paso 1 — leer código (0-30 min, 0-20 €):</b> VCDS módulo 01→02. P0234/17965 = SOBREBOOST · P1556 = underboost (fuga) · P0108 = MAP alta · P0401 = EGR insuficiente (esperable, no asusta). Sin VCDS: ELM327+Torque 10-20 €.',
+  '<b>Paso 2 — red de presión (15 min, gratis, PROB. ALTA):</b> revisar manguitos turbo→intercooler→admisión (grietas, abombamientos, abrazaderas) + intercooler rajado abajo. Agua jabonosa en uniones: donde burbujea = fuga. El siseo a 3.000 rpm lo delata.',
+  '<b>Paso 3 — paletas VNT pegadas (30 min, gratis, PROB. ALTA):</b> típico >180.000 km. Soltar varilla del actuador y girar la leva a mano: debe ir suave y uniforme. Si está dura → limpiar turbo (Easy-Off / vapor de agua, método TDIClub documentado a 349.000 km) o cartucho 300-700 €.',
+  '<b>Paso 4 — actuador VNT:</b> bomba de vacío manual (25-40 €): debe mover la varilla 15-20 mm y mantener. Kit actuador 50-120 €.',
+  '<b>Paso 5 — N75 (25-60 €):</b> resistencia 14-18 Ω entre terminales (17,1 Ω OK en foro); con 12 V debe conmutar el vacío; Output Test VCDS = clic. Pieza 1H0 906 627 A. No cambiar antes de descartar fuga y paletas.',
+  '<b>Paso 6 — líneas de vacío (5-15 €):</b> reemplazar TODAS por silicona 3/5 mm (preventivo clásico del limp mode).',
+  '<b>Specs ALH:</b> bloque 010/011 VCDS: presión real ~1.500-2.030 mbar abs a plena carga; picos normales ~15 psi. Real 2.500 vs pedida 2.000 → sobreboost → corte. Real 1.100 vs 1.900 → fuga/underboost.',
+  '<b>Presupuesto según rama:</b> fuga manguitos 30-90 € (kit silicona) · limpia paletas 15-60 € · actuador 50-120 € · N75 25-60 € → total probable 30-120 € en piezas + mano de obra si no se hace en casa.',
+  '<b>VCDS cable:</b> clon 25-60 € · Ross-Tech HEX-V2 350-500 €. Orden: código → manguitos → leva → bombitas → N75 → prueba en carretera 3ª-4ª a fondo.',
+  '<a href="https://forums.tdiclub.com/index.php?threads/limp-mode-around-2800-3000-rpms.409301/" target="_blank">TDIClub: Limp mode around 2800-3000 RPMs →</a> · <a href="https://forums.tdiclub.com/index.php?threads/p0234-overboost-1-9l-tdi.306195/" target="_blank">TDIClub P0234 Overboost →</a>',
+  '<a href="https://www.amazon.es/Mangueras-Silicona-Compatible-Octavia-1-9TDI/dp/B0FWJNQV9T" target="_blank">Kit manguitos silicona 1.9 TDI — Amazon.es 38,61 € →</a>'
+ ]},
+{t:'🔩 Mantenimiento completo + Repro Stage 1/2', s:'Plan de mantenimiento integral a 202.000 km + reprogramación EDC15 con precios reales de taller (agosto 2026).',
+ b:[
+  '<b>Intervalos ALH:</b> correa distribución cada 90.000 km / 4 años (con bomba de agua), aceite 15.000 km / 1 año (VW 505.00/505.01), calentadores >200.000 km.',
+  '<b>Kit distribución</b> (correa+tensor+rodillos SNR/Gates/INA): 90-105 € · <a href="https://www.autodoc.es/repuestos/juego-de-correas-dentadas-10505/skoda/octavia/octavia-1u2/7909-1-9-tdi" target="_blank">Autodoc.es →</a> · bomba de agua Hepu/Graf: 25-40 €.',
+  '<b>Aceite 5W-40</b> LiquiMoly/Castrol 5L: 30-45 € · kit filtros Mann/Bosch: 30-40 € · calentadores Bosch ×4 (0 250 202 018): 25-45 € · refrigerante G12+ rosa 5L (TL-774F): 13-20 €.',
+  '<b>TOTAL mantenimiento piezas ≈ 280 €</b> (+130-170 € alternador preventivo → hasta 450 €) + mano de obra 200-300 € (distribución 150-250 €).',
+  '<b>Refuerzos baratos (Stage 1 ligero):</b> barra torretas Ultra Racing (Golf4/A3/S3, encaja 1U) 130 € (genérica 54 €) · kit anulador EGR Forge FMEGRRPS 114,95 € (chapas genéricas 20-45 €; ⚠️ NO pasa ITV en España — guardar válvula) · manguitos silicona 38,61 €.',
+  '<b>FMIC intercooler frontal:</b> FMIC.EU kit Golf 4/Octavia 245 € (imprescindible a partir de Stage 2) · Premium Darkside £564 (~660 €).',
+  '<b>Stage 1 — remap EDC15 por OBD sin abrir:</b> BR-Performance Barcelona 110→140 CV 390 € (2ª mano gratis, apto ITV, garantía 5 años) · TLR Sport Madrid ~250 € · Soluciones Guemacar desde 250 €.',
+  '<b>Stage 1 seguro:</b> en ALH bien mantenido, 140-150 CV reales (~300-320 Nm) con embrague y turbo originales en buen estado. Cifras de 170-190 CV exigen hardware, no solo remap.',
+  '<b>Stage 2 (150 CV):</b> repro 2 fases 550-650 € + turbo GT1749V nuevo 373 € (o VNT17 usado 200-350 €) + toberas DLC 764 ×4 (Bosio) 313-400 € + embrague Sachs Performance 228mm 629-870 € (OBLIGATORIO). TOTAL Stage 2 ≈ 2.300-3.600 €.',
+  '<b>DIY Stage 1:</b> Galletto 1260 / MPPS clon (8-40 €) + archivo .mpz 30-80 € — riesgo real de BRICK de ECU (usar batería cargada + cargador) · KESS v2 original 300-500 € · tuning box 60-120 € (RaceChip 239 €, sin personalización).',
+  '<b>Opción A recomendada:</b> mantenimiento 280 + repro 390 + EGR delete 115 + barra 130 = ≈ 915 € (rango 750-1.050 €). Económica: manguitos 39 + chapas 30 + barra 54 + repro 250 ≈ 650 €.',
+  '<b>Aviso:</b> con 23 años y 202.000 km, priorizar fiabilidad antes que potencia. EGR delete NO pasa ITV (quitar/reponer o tapones reversibles; guardar piezas originales).',
+  '<a href="https://www.br-performance.com/brp-barcelona/chiptuning/1-vehiculos/49-skoda/2764-octavia/2769-i-1997-2004/2774-1-9tdi" target="_blank">BR-Performance Octavia I Stage 1 — 390 € →</a>',
+  '<a href="https://www.amazon.es/FMIC-EU-PERFORMANCE-Intercooler-Volkswagen-negro/dp/B0GLPSHRNZ" target="_blank">FMIC kit Golf 4/Octavia — 245 € →</a>'
+ ]},
+{t:'⚡ Homologación de modificaciones (RD 866/2010)', s:'Qué necesita homologación en España, cuánto cuesta y qué es legal sin papeleo — para el plan de estética completo.',
+ b:[
+  '<b>Regla general:</b> toda reforma "de importancia" (cambia ficha técnica) obliga a proyecto técnico + informe de conformidad + inspección ITV en 15 días + anotación en ficha.',
+  '<b>Costes:</b> proyecto ingeniero 300-800 € · empresas especializadas (alerones/kits) DESDE 150 € (proyecto en 24-48 h online) · tasa ITV reforma 9-150 € → <b>total realista reforma carrocería simple: 180-350 €</b>.',
+  '<b>Sin homologar = riesgo:</b> multa hasta 500 €, ITV desfavorable, el seguro puede negarse a cubrir, posible inmovilización.',
+  '<b>Vinilo integral (color): ❌ NO es reforma</b> — solo notificar color a DGT (tasa 4.1 ≈ 8,67 €) + anotación ITV 12-30 €. Elegir color "normal" (gris/negro/azul); los efecto cambiante dan problemas.',
+  '<b>Alerón maletero: ✅ REQUIERE homologación</b> (reforma de importancia, cualquier material). Proceso: proyecto + cert. taller + factura + ITV ≈ 200-350 €. Experiencia real foro: documentación 150 € + taller 36 € = ~186 €. No debe tapar la 3ª luz de freno ni sobresalir.',
+  '<b>Atajo barato alerón:</b> alerón ORIGINAL de Octavia RS 1U (2001-04) / Golf IV / León — pieza original de la misma gama → certificado de taller + visto bueno fabricante, SIN proyecto → ~100-190 €.',
+  '<b>Llantas: ⚠️ depende de la medida.</b> Sin trámite si la medida ya figura en ficha (de serie 195/65R15, superiores 205/55R16, 225/45R17) o es equivalente (diámetro −2 % a +1,5 %, ancho máx +30 mm). Con trámite si cambia ancho/ET/la medida no consta → 150-300 €. Consejo: llantas VAG de otra versión (RS/Golf IV) → 0 € trámite.',
+  '<b>ET en ITV:</b> se comprueba el ancho de vías — llantas con ET muy distinto son la razón nº1 de rechazo.',
+  '<b>Faldones/lips: ✅ homologar</b> — agrupables con el alerón en un ÚNICO proyecto (desde ~150 € paquete + ITV) → 180-350 € todo junto.',
+  '<b>LED bajos (underglow): 🚫 NO homologable</b> — prohibido en circulación; multa 80-200 € (hasta 500 € si simula prioritarias); solo uso parado/eventos; retirar para ITV.',
+  '<b>Escape deportivo:</b> sin reforma si es recambio equivalente con marcado E (conservar docs) · reforma (~150-400 €) si sube ruido o elimina catalizador/silencioso · anular catalizador = PROHIBIDO · multa 200 €.',
+  '<b>Exentos (0 €):</b> barra de torretas del vano motor (¡no confundir con la antibalanceo del tren, esa sí es reforma!), pinzas pintadas (pintura alta temperatura), MAF Bosch equivalente (recambio).',
+  '<b>Empresas baratas homologación:</b> HomologaTOTAL 150 € (48 h online) · IMB Homologaciones 150-800 € · Ingenaga ~100-150 € · ereformas.es (Applus) para tramitar online.',
+  '<b>Plan recomendado:</b> agrupar TODAS las reformas (alerón + lips) en un solo proyecto y pasar UNA inspección — el 1U 2001 tiene ITV anual.',
+  '<a href="https://www.race.es/el-tuning-y-su-homologacion-para-pasar-itv" target="_blank">RACE: ITV y tuning — qué reformas homologar →</a>'
+ ]},
+{t:'🛞 Llantas 17" y suspensión OEM', s:'Medida máxima legal SIN homologar, precios exactos verificados (28/08/2026) de llantas y amortiguadores.',
+ b:[
+  '<b>Única 17" legal sin homologar:</b> 225/45R17 sobre 7Jx17 ET38, 5x100, buje 57,1 → diámetro 634,3 mm = −0,03 % vs 195/65R15 (dentro de ±3 % ITV). Es la medida de fábrica del Octavia 1U RS.',
+  '<b>ET legal: 38</b> (rango de fábrica 36-40). Anchura máx. 7J (7,5J = reforma). ⚠️ NO usar 205/40R17 (−6,1 %) ni 215/45R17 (−1,45 %, no es medida de fábrica) sin proyecto.',
+  '<b>Amortiguadores Autodoc (28/08):</b> Bilstein B4 del. 44,99 €/ud + tras. 33,99 €/ud → 4 uds = 157,96 € · Sachs tras. 32,49 € · Monroe del. 40,99 / tras. 28,99 · KYB Excel-G 35-45 €.',
+  '<b>Muelles:</b> Sachs 37,99 €/ud · Bilstein B3 31,99 €/ud · KYB K-Flex 23,99 €/ud.',
+  '<b>Kit completo 4 amortiguadores + 4 muelles ≈ 286-300 €</b> (Bilstein ≈ 286 € · Sachs ≈ 300 € · Monroe ≈ 285 €) — mejor relación: Bilstein B4 (gama premium al precio de gama media).',
+  '<b>Homologación suspensión: NO</b> si es recambio equivalente de calidad original (misma altura, misma geometría). SÍ es reforma: bajar altura (muelles rebajados), kits deportivos JOM 315 € / H&R 482 € / KONI 828 € / Eibach B12 832 €.',
+  '<b>Precio exacto capturado (JS, ladnefelgi.pl 28/08):</b> RacingLine SK516 17x7 ET40 5x100 buje 57,1 = 152,26 €/ud · 609,02 €/juego — diseño licenciado Škoda, la más barata en talla OEM exacta.',
+  '<b>OZ Rally Racing 7x17 ET35:</b> 451 €/ud Norauto (~1.400-1.800 € juego) — ET35 fuera de rango OE 36-40 (pasa si no roza ni sobresale).',
+  '<b>MAK Union 7x17 ET38 antracita:</b> 227,99 €/ud · 852,76 €/juego · MAK Zenith 7x17 ET35 negro: 210,99 €/ud · 790,96 €/juego (buje 72 → anillos 72→57,1, 5-10 €).',
+  '<b>BBS CH original: DESCARTADO</b> — ya no se fabrica. Réplica o 2ª mano 400-700 € (referencias 18" vistas 669-898 € Milanuncios).',
+  '<b>Genéricas económicas:</b> llantas 17" 5x100 desde 119 €/ud en Oponeo (237 modelos).',
+  '<b>RacingLine R360 NO sirve:</b> solo fabrica 19x8.5 ET44 5x112 (1.504 €/juego) — medida MQB, no 1U.',
+  '<a href="https://www.oponeo.es/llantas-aluminio/17/5x100-00" target="_blank">Catálogo 17" 5x100 — Oponeo (desde 119 €/ud) →</a>',
+  '<a href="https://www.autodoc.es/repuestos/amortiguadores-10048/skoda/octavia/octavia-1u2/7909-1-9-tdi" target="_blank">Amortiguadores Octavia 1U — Autodoc.es →</a>'
+ ]},
+{t:'📊 Mercado segunda mano — ¿preparar o cambiar?', s:'Análisis real de ofertas (27/08/2026): el Octavia 2001 sin etiqueta DGT vs coches 2006-2013 con etiqueta B por el mismo presupuesto.',
+ b:[
+  '<b>El Octavia 1.9 TDI 2001 NO tiene etiqueta DGT</b> — si Valls/Tarragona o Barcelona imponen ZBE, no podrá entrar. Es el argumento más fuerte contra invertir 5.000 €.',
+  '<b>Opción A — preparar el Skoda (2.500-5.000 €):</b> repro 250-400 € + embrague reforzado 700-1.000 € + suspensión 500-800 € + llantas+neumáticos 600-1.200 € + estética 500-1.500 € + mantenimiento preventivo 500-1.500 € → coche de ~140 CV valorado en 2.000-3.500 €.',
+  '<b>Opción B — cambiar (~6.000 €):</b> coche 2006-2013 con etiqueta B/C, <200.000 km, 5 puertas, garantía 1 año en profesionales = mejor punto de partida para potencia Y estética.',
+  '<b>Top ofertas verificadas:</b> Seat León 1.9 TDI 105 5p 2006 170.000 km 5.990 € (Canovelles, Barcelona — a 1 h de Valls) · Ford Focus 1.6 TDCi 115 Titanium 2012 122.000 km 7.990 € (Zaragoza, garantía 12 meses) · Opel Astra 1.7 CDTi 110 Excellence ST 2013 135.269 km 5.999 € (Sevilla).',
+  '<b>Económicas 3.250-5.000 €:</b> Ford Focus 1.6 TDCi Trend 2006 3.500 € · Opel Astra 1.7 CDTi Excellence ST 2014 3.250 € (revisar estado) · Seat León 1.9 TDI 2008 3.200 € (250.000 km, negociar).',
+  '<b>Veredicto del informe: CAMBIAR.</b> Por 6.000 € se consigue la misma mecánica 1.9 TDI (León/Golf V) 5-10 años más joven, con etiqueta B y stage 1 barato (+40 CV por ~300 €).',
+  '<b>¿Cuándo tiene sentido preparar el Skoda?</b> Solo si presupuesto estricto de 2.000-3.000 € y sin intención de entrar en ZBE: repro + embrague + mantenimiento mínimo <2.500 €.',
+  '<b>Modelos objetivo por orden:</b> 1) León 1.9 TDI (2006-09) 2) Focus 1.6 TDCi 115 (2011-13) 3) Astra 1.7 CDTi 110 (2009-13) 4) Mégane 1.5 dCi 105 (2010).',
+  '<b>Antes de pagar:</b> informe DGT etiqueta + ITV en vigor + km certificados + factura/garantía por escrito si es profesional. Presupuesto total: 5.500-8.000 € compra + 300 € repro + 400 € trámites = dentro de los 10.000 €.',
+  '<b>Puntos a favor del 1.9 TDI:</b> motor irrompible y barato de mantener; 202.000 km es poco para esta mecánica. En contra: 25 años, óxido, plásticos, y el dinero invertido no se recupera al vender.',
+  '<a href="https://www.coches.net/seat/leon/segunda-mano/8000_euros" target="_blank">Seat León < 8.000 € — coches.net →</a>',
+  '<a href="https://www.coches.net/volkswagen/golf/segunda-mano/8000_euros" target="_blank">Golf TDI < 8.000 € — coches.net →</a>'
+ ]},
+{t:'🗂️ Datos exactos del vehículo', s:'Extraídos de fotos reales (28/08/2026) — fuente primaria: pegatina service + VIN del parabrisas.',
+ b:[
+  '<b>VIN:</b> TMBCG11UX12485317 (parabrisas y pegatina 04-2-6013) · <b>TYP:</b> 1U2 274 · <b>Modelo:</b> OCTAVIA SEDAN AMBI (liftback 5p).',
+  '<b>Motor:</b> ALH 1.9 TDI VE · 66 kW = 90 CV REALES (105 anotado a mano, falso) · <b>Caja:</b> EGR 5 velocidades manual (código GETR).',
+  '<b>Pintura real:</b> 9102 (LACKNR/INNENAUSST) — NO 9154. Es Silver/Steel Grey familia 9102; verificar con ETKA y comprar botes 9102/LA7N en Autodoc/VerniciSpray.',
+  '<b>Matrícula:</b> 8748 BSX · <b>Entrega:</b> 21/02/2002 · <b>Servicio oficial:</b> Car Fórmula D S.L., Viladomat 149-151, 08015 Barcelona · <b>Primer propietario:</b> Joaquim Ibañez Herrada (Nou de la Rambla 19, Barcelona).',
+  '<b>Manguitos documentados (fotos):</b> 1J0 129 684 (degradado) + manguito EPDM 15692 T1 deshilachado → confirma la degradación citada a 202.000 km y el diagnóstico de fuga.',
+  '<b>Electroválvula:</b> 1J0 906 627 A (foto sobre colector) — N18 EGR / N75 según posición, pieza común del circuito de vacío.',
+  '<b>Bomba de vacío:</b> LUK VAPEC 14S (038 145 101 B) + tapa 038 103 469 E/F — revisar sus manguitos con la sustitución de los de vacío 3/5 mm.',
+  '<b>Audio actual:</b> woofer MACROM PG 5.0 2-way coaxial 13 cm 100W 4Ω + tweeter 1U0 035 411 B — el tweeter está despegado (repegar con silicona).',
+  '<b>Códigos opción (M-AUSST):</b> 44 códigos entre los que destacan E0A, 1AC, 7AA, L20, GQ1 — útil para pedir piezas por VIN en Autodoc.',
+  '<b>Estado documentado:</b> manguito EPDM deshilachado, clip de puerta roto (1U0 867 260 D/C), tweeter despegado, cinta aislante en cable — pequeñas reparaciones pendientes.',
+  '<b>Para piezas:</b> usar el VIN en Autodoc.es → filtro Octavia 1U2 1.9 TDI 66 kW ALH cruza llanta + neumático + faro + recambios exactos.'
+ ]},
+{t:'🛒 Catálogo exterior — 27 links verificados 200', s:'Todos los links verificados con curl HTTP 200 el 28-08-2026 (se descartaron 404/403). Precios con IVA, vistos en fecha.',
+ b:[
+  '<b>Vinilo 3M 2080:</b> HG12 Gloss Black 28-35 €/m (rollo 25 m ≈ 700-843 €) · S12 Satin Black 28-35 €/m · M206 Matte Pine Green 32-38 €/m · Camaleón Púrpura 30,06 €/m (rollo 1.008 €) · <a href="https://vinilatucoche.com/catalogo/wrapping-film-3m-serie-1080-y-2080" target="_blank">catálogo 2080 desde 25,14 €/m →</a>',
+  '<b>Nardo Grey CARLIKE CL-SJ-10</b> (1,52×18 m): $199,99 ≈ 185 €/rollo — look Audi RS.',
+  '<b>Llantas 17" 5x100:</b> RacingLine SK516 609,02 €/juego (LadneFelgi) · BBS CH réplica/2ª mano 400-700 € (Milanuncios/Wallapop) · OZ Rally 451 €/ud (Norauto, ⚠️ 403 anti-bot, abrir en navegador) · MAK Union 227,99 €/ud (Velonity) · oponeo.es desde 119 €/ud.',
+  '<b>Alerones:</b> Sculptor lip splitter Octavia I (2 piezas ABS) 80,00 € exacto · CSR HL093 lip trasero con TÜV 307 € (espejo 200 CarParts-Expert · catálogo alerones 1U 150-400 €) · aliexpress ducktail 30-80 € y RS 60-150 €.',
+  '<b>Faros:</b> DEPO/Sonar crystal 80-160 € juego · Angel Eyes 90-180 € · LED 100-200 € (espejo 200: CarHifi, aliexpress búsquedas).',
+  '<b>Tintado:</b> <a href="https://www.race.es/tintar-lunas-precio-cristales-coche" target="_blank">normativa RACE →</a> lámina homologada precortada 40-60 € DIY · 80-150 € taller · SOLO traseras (delanteras/parabrisas prohibido; multa hasta 200 €).',
+  '<b>Barra torretas PQ34:</b> 60-120 € aliexpress (reforma chasis si se declara 100-300 €; atornillada sin taladrar suele pasar) · canards 15-35 € · side skirts 40-90 €.',
+  '<b>Extras Stage 1:</b> FMIC Arlows 60mm +40% superficie 279 € · Gravity FMIC 1U kit completo £274,99 ≈ 320 € · kit manguitos silicona 4 capas ~50 €.',
+  '<b>Maxton NO fabrica para 1U</b> (verificado en su catálogo: solo Mk2/Mk3/Mk4) — alternativa universal o CSR con TÜV.',
+  '<b>Homologación recordatorio:</b> 225/45R17 7Jx17 ET36-40 en ficha = sin reforma. Faros: solo con marcado E/CE misma tensión → sin proyecto.',
+  '<a href="https://es.aliexpress.com/w/wholesale-spoiler-skoda-octavia.html" target="_blank">Alerones Octavia — AliExpress →</a> · <a href="https://www.aliexpress.com/w/wholesale-angel-eyes-skoda-octavia.html" target="_blank">Angel Eyes — AliExpress →</a>',
+  '<a href="https://sculptortuning.com/product/skoda-octavia-i-lip-splitter-spoiler" target="_blank">Lip splitter Octavia I — 80,00 € (Sculptor Tuning) →</a>'
+ ]},
+{t:'🛒 Catálogos grandes — tiendas ofertazas', s:'Las 4-5 mejores tiendas por categoría con filtro Octavia 1U / 5x100 / 225-45R17, verificadas curl 28-08-2026.',
+ b:[
+  '<b>✅ Oponeo.es — el comparador grande SIN anti-bot:</b> +6.000 refs en 225/45R17 desde ~65 €/ud · >200 llantas 17" 5x100 desde 119 €/ud con filtro ET35/38/40 · envío 24-48 h.',
+  '<b>✅ LadneFelgi.pl — ET40 perfecto:</b> RacingLine SK516 7x17 ET40 5x100 57,1 a 609,02 €/juego cerrado, sin anillos, envío PL→ES (+IVA ES vía OSS ±2 %).',
+  '<b>✅ Velonity.es — distribuidor MAK España:</b> configurador por coche, MAK Union ET38 57,1 a 852,76 €/juego (227,99 €/ud).',
+  '<b>✅ CarParts-Expert — alerones 1U:</b> catálogo enorme filtrado Octavia I con/sin TÜV 150-400 € (espejo del CSR HL093 307 €).',
+  '<b>✅ CarHifi.eu — faros Angel Eyes:</b> stock Sonar/DEPO/FK con envío EU (espejo de FK Automotive, bloqueado por Cloudflare).',
+  '<b>✅ Vinilatucoche.com / SIRVisual / Metrorestyling:</b> catálogo 3M 2080 completo desde 25,14 €/m (SIRVisual es distribuidor oficial 3M España).',
+  '<b>⚠️ 403 anti-bot pero existen (abrir en navegador):</b> Autodoc (neumáticos/llantas/faros, cupones −15/25 %) · Neumaticos-online.es (Delticom, mismo stock que Tirendo) · FK Automotive.',
+  '<b>Espejos 200 para navegar sin bloqueo:</b> neumáticos → Oponeo 225/45R17 · llantas → Oponeo+Velonity · faros → CarHifi · alerones → CarParts-Expert · vinilos → Vinilatucoche.',
+  '<a href="https://www.oponeo.es/neumaticos/225-45-r17" target="_blank">Neumáticos 225/45R17 — Oponeo (desde ~65 €/ud) →</a>',
+  '<a href="https://www.oponeo.es/llantas-aluminio/17/5x100-00" target="_blank">Llantas 17" 5x100 — Oponeo →</a> · <a href="https://www.carhifi.eu/search?sSearch=angel+eyes+octavia" target="_blank">Angel Eyes — CarHifi →</a>'
+ ]},
 ];
-INFORMES.forEach(inf=>{
-  const d=document.createElement('details');
-  d.className='card p-4 group';
-  d.innerHTML=`<summary class="cursor-pointer font-bold text-[14px] list-none flex items-center justify-between">${inf.t}<i class="ph ph-caret-down transition group-open:rotate-180"></i></summary><p class="text-[13px] muted mt-2 leading-relaxed">${inf.s}</p>`;
-  document.getElementById('informesAccordion').appendChild(d);
-});
-
-// ===== COMPRAS TABLE =====
-const COMPRAS=[
-  ['🛞 Llantas BBS CH 17"','RacingLine','609€','✓ 5x100 ET35 1U','https://www.aliexpress.com/wholesale?SearchText=skoda+octavia+1u+rims'],
-  ['🛞 Llantas OZ Racing 17"','OZ','780€','✓ (homologadas)','https://www.aliexpress.com/wholesale?SearchText=oz+racing+16+4x100'],
-  ['🛞 Réplica Mesh 18"','AliExpress','350-450€','✗ necesita conversión frenos','https://www.aliexpress.com/wholesale?SearchText=mesh+wheels+18'],
-  ['💡 Angel Eyes','AliExpress','130€','✓ plug&play','https://www.aliexpress.com/wholesale?SearchText=angel+eyes+headlight'],
-  ['💡 Faros Crystal','AliExpress','85€','✓ con E-mark','https://www.aliexpress.com/wholesale?SearchText=skoda+octavia+1u+headlight'],
-  ['🪶 Ducktail lip','AliExpress','35-60€','✓','https://www.aliexpress.com/wholesale?SearchText=skoda+octavia+1u+ducktail'],
-  ['🪶 Spoiler RS','AliExpress','70-120€','✓','https://www.aliexpress.com/wholesale?SearchText=skoda+octavia+spoiler'],
-  ['🪟 Tintado 50/80%','Taller local','100-180€','50% traseras legal','https://www.aliexpress.com/wholesale?SearchText=window+tint'],
-  ['🎨 Vinilo / Wrap','Taller','400-800€','✓','https://www.aliexpress.com/wholesale?SearchText=car+wrap+vinyl'],
-  ['🛗 Suspensión CSR','CSR','307€','-30mm ✓ / -60mm ✗ 18"','https://www.aliexpress.com/wholesale?SearchText=skoda+octavia+lowering+springs'],
-  ['🔩 Neumáticos 205/50R17','Micheline/Debica','260€(4)','✓','https://www.aliexpress.com/wholesale?SearchText=tires+205+50+r17'],
-  ['🚗 Manguitos silicona','HG12/Samco','35€/m','✓ refuerzo 90CV+','https://www.aliexpress.com/wholesale?SearchText=silicone+hose+kit'],
-];
-document.getElementById('comprasTable').innerHTML=COMPRAS.map(c=>
-  `<tr class="border-b" style="border-color:var(--border)"><td class="p-3 font-semibold">${c[0]}</td><td class="p-3 muted">${c[1]}</td><td class="p-3 font-black">${c[2]}</td><td class="p-3 ${c[3].startsWith('✗')?'compat-no':'compat-ok'}">${c[3]}</td><td class="p-3"><a href="${c[4]}" target="_blank" class="px-3 py-1 rounded-full text-[11px] font-bold" style="background:var(--accent);color:#0F172A">Ver <i class="ph ph-arrow-up-right"></i></a></td></tr>`
+document.getElementById('informesAccordion').innerHTML=INFORMES.map(inf=>
+  `<details class="card p-4 group fade-in"><summary class="cursor-pointer font-bold text-[14px] list-none flex items-center justify-between gap-2">${inf.t}<i class="ph ph-caret-down transition group-open:rotate-180"></i></summary>
+  <p class="text-[12px] muted mt-1.5 mb-2">${inf.s}</p>
+  <ul class="space-y-1.5">${inf.b.map(x=>`<li class="text-[12.5px] leading-relaxed pl-4 relative" style="color:var(--text)"><span class="absolute left-0 top-[7px] w-1.5 h-1.5 rounded-full" style="background:var(--accent)"></span>${x}</li>`).join('')}</ul></details>`
 ).join('');
+
+// ===== CATÁLOGO COMPRAS (grande) =====
+const CATALOGO=[
+ // ── LLANTAS (5x100 para Octavia 1U) ──
+ {n:'BBS CH 17" Réplica (look CH)', cat:'LANTAS', marca:'BBS', p:'609 €', c:'✓ 5x100 ET38 · buje 57,1 (anillos si 72) · réplica, original descatalogado', cfg:'bbs', u:'https://www.oponeo.es/llantas-aluminio/17/5x100-00'},
+ {n:'OZ Racing Superturismo 17" 5x100 (juego)', cat:'LANTAS', marca:'OZ', p:'780 €', c:'✓ 5x100 ET35 · homologadas OZ', cfg:'oz', u:'https://www.oponeo.es/llantas-aluminio/17/5x100-00'},
+ {n:'OZ Rally Racing 7x17 ET35 nueva', cat:'LANTAS', marca:'OZ', p:'451 €/ud · 1.400-1.800 €', c:'⚠️ ET35 fuera de rango OE 36-40 (pasa si no roza ni sobresale)', u:'https://www.norauto.es/p/llanta-de-aluminio-oz-rally-racing-7x17-5x100-et35-letra-blanca-roja-2180004.html'},
+ {n:'Réplica multirradio 17" 5x100', cat:'LANTAS', marca:'Genérica', p:'350-450 €', c:'✓ 5x100 ET35/38 · sin TÜV → equivalencia Applus 50-100 € si no consta en ficha', u:'https://es.aliexpress.com/w/wholesale-llantas-17-5x100.html'},
+ {n:'RacingLine SK516 17x7 ET40 (licencia Škoda)', cat:'LANTAS', marca:'RacingLine', p:'609,02 €', c:'✓ ET40 OEM (rango 36-40) · buje 57,1 directo · la más barata en talla exacta', u:'https://www.ladnefelgi.pl/product-spa-66855-4x-llantas-17-5x100-entre-otras-cosas-a-SKODA-Fabia-Octavia-I-Polo-5-6-GTI-Kamiq-VW-Golf-IV-SK516-BK5278.html'},
+ {n:'MAK Union 7x17 ET38 antracita', cat:'LANTAS', marca:'MAK', p:'852,76 € (227,99/ud)', c:'✓ 5x100 ET38 · buje 57,1 directo · alternativa OEM perfecta', u:'https://velonity.es/17-pulgada-mak-llantasdealuminio'},
+ {n:'MAK Zenith 7x17 ET35 negro 5 radios', cat:'LANTAS', marca:'MAK', p:'790,96 € (210,99/ud)', c:'⚠️ ET35 + buje 72 → anillos 72→57,1 (5-10 €)', u:'https://www.oponeo.es/llantas-aluminio/17/5x100-00'},
+ {n:'MSW 48 7x17 ET35 5x100', cat:'LANTAS', marca:'MSW', p:'340-420 €', c:'✓ 5x100 ET35 · 5 radios deportivas', u:'https://www.oponeo.es/llantas-aluminio/17/5x100-00'},
+ {n:'MSW 58 16" 5x100 (comodidad)', cat:'LANTAS', marca:'MSW', p:'280-360 €', c:'✓ 5x100 ET38 · monta 205/55R16, sin reforma', u:'https://www.oponeo.es/llantas-aluminio/16/5x100-00'},
+ {n:'Borbet A 7x17 ET38 5x100', cat:'LANTAS', marca:'Borbet', p:'420-530 €', c:'✓ 5x100 ET38 · clásico alemán, con TÜV', u:'https://www.oponeo.es/llantas-aluminio/17/5x100-00'},
+ {n:'Borbet CW2 17" 5x100', cat:'LANTAS', marca:'Borbet', p:'550-700 €', c:'✓ 5x100 ET38', u:'https://www.oponeo.es/llantas-aluminio/17/5x100-00'},
+ {n:'Rial Monza 7x17 ET35 5x100', cat:'LANTAS', marca:'Rial', p:'450-600 €', c:'✓ 5x100 ET35 · A3/Golf4 fit', u:'https://www.oponeo.es/llantas-aluminio/17/5x100-00'},
+ {n:'Rial Lugano 17" 5x100', cat:'LANTAS', marca:'Rial', p:'480-620 €', c:'✓ 5x100 ET38 · multirradio', u:'https://www.oponeo.es/llantas-aluminio/17/5x100-00'},
+ {n:'Rial Genova 17" 5x100', cat:'LANTAS', marca:'Rial', p:'480-650 €', c:'✓ 5x100 ET35', u:'https://www.oponeo.es/llantas-aluminio/17/5x100-00'},
+ {n:'Momo Revenge 17" 5x100', cat:'LANTAS', marca:'Momo', p:'380-500 €', c:'✓ 5x100 ET35·38', u:'https://www.oponeo.es/llantas-aluminio/17/5x100-00'},
+ {n:'Sparco Assetto Gara 7x17 ET35 5x100', cat:'LANTAS', marca:'Sparco', p:'400-550 €', c:'✓ 5x100 ET35 · clásico de pista', u:'https://www.oponeo.es/llantas-aluminio/17/5x100-00'},
+ {n:'Sparco Crono 17" 5x112', cat:'LANTAS', marca:'Sparco', p:'450-600 €', c:'✗ 5x112 (MQB) — NO compatible con el 1U', u:'https://www.oponeo.es/llantas-aluminio/17/5x112-00'},
+ {n:'Alutec Ikenu 7x17 ET38 5x100', cat:'LANTAS', marca:'Alutec', p:'380-480 €', c:'✓ 5x100 ET38 · 10 radios', u:'https://www.oponeo.es/llantas-aluminio/17/5x100-00'},
+ {n:'Alutec Gras 17" ET45 5x100', cat:'LANTAS', marca:'Alutec', p:'400-520 €', c:'✓ 5x100 ET45 · pasa si no roza (ET ficha 36-40 ±)', u:'https://www.oponeo.es/llantas-aluminio/17/5x100-00'},
+ {n:'Debest 17" 5x100 ET38', cat:'LANTAS', marca:'Debest', p:'300-420 €', c:'✓ 5x100 ET38 · económica, con TÜV', u:'https://www.oponeo.es/llantas-aluminio/17/5x100-00'},
+ {n:'TSW Nurburgring 17x7 5x100', cat:'LANTAS', marca:'TSW', p:'380-450 €', c:'✓ 5x100 ET35 · 5 radios racing', u:'https://www.oponeo.es/llantas-aluminio/17/5x100-00'},
+ {n:'TSW Valencia 17" 5x114.3', cat:'LANTAS', marca:'TSW', p:'350-430 €', c:'✗ 5x114.3 (JDM) — NO compatible; necesita 5x100', u:'https://www.oponeo.es/llantas-aluminio/17/5x114-00'},
+ {n:'BBS RX 16" 5x100 (clásico)', cat:'LANTAS', marca:'BBS', p:'450-650 €', c:'✓ 5x100 ET38 · 16" monta 205/55R16 sin reforma', u:'https://es.aliexpress.com/w/wholesale-bbs-rx-16-5x100.html'},
+ {n:'BBS CK 17" 2ª mano (descat.)', cat:'LANTAS', marca:'BBS', p:'500-750 €', c:'✓ 5x100 ET38 · verificar estado y cónicas', u:'https://www.milanuncios.com/llantas-de-aleacion/bbs-ch-17.htm'},
+ {n:'OZ Chrono 17" 5x100', cat:'LANTAS', marca:'OZ', p:'600-800 €', c:'✓ 5x100 ET38', u:'https://www.oponeo.es/llantas-aluminio/17/5x100-00'},
+ {n:'5 Radios Bronce 17" (look flama)', cat:'LANTAS', marca:'Genérica', p:'390-490 €', c:'✓ 5x100 ET35 · y 225/45R17', cfg:'bronce', u:'https://es.aliexpress.com/w/wholesale-llantas-17-5x100.html'},
+ {n:'Mesh Negro 18" réplica', cat:'LANTAS', marca:'Genérica', p:'450-650 €', c:'✗ 18" roza con MUY baja; requiere conversión frenos 280mm (drum traseros)', cfg:'mesh', u:'https://es.aliexpress.com/w/wholesale-mesh-wheels-18-5x100.html'},
+ {n:'Originales 15" 6Jx15 ET38 (de fábrica)', cat:'LANTAS', marca:'Skoda/VAG', p:'0-150 € (pulido/pintado)', c:'✓ medida de serie · 195/65R15 · sin trámite', cfg:'original', u:'https://www.wallapop.com/app/search?keywords=llantas+5x100+15&category_ids=100'},
+ // ── ALERONES ──
+ {n:'Ducktail universal ABS', cat:'ALERONES', marca:'Universal', p:'35-60 €', c:'✓ 1U · lip maletero, cinta 3M · homologar con alerón (agrupado 150-350 €)', u:'https://es.aliexpress.com/w/wholesale-ducktail-spoiler-universal.html'},
+ {n:'Spoiler RS Octavia 1U', cat:'ALERONES', marca:'Universal', p:'70-120 €', c:'✓ estilo RS · reforma carrocería (proyecto agrupado)', u:'https://www.aliexpress.com/w/wholesale-skoda-octavia-rs-spoiler.html'},
+ {n:'GT Wing universal 1,4 m', cat:'ALERONES', marca:'Universal', p:'150-300 €', c:'⚠️ sobresale/moda show — homologación difícil; no tapar 3ª luz', u:'https://es.aliexpress.com/w/wholesale-gt-wing-spoiler-universal.html'},
+ {n:'Lip splitter Škoda Octavia I (Sculptor)', cat:'ALERONES', marca:'Sculptor', p:'80,00 €', c:'✓ específico 1U 96-04 · 2 piezas ABS + cinta 3M · look VRS', u:'https://sculptortuning.com/product/skoda-octavia-i-lip-splitter-spoiler'},
+ {n:'CSR HL093 lip trasero TÜV Octavia I', cat:'ALERONES', marca:'CSR Automotive', p:'307 €', c:'✓ con certificado TÜV incluido · ABS · envío gratis península', u:'https://www.carparts-expert.com/es/exterior/alerones-techo-maletero/skoda/octavia-i-1u.html'},
+ {n:'Alerón maletero Octavia I 1U (catálogo CPE)', cat:'ALERONES', marca:'Varios', p:'150-400 €', c:'✓ varios con/sin TÜV · filtro 1U exacto', u:'https://www.carparts-expert.com/es/exterior/alerones-techo-maletero/skoda/octavia-i-1u.html'},
+ {n:'Alerón original Skoda Octavia RS (2ª mano)', cat:'ALERONES', marca:'Skoda', p:'100-190 €', c:'✓ pieza original misma gama → cert. taller, SIN proyecto (~186 € total real)', u:'https://www.wallapop.com/app/search?keywords=aleron+skoda+octavia+rs&category_ids=100'},
+ {n:'Front splitter universal (Maxton-style)', cat:'ALERONES', marca:'Universal', p:'25-70 €', c:'✓ ABS · reforma carrocería si sobresale', u:'https://es.aliexpress.com/w/wholesale-front-splitter-universal.html'},
+ {n:'Lip frontal 5 piezas seccional', cat:'ALERONES', marca:'Universal', p:'15-25 €', c:'✓ ajustable · cinta 3M', u:'https://he.aliexpress.com/item/1005011918069841.html'},
+ {n:'Canards universal (4 piezas)', cat:'ALERONES', marca:'Universal', p:'15-35 €', c:'✓ ABS negro br./carbono · pasa si no sobresale', u:'https://es.aliexpress.com/w/wholesale-universal-canards-car.html'},
+ {n:'Side skirts / faldones universal', cat:'ALERONES', marca:'Universal', p:'40-90 €', c:'✓ juego · homologar agrupado con alerón', u:'https://es.aliexpress.com/w/wholesale-side-skirts-universal.html'},
+ {n:'Barra torretas PQ34 (Golf4/León/1U)', cat:'ALERONES', marca:'Ultra Racing', p:'60-130 €', c:'✓ EXENTA de homologación (vano motor) · mejora rigidez', u:'https://es.aliexpress.com/w/wholesale-strut-bar-skoda-octavia.html'},
+ // ── FAROS ──
+ {n:'Faros Crystal DEPO Octavia 1U', cat:'FAROS', marca:'DEPO', p:'85 €', c:'✓ completo plug&play · E-mark → sin proyecto', u:'https://www.aliexpress.com/w/wholesale-projector-headlights-for-skoda-octavia.html'},
+ {n:'Angel Eyes Octavia 1U', cat:'FAROS', marca:'Sonar/FK', p:'130 €', c:'✓ plug&play · E-mark H4/H7', u:'https://www.aliexpress.com/w/wholesale-angel-eyes-skoda-octavia.html'},
+ {n:'Angel Eyes projector H4/H7 (gama)', cat:'FAROS', marca:'Varios', p:'90-180 €', c:'✓ con marcado E · misma tensión/tipo = sin proyecto', u:'https://www.carhifi.eu/search?sSearch=angel+eyes+octavia'},
+ {n:'Faros Black Line (smoked)', cat:'FAROS', marca:'DEPO/Sonar', p:'90-140 €', c:'✓ fondo negro · E-mark', u:'https://www.aliexpress.com/w/wholesale-projector-headlights-for-skoda-octavia.html'},
+ {n:'Faros LED projector Octavia', cat:'FAROS', marca:'Genérica', p:'100-200 €', c:'⚠️ solo si marcado E/CE; sin E → homologación 150-400 €', u:'https://www.aliexpress.com/w/wholesale-led-headlights-skoda-octavia.html'},
+ {n:'Faros 2ª mano Wallapop', cat:'FAROS', marca:'Varios', p:'50-150 €', c:'✓ ahorro · comprobar E-mark y fijaciones', u:'https://www.wallapop.com/app/search?keywords=faros+skoda+octavia&category_ids=100'},
+ {n:'Antiniebla delanteros crystal', cat:'FAROS', marca:'DEPO', p:'30-60 €', c:'✓ plug&play 1U', u:'https://es.aliexpress.com/w/wholesale-skoda-octavia-fog-lights.html'},
+ {n:'Pilot traseros crystal/smoked', cat:'FAROS', marca:'DEPO', p:'60-100 €', c:'✓ E-mark · LED opcional', u:'https://es.aliexpress.com/w/wholesale-skoda-octavia-taillights.html'},
+ {n:'Bombillas H4 LED (sin deslumbramiento)', cat:'FAROS', marca:'Philips/Osram', p:'20-40 €', c:'⚠️ en faro no proyectado puede deslumbrar → ITV', u:'https://www.amazon.es/s?k=bombilla+h4+led+coche'},
+ {n:'Intermitentes cristal transparente', cat:'FAROS', marca:'Genérica', p:'25-40 €', c:'✓ E-mark', u:'https://es.aliexpress.com/w/wholesale-skoda-octavia-indicator-clear.html'},
+ {n:'Kit faros completos DEPO (frontal+pilot)', cat:'FAROS', marca:'DEPO', p:'130-230 €', c:'✓ todo E-mark · renovar look completo', u:'https://www.aliexpress.com/w/wholesale-projector-headlights-for-skoda-octavia.html'},
+ // ── TINTADO ──
+ {n:'Lámina tintada homologada precortada', cat:'TINTADO', marca:'Genérica', p:'40-60 €', c:'✓ SOLO traseras (delanteras/parabrisas prohibido) · lámina con sello', u:'https://www.aliexpress.com/w/wholesale-car-window-tint-film.html'},
+ {n:'Tintado 50% completo taller', cat:'TINTADO', marca:'Taller', p:'100-180 €', c:'✓ traseras legal con 2 retrovisores exteriores · certificado + sello cristal', u:'https://www.race.es/tintar-lunas-precio-cristales-coche'},
+ {n:'Tintado 80% solo traseras', cat:'TINTADO', marca:'Taller', p:'120-180 €', c:'⚠️ 80% solo traseras por normativa · multa hasta 200 € si delanteras', u:'https://www.race.es/tintar-lunas-precio-cristales-coche'},
+ {n:'Lámina tintada universal DIY', cat:'TINTADO', marca:'Genérica', p:'15-40 €', c:'✓ rollo universal · instalación manual difícil', u:'https://www.aliexpress.com/w/wholesale-tinted-window-film-car.html'},
+ {n:'Film cerámico premium (calor UV)', cat:'TINTADO', marca:'Genérica', p:'140-180 €', c:'✓ mejor aislamiento térmico · mismo marco legal', u:'https://es.aliexpress.com/w/wholesale-ceramic-window-tint-film.html'},
+ // ── VINILOS / WRAP (wrap completo instalado o rollo) ──
+ {n:'Wrap negro brillo 3M 2080-HG12', cat:'VINILOS', marca:'3M', p:'450-750 €', c:'✓ no reforma (notificar color DGT 8,67 € si integral) · techo/capó contraste', u:'https://www.amazon.es/s?k=3M+2080+HG12'},
+ {n:'Wrap negro satinado 3M 2080-S12', cat:'VINILOS', marca:'3M', p:'450-750 €', c:'✓ full wrap stealth · 28-35 €/m', u:'https://www.sirvisual.com/esp/3m-wrap-film-serie-2080/3m-wrap-film-2080s12-satin-black!0-8432'},
+ {n:'Wrap verde bosque mate 3M M206', cat:'VINILOS', marca:'3M', p:'500-800 €', c:'✓ Matte Pine Green · 32-38 €/m', u:'https://metrorestyling.com/products/3m-2080-matte-pine-green-metallic-vinyl-wrap-m206'},
+ {n:'Wrap púrpura camaleón 3M GP282', cat:'VINILOS', marca:'3M', p:'550-850 €', c:'⚠️ color cambiante → posible problema ITV/DGT (color no determinable)', u:'https://es.variance-auto.com/pel%C3%ADculas-de-corta-duraci%C3%B3n/cubierta-de-la-pel%C3%ADcula/Film-covering-3M-2080-effet-cameleon-violet'},
+ {n:'Wrap Nardo Gris CARLIKE (look RS)', cat:'VINILOS', marca:'CARLIKE', p:'550-850 €', c:'✓ Super Gloss Crystal Light Nardo Grey · 185 €/rollo 18m', u:'https://carlikewrap.com/es/products/super-gloss-crystal-light-nardo-grey'},
+ {n:'Wrap blanco perla', cat:'VINILOS', marca:'3M/Tecnocut', p:'500-800 €', c:'✓ perla satinado', u:'https://es.aliexpress.com/w/wholesale-white-pearl-vinyl-wrap.html'},
+ {n:'Wrap azul medianoche mate', cat:'VINILOS', marca:'3M/TeckWrap', p:'500-800 €', c:'✓ azul oscuro satinado', u:'https://es.aliexpress.com/w/wholesale-matte-dark-blue-vinyl-wrap.html'},
+ {n:'Wrap rojo torii brillo', cat:'VINILOS', marca:'3M', p:'500-800 €', c:'✓ rojo racing', u:'https://es.aliexpress.com/w/wholesale-red-gloss-vinyl-wrap.html'},
+ {n:'Wrap cromo espejo', cat:'VINILOS', marca:'Genérica', p:'600-900 €', c:'⚠️ cromo llamativo → atención ITV (reflejos); uso show', u:'https://es.aliexpress.com/w/wholesale-chrome-vinyl-wrap.html'},
+ {n:'Wrap iridiscente azul-violeta', cat:'VINILOS', marca:'Genérica', p:'550-900 €', c:'⚠️ color shift · color no determinable en ITV', u:'https://es.aliexpress.com/w/wholesale-color-shift-vinyl-wrap.html'},
+ {n:'Wrap verde menta mate', cat:'VINILOS', marca:'TeckWrap', p:'500-800 €', c:'✓ mint satinado', u:'https://es.aliexpress.com/w/wholesale-mint-green-vinyl-wrap.html'},
+ {n:'Wrap amarillo', cat:'VINILOS', marca:'Genérica', p:'450-750 €', c:'✓ amarillo brillo', u:'https://es.aliexpress.com/w/wholesale-yellow-vinyl-wrap-car.html'},
+ {n:'Wrap naranja', cat:'VINILOS', marca:'Genérica', p:'450-750 €', c:'✓ naranja brillo/mate', u:'https://es.aliexpress.com/w/wholesale-orange-vinyl-wrap-car.html'},
+ {n:'Wrap rosa', cat:'VINILOS', marca:'Genérica', p:'450-750 €', c:'✓ rosa brillo', u:'https://es.aliexpress.com/w/wholesale-pink-vinyl-wrap-car.html'},
+ {n:'Wrap fibra de carbono', cat:'VINILOS', marca:'3M/TeckWrap', p:'450-750 €', c:'✓ carbono 4D · techo/capó/espejos', u:'https://es.aliexpress.com/w/wholesale-carbon-fiber-vinyl-wrap.html'},
+ // ── SUSPENSIÓN ──
+ {n:'Muelles deportivos -30 mm JOM', cat:'SUSPENSION', marca:'JOM', p:'150-250 €', c:'⚠️ bajada -30mm = reforma (declarar ITV) · con 17" OK', u:'https://es.aliexpress.com/w/wholesale-skoda-octavia-lowering-springs.html'},
+ {n:'Kit muelles + amortiguadores JOM', cat:'SUSPENSION', marca:'JOM', p:'315 €', c:'⚠️ conjunto bajado · reforma + ITV', u:'https://es.aliexpress.com/w/wholesale-skoda-octavia-coilover-kit.html'},
+ {n:'Muelles deportivos H&R', cat:'SUSPENSION', marca:'H&R', p:'350-482 €', c:'⚠️ H&R con TÜV · anotación reforma', u:'https://www.amazon.es/s?k=muelles+h%26r+skoda+octavia'},
+ {n:'Kit Eibach B12 Pro-Kit', cat:'SUSPENSION', marca:'Eibach', p:'832 €', c:'⚠️ premium bajado · TÜV incluido', u:'https://www.amazon.es/s?k=eibach+b12+skoda+octavia'},
+ {n:'Kit deportivo KONI Sport', cat:'SUSPENSION', marca:'KONI', p:'828 €', c:'⚠️ ajustable · con TÜV', u:'https://www.amazon.es/s?k=koni+sport+skoda+octavia'},
+ {n:'Amortiguadores Bilstein B4 OE (4 uds)', cat:'SUSPENSION', marca:'Bilstein', p:'157,96 €', c:'✓ recambio equivalente = NO reforma · gama premium a precio medio', u:'https://www.autodoc.es/repuestos/amortiguadores-10048/skoda/octavia/octavia-1u2/7909-1-9-tdi'},
+ {n:'Muelles CSR -30 mm con TÜV', cat:'SUSPENSION', marca:'CSR Automotive', p:'307 €', c:'⚠️ incluye TÜV · anotación ITV posible', u:'https://www.carparts-expert.com/es/exterior/alerones-techo-maletero/skoda/octavia-i-1u.html'},
+ {n:'Coilovers JOM 30/40 ajustables', cat:'SUSPENSION', marca:'JOM', p:'400-550 €', c:'⚠️ cambio altura/geometría → reforma (proyecto + ITV)', u:'https://es.aliexpress.com/w/wholesale-coilovers-skoda-octavia.html'},
+ {n:'Coilovers KW Variant 2', cat:'SUSPENSION', marca:'KW', p:'800-900 €', c:'⚠️ premium ajustable · TÜV', u:'https://www.amazon.es/s?k=kw+coilovers+skoda+octavia'},
+ // ── NEUMÁTICOS ──
+ {n:'225/45R17 91W (medida RS 1U homologable)', cat:'NEUMATICOS', marca:'Varios', p:'desde 65 €', c:'✓ diámetro -0,03% vs serie · medida fábrica RS → sin reforma si consta en ficha', u:'https://www.oponeo.es/neumaticos/225-45-r17'},
+ {n:'195/65R15 88T (de serie)', cat:'NEUMATICOS', marca:'Varios', p:'45-70 €', c:'✓ medida de fábrica 6Jx15 ET38 · 634,5 mm', u:'https://www.oponeo.es/neumaticos/195-65-r15'},
+ {n:'205/55R16 (opción fábrica)', cat:'NEUMATICOS', marca:'Varios', p:'55-90 €', c:'✓ opción superior 1U · -0,41% · sin trámite', u:'https://www.oponeo.es/neumaticos/205-55-r16'},
+ {n:'205/50R17', cat:'NEUMATICOS', marca:'Varios', p:'60-95 €', c:'✓ diámetro +0,4% (equivalente ±3%) · para llanta 17" 5x100', u:'https://www.oponeo.es/neumaticos/205-50-r17'},
+ {n:'195/55R15', cat:'NEUMATICOS', marca:'Varios', p:'45-75 €', c:'✗ diámetro -6,1% vs serie → reforma/proyecto técnico', u:'https://www.oponeo.es/neumaticos/195-55-r15'},
+ {n:'215/45R17', cat:'NEUMATICOS', marca:'Varios', p:'65-100 €', c:'⚠️ -1,45% pero NO es medida de fábrica 1U → trámite', u:'https://www.oponeo.es/neumaticos/215-45-r17'},
+ {n:'205/40R17 (look extremo)', cat:'NEUMATICOS', marca:'Varios', p:'60-90 €', c:'✗ -6,1% → PROHIBIDO sin proyecto técnico', u:'https://www.oponeo.es/neumaticos/205-40-r17'},
+ {n:'Michelin Primacy 225/45R17 91W', cat:'NEUMATICOS', marca:'Michelin', p:'95-120 €', c:'✓ premium · silencioso', u:'https://www.oponeo.es/neumaticos/225-45-r17'},
+ {n:'Continental PremiumContact 225/45R17', cat:'NEUMATICOS', marca:'Continental', p:'85-110 €', c:'✓ equilibrado mojado/seco', u:'https://www.oponeo.es/neumaticos/225-45-r17'},
+ {n:'Debica Presto 205/55R16', cat:'NEUMATICOS', marca:'Debica', p:'50-70 €', c:'✓ económica Goodyear group', u:'https://www.oponeo.es/neumaticos/205-55-r16'},
+ {n:'Hankook Ventus 205/50R17', cat:'NEUMATICOS', marca:'Hankook', p:'60-85 €', c:'✓ deportiva urbana', u:'https://www.oponeo.es/neumaticos/205-50-r17'},
+ {n:'Neumáticos invierno 195/65R15', cat:'NEUMATICOS', marca:'Varios', p:'55-80 €', c:'✓ medida serie · 3PMSF', u:'https://www.oponeo.es/neumaticos/195-65-r15'},
+];
+// pills de categoría
+const CAT_PILLS=[['TODAS','Todos'],['LANTAS','Llantas'],['NEUMATICOS','Neumáticos'],['ALERONES','Alerones'],['FAROS','Faros'],['TINTADO','Tintado'],['VINILOS','Vinilos/Wrap'],['SUSPENSION','Suspensión']];
+let CAT_FILTRO='TODAS';
+document.getElementById('catalogoPills').innerHTML=CAT_PILLS.map(([k,l])=>`<button onclick="catFiltro('${k}')" id="pill-${k}" class="px-3 py-1.5 rounded-full text-[12px] font-bold border transition" style="border-color:${k==='TODAS'?'var(--accent)':'var(--border)'};background:${k==='TODAS'?'var(--accent)':'transparent'};color:${k==='TODAS'?'#0F172A':'var(--text)'}">${l}</button>`).join('');
+function catFiltro(k){
+  CAT_FILTRO=k;
+  document.querySelectorAll('#catalogoPills button').forEach(b=>{
+    const on=b.id==='pill-'+k;
+    b.style.background=on?'var(--accent)':'transparent';
+    b.style.color=on?'#0F172A':'var(--text)';
+    b.style.borderColor=on?'var(--accent)':'var(--border)';
+  });
+  renderCatalogo();
+}
+// llanta activa en el configurador (BBS CH por defecto)
+let CONFIG_RIM='bbs';
+// render del catálogo con buscador en vivo + badge EN CONFIGURADOR
+function renderCatalogo(){
+  const el=document.getElementById('catalogoGrid');
+  const q=(document.getElementById('catalogoSearch').value||'').toLowerCase().trim();
+  const items=CATALOGO.filter(i=>{
+    if(CAT_FILTRO!=='TODAS'&&i.cat!==CAT_FILTRO)return false;
+    if(!q)return true;
+    return (i.n+' '+(i.marca||'')+' '+i.cat).toLowerCase().includes(q);
+  });
+  if(!items.length){
+    el.innerHTML='<div class="card p-6 text-center text-[13px] muted">🔍 Sin resultados para «'+q+'» — prueba «BBS», «17», «5x100», «vinilo»…</div>';
+    return;
+  }
+  el.innerHTML=items.map(i=>{
+    const ok=i.c.startsWith('✓'), no=i.c.startsWith('✗'), warn=i.c.startsWith('⚠');
+    const color=no?'var(--red)':warn?'#EAB308':ok?'#10b981':'var(--muted)';
+    const badge=(i.cfg&&i.cfg===CONFIG_RIM)?'<span class="ml-1.5 inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-full" style="background:var(--accent);color:#0F172A;letter-spacing:.05em" title="Seleccionada en el configurador 3D">★ EN CONFIGURADOR</span>':'';
+    return `<div class="card p-3 fade-in flex flex-col gap-1" style="${no?'opacity:.55':''}">
+      <div class="flex items-center justify-between gap-2"><span class="text-[9.5px] font-black tracking-[0.12em] muted">${i.cat}</span><b class="text-[13px]" style="color:var(--accent)">${i.p}</b></div>
+      <div class="font-bold text-[13px] leading-tight leading-snug">${i.n}${badge}</div>
+      <div class="text-[11px] muted">Marca: ${i.marca}</div>
+      <div class="text-[11.5px] leading-snug" style="color:${color}">${i.c}</div>
+      <a href="${i.u}" target="_blank" rel="noopener" class="mt-1.5 inline-flex items-center justify-center gap-1.5 py-2 rounded-full text-[12px] font-black transition hover:opacity-85" style="background:var(--accent);color:#0F172A">COMPRAR <i class="ph ph-arrow-up-right"></i></a>
+    </div>`;
+  }).join('');
+}
+document.getElementById('catalogoSearch').addEventListener('input',renderCatalogo);
+// mantiene el badge sincronizado con la llanta elegida en el configurador 3D
+document.querySelectorAll('input[name=rim]').forEach(r=>r.addEventListener('change',e=>{CONFIG_RIM=e.target.value;renderCatalogo();}));
+renderCatalogo();
 
 // ===== DATOS =====
 const DATOS=[
@@ -598,21 +945,20 @@ document.querySelectorAll('input[name=rim]').forEach(r=>r.addEventListener('chan
   else showToast('🛞 Llantas originales restauradas');
 }));
 document.getElementById('spoilerSel').addEventListener('change',e=>{
-  const v=e.target.value;
-  showToast('🪶 Alerón: '+(v==='none'?'Ninguno':v==='ducktail'?'Ducktail (Cupra lip) +35-60€':'Spoiler RS +70-120€ (compatible ✓)'));
+  const v=e.target.value; addSpoiler(v);
+  showToast(v==='none'?'🪶 Alerón: Ninguno':v==='ducktail'?'🪶 Ducktail aplicado (visible en 3D) +35-60€':'🪶 Spoiler RS aplicado (visible en 3D) +70-120€ — homologar agrupado');
 });
 document.getElementById('headlightSel').addEventListener('change',e=>{
-  showToast('💡 Faros: '+(e.target.value==='original'?'originales':'Angel Eyes +130€ (plug&play ✓)'));
+  const on=e.target.value==='angel';
+  addAngelEyes(on);
+  if(!on) showToast('💡 Faros originales');
 });
-document.getElementById('tintSel').addEventListener('change',e=>{
-  const v=e.target.value;
-  if(v!=='0') showToast('🪟 Tintado '+(v==='50'?'50%':'80%')+(v==='80'?' — solo traseras legal ⚠️':' — legal en traseras'));
-  else showToast('🪟 Sin tintar');
-});
+document.getElementById('tintSel').addEventListener('change',e=>applyTint(e.target.value));
 document.getElementById('suspSel').addEventListener('change',e=>applySuspension(e.target.value));
 
 function resetConfig(){
   document.querySelectorAll('input[name=rim]')[0].checked=true; applyRims('original');
+  removeSpoiler(); removeAE(); applyTint('0'); removeProcRims();
   document.getElementById('spoilerSel').value='none';
   document.getElementById('headlightSel').value='original';
   document.getElementById('tintSel').value='0';
