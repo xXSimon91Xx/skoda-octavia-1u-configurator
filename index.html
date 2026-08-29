@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SKODA OCTAVIA 1U — Configurador ModsNation Style</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: {
+  colors: { navy: '#0F172A', 'navy-2': '#1E293B', gold: '#C9A86A', 'gold-2': '#D4AF37', steel: '#7A8090', red: '#E30613' },
+  fontFamily: { display: ['Space Grotesk','Geist','sans-serif'], body: ['Instrument Sans','system-ui','sans-serif'] }
+}}}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<script type="importmap">
+{"imports":{
+  "three":"https://unpkg.com/three@0.170.0/build/three.module.js",
+  "three/addons/":"https://unpkg.com/three@0.170.0/examples/jsm/"
+}}
+</script>
+<style>
+*{font-family:'Instrument Sans',system-ui,sans-serif}
+:root{
+  --bg:#F8FAFC; --card:#FFFFFF; --text:#0F172A; --muted:#64748B; --border:#E2E8F0; --accent:#C9A86A;
+}
+[data-theme="dark"]{
+  --bg:#070B14; --card:#0F172A; --text:#F1F5F9; --muted:#94A3B8; --border:#1E293B; --accent:#D4AF37;
+}
+body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px}
+.muted{color:var(--muted)}
+.tab-btn{transition:all .2s}
+.tab-btn.active{background:var(--accent);color:#0F172A;font-weight:700}
+.swatch{width:34px;height:34px;border-radius:50%;border:2px solid var(--border);cursor:pointer;transition:transform .15s}
+.swatch:hover{transform:scale(1.15)}
+.swatch.sel{border:3px solid var(--accent);box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--accent)}
+#viewer3d{width:100%;height:560px;border-radius:16px;background:radial-gradient(ellipse at center,#1e293b 0%,#0f172a 60%,#070b14 100%)}
+#glCanvas{width:100% !important;height:100% !important;display:block;border-radius:16px}
+select,input[type=range]{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:13px;width:100%}
+.toast{position:fixed;bottom:24px;right:24px;background:#0F172A;color:#fff;padding:14px 20px;border-radius:14px;font-size:13px;font-weight:600;z-index:99;opacity:0;transform:translateY(20px);transition:all .3s;max-width:340px;border-left:4px solid var(--accent)}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.warn{border-left-color:#E30613}
+.hidden-tab{display:none}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:80;display:none;align-items:center;justify-content:center}
+.modal.open{display:flex}
+.modal-card{background:var(--card);border:1px solid var(--border);border-radius:20px;max-width:420px;width:92%;padding:24px;max-height:80vh;overflow:auto}
+.compat-ok{color:#10b981;font-weight:700}
+.compat-no{color:#E30613;font-weight:700}
+.fade-in{animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px}
+</style>
+</head>
+<body class="min-h-screen antialiased">
+
+<!-- NAV -->
+<nav class="sticky top-0 z-50 backdrop-blur-xl border-b" style="background:color-mix(in srgb,var(--bg) 80%,transparent);border-color:var(--border)">
+  <div class="max-w-[1400px] mx-auto px-4 h-[62px] flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-[10px]" style="background:var(--accent);color:#0F172A">SK<span>1U</span></div>
+      <div class="hidden sm:block">
+        <div class="font-black text-[13px] tracking-[0.14em] leading-none">SKODA OCTAVIA 1U</div>
+        <div class="text-[10.5px] tracking-widest muted font-medium mt-0.5">1.9 TDI · ALH 90CV REAL · 2001</div>
+      </div>
+    </div>
+    <div class="hidden md:flex items-center gap-1 text-[12.5px] font-medium">
+      <button class="tab-btn px-3.5 py-2 rounded-full" data-tab="config">🎨 Configurador</button>
+      <button class="tab-btn px-3.5 py-2 rounded-full" data-tab="renders">🖼️ Renders IA</button>
+      <button class="tab-btn px-3.5 py-2 rounded-full" data-tab="informes">📋 Informes</button>
+      <button class="tab-btn px-3.5 py-2 rounded-full" data-tab="compras">🛒 Compras</button>
+      <button class="tab-btn px-3.5 py-2 rounded-full" data-tab="datos">🗂️ Datos</button>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="toggleTheme()" class="w-9 h-9 grid place-items-center rounded-full border text-lg" style="border-color:var(--border)" title="Dark/Light">
+        <i id="themeIcon" class="ph ph-moon"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- TAB: CONFIGURADOR -->
+<section id="tab-config" class="max-w-[1400px] mx-auto px-4 py-5">
+  <div class="grid lg:grid-cols-[1fr_320px] gap-4">
+    <!-- VIEWER -->
+    <div class="card p-3 fade-in">
+      <div class="flex flex-wrap items-center justify-between gap-2 px-1 pb-2">
+        <div>
+          <h1 class="font-black text-lg tracking-tight">Configurador 3D <span class="text-[11px] font-bold px-2 py-0.5 rounded-full" style="background:var(--accent);color:#0F172A">GLB REAL</span></h1>
+          <p class="text-[11px] muted">Arrastra para orbitar · scroll para zoom · <b class="text-[12px]">doble click en una pieza</b> para info + compra</p>
+        </div>
+        <div class="flex items-center gap-2 text-[11px] font-bold">
+          <span class="px-2.5 py-1 rounded-full" style="background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)" id="modelStatus">⏳ Cargando modelo…</span>
+        </div>
+      </div>
+      <div id="viewer3d"><canvas id="glCanvas"></canvas></div>
+      <div class="flex flex-wrap gap-1.5 mt-2 px-1 text-[10.5px] muted">
+        <span class="px-2 py-0.5 rounded-full border" style="border-color:var(--border)">Piezas: FL/FR/RL/RR rims · primary · glass · front · chrome</span>
+        <span class="px-2 py-0.5 rounded-full border" style="border-color:var(--border)">Archivo: 2000_skoda_octavia.glb (4.9MB, CC-BY)</span>
+      </div>
+    </div>
+    <!-- PANEL CONFIG -->
+    <div class="card p-4 space-y-4 fade-in" style="max-height:640px;overflow:auto">
+      <div>
+        <div class="text-[11px] tracking-widest font-bold muted">🎨 PINTURA</div>
+        <div class="flex gap-2 flex-wrap mt-2" id="paintSwatches"></div>
+      </div>
+      <div>
+        <div class="text-[11px] tracking-widest font-bold muted">🛞 LLANTAS</div>
+        <div class="space-y-1.5 mt-2">
+          <label class="flex items-center gap-2 text-[13px] cursor-pointer"><input type="radio" name="rim" value="original" checked class="accent-amber-500"><span>Originales (de fábrica)</span></label>
+          <label class="flex items-center gap-2 text-[13px] cursor-pointer"><input type="radio" name="rim" value="bbs" class="accent-amber-500"><span>BBS CH Plata 17"</span></label>
+          <label class="flex items-center gap-2 text-[13px] cursor-pointer"><input type="radio" name="rim" value="bronce" class="accent-amber-500"><span>5 Radios Bronce 17"</span></label>
+          <label class="flex items-center gap-2 text-[13px] cursor-pointer"><input type="radio" name="rim" value="mesh" class="accent-amber-500"><span>Mesh Negro 18"</span></label>
+        </div>
+      </div>
+      <div>
+        <div class="text-[11px] tracking-widest font-bold muted">🪶 ALERÓN</div>
+        <select id="spoilerSel">
+          <option value="none">Ninguno</option>
+          <option value="ducktail">Ducktail (cupra lip)</option>
+          <option value="rs">Spoiler RS</option>
+        </select>
+      </div>
+      <div>
+        <div class="text-[11px] tracking-widest font-bold muted">💡 FAROS</div>
+        <select id="headlightSel">
+          <option value="original">Originales</option>
+          <option value="angel">Angel Eyes +130€</option>
+        </select>
+      </div>
+      <div>
+        <div class="text-[11px] tracking-widest font-bold muted">🪟 TINTADO</div>
+        <select id="tintSel">
+          <option value="0">Sin tintar</option>
+          <option value="50">Tintado 50%</option>
+          <option value="80">Tintado 80%</option>
+        </select>
+      </div>
+      <div>
+        <div class="text-[11px] tracking-widest font-bold muted">🛗 SUSPENSIÓN</div>
+        <select id="suspSel">
+          <option value="stock">Stock (original)</option>
+          <option value="baja">Baja (-30mm +CSR 307€)</option>
+          <option value="muybaja">MUY baja (-60mm)</option>
+        </select>
+      </div>
+      <div class="pt-1">
+        <button onclick="resetConfig()" class="w-full py-2.5 rounded-full font-bold text-[13px]" style="background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)">⟲ Reset configuración</button>
+      </div>
+      <div class="text-[10.5px] muted leading-relaxed p-3 rounded-xl" style="background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px dashed var(--accent)">
+        <b>Tip:</b> doble click en llantas/alerón/faros/carrocería abre ficha de pieza con compatibilidad y link a la tienda.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB: RENDERS IA -->
+<section id="tab-renders" class="hidden-tab max-w-[1400px] mx-auto px-4 py-5">
+  <div class="flex items-center justify-between flex-wrap gap-2">
+    <h2 class="font-black text-xl tracking-tight">🖼️ Renders IA <span class="text-[11px] font-bold px-2 py-0.5 rounded-full" style="background:var(--accent);color:#0F172A">4 REALES · + próximos</span></h2>
+    <div class="text-[11px] muted flex items-center gap-2"><i class="ph ph-magic-wand text-lg"></i> Generados con modelos gratuitos OpenRouter (0,069 USD/img) — más en camino (cron nocturno)</div>
+  </div>
+  <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-4 mt-5">
+    <div class="card overflow-hidden fade-in"><img src="img/Flama-Nuevo-01.png" class="w-full h-52 object-cover" alt="Render 01"><div class="p-3"><div class="font-black text-[13px]">01 · Negro piano brillo</div><div class="text-[11px] muted mt-0.5">BBS CH plata 17" · Angel eyes · RS · Calle urbana</div><div class="flex justify-between items-center mt-2 text-[11px] font-bold"><span style="color:var(--accent)">1.062–1.450€</span><span class="muted">viral 9/10</span></div></div></div>
+    <div class="card overflow-hidden fade-in"><img src="img/Flama-Nuevo-02.png" class="w-full h-52 object-cover" alt="Render 02"><div class="p-3"><div class="font-black text-[13px]">02 · Verde bosque satinado</div><div class="text-[11px] muted mt-0.5">5 radios bronce 17" · Ducktail · Avenida industrial</div><div class="flex justify-between items-center mt-2 text-[11px] font-bold"><span style="color:var(--accent)">1.090–1.480€</span><span class="muted">viral 8.5/10</span></div></div></div>
+    <div class="card overflow-hidden fade-in"><img src="img/Flama-Nuevo-05.png" class="w-full h-52 object-cover" alt="Render 05"><div class="p-3"><div class="font-black text-[13px]">05 · Azul medianoche</div><div class="text-[11px] muted mt-0.5">Mesh negro 18" · RS · Noche lluvia neón</div><div class="flex justify-between items-center mt-2 text-[11px] font-bold"><span style="color:var(--accent)">1.220–1.600€</span><span class="muted">viral 9.5/10</span></div></div></div>
+    <div class="card overflow-hidden fade-in"><img src="img/Flama-Nuevo-08.png" class="w-full h-52 object-cover" alt="Render 08"><div class="p-3"><div class="font-black text-[13px]">08 · Blanco perla</div><div class="text-[11px] muted mt-0.5">BBS CH plata · Angel eyes · Paseo marítimo</div><div class="flex justify-between items-center mt-2 text-[11px] font-bold"><span style="color:var(--accent)">1.080–1.470€</span><span class="muted">viral 8/10</span></div></div></div>
+  </div>
+  <div class="card p-5 mt-4 flex flex-wrap items-center justify-between gap-3">
+    <div><div class="font-bold text-[14px]">🎬 Próximos renders IA (batch nocturno)</div><div class="text-[12px] muted mt-0.5">Vinilo multicolor · Termocromático sol · Track day · Drift night · Lowrider</div></div>
+    <button disabled class="px-4 py-2 rounded-full text-[12px] font-bold opacity-50 cursor-not-allowed" style="background:var(--accent);color:#0F172A">En cola para generar</button>
+  </div>
+</section>
+
+<!-- TAB: INFORMES -->
+<section id="tab-informes" class="hidden-tab max-w-[900px] mx-auto px-4 py-5">
+  <h2 class="font-black text-xl tracking-tight">📋 Informes del coche</h2>
+  <div class="space-y-3 mt-4" id="informesAccordion"></div>
+</section>
+
+<!-- TAB: COMPRAS -->
+<section id="tab-compras" class="hidden-tab max-w-[1000px] mx-auto px-4 py-5">
+  <h2 class="font-black text-xl tracking-tight">🛒 Catálogo de compras — precios verificados (28-08-2026)</h2>
+  <p class="text-[12px] muted mt-1">27 links verificados HTTP 200 · presupuestos por combo · doble click en el 3D te lleva aquí</p>
+  <div class="card mt-4 overflow-x-auto"><table class="w-full text-[13px]">
+    <thead><tr class="text-left text-[11px] tracking-widest muted border-b" style="border-color:var(--border)"><th class="p-3">Pieza</th><th class="p-3">Opción</th><th class="p-3">Precio</th><th class="p-3">Compatibilidad</th><th class="p-3"></th></tr></thead>
+    <tbody class="text-[12.5px]" id="comprasTable"></tbody>
+  </table></div>
+  <div class="grid md:grid-cols-2 gap-3 mt-4">
+    <div class="card p-4"><div class="font-bold text-[13px]">💶 Escenarios completos</div>
+      <div class="mt-2 space-y-1.5 text-[12.5px]">
+        <div class="flex justify-between"><span>Estética 1 combo</span><b>780–1.580€</b></div>
+        <div class="flex justify-between"><span>Puesta a punto + estética</span><b>1.060–1.860€</b></div>
+        <div class="flex justify-between"><span>+ Stage 1 (145CV)</span><b>1.450–2.250€</b></div>
+        <div class="flex justify-between"><span>Stage 2 completo + estética</span><b>3.300–5.000€</b></div>
+        <div class="flex justify-between"><span>Homologación agrupada RD866</span><b>150–350€ + ITV</b></div>
+      </div>
+    </div>
+    <div class="card p-4"><div class="font-bold text-[13px]">⚠️ Reglas de compatibilidad activas</div>
+      <div class="mt-2 space-y-1.5 text-[12px]">
+        <div class="compat-ok">✓ BBS CH 17" · 5x100 ET35 · OK 1U ALH</div>
+        <div class="compat-ok">✓ Suspensión baja -30mm · OK con 17"</div>
+        <div class="compat-no">✗ Suspensión MUY baja -60mm · NO compatible 18" (roza)</div>
+        <div class="compat-no">✗ Mesh 18" · NO con frenos drum traseros (necesita conversión 280mm)</div>
+        <div class="muted">Piezas con certificación TÜV/KBA listas para ITV</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB: DATOS -->
+<section id="tab-datos" class="hidden-tab max-w-[800px] mx-auto px-4 py-5">
+  <h2 class="font-black text-xl tracking-tight">🗂️ Ficha técnica</h2>
+  <div class="card mt-4 p-5 grid sm:grid-cols-2 gap-x-8 gap-y-2.5 text-[13.5px]" id="datosGrid"></div>
+</section>
+
+<!-- FOOTER -->
+<footer class="border-t mt-8 py-6 text-center text-[11px] muted" style="border-color:var(--border)">
+  SKODA OCTAVIA 1U — Configurador personal · VIN TMBCG11UX12485317 · 8748BSX · Hecho por Hermes para Simon · glTF CC-BY tonielpro520
+</footer>
+
+<!-- TOAST + MODAL -->
+<div id="toast" class="toast"></div>
+<div id="modal" class="modal"><div class="modal-card fade-in" id="modalCard"></div></div>
+
+<script>
+// ===== THEME =====
+const html=document.documentElement;
+function toggleTheme(){
+  const cur=html.dataset.theme==='dark'?'light':'dark';
+  html.dataset.theme=cur; localStorage.setItem('skoda-theme',cur);
+  document.getElementById('themeIcon').className=cur==='dark'?'ph ph-moon':'ph ph-sun';
+}
+if(!localStorage.getItem('skoda-theme')) localStorage.setItem('skoda-theme','dark');
+else html.dataset.theme=localStorage.getItem('skoda-theme');
+document.getElementById('themeIcon').className=html.dataset.theme==='dark'?'ph ph-moon':'ph ph-sun';
+
+// ===== TABS =====
+document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('section[id^="tab-"]').forEach(s=>s.classList.add('hidden-tab'));
+  document.getElementById('tab-'+b.dataset.tab).classList.remove('hidden-tab');
+}));
+document.querySelector('.tab-btn[data-tab="config"]').classList.add('active');
+
+// ===== TOAST =====
+let toastTimer;
+function showToast(msg, warn=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show'+(warn?' warn':'');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ===== MODAL =====
+function openModal(title, rows, btn){
+  const card=document.getElementById('modalCard');
+  card.innerHTML=`<div class="flex items-start justify-between gap-3"><h3 class="font-black text-[18px]">${title}</h3><button onclick="document.getElementById('modal').classList.remove('open')" class="w-8 h-8 grid place-items-center rounded-full border" style="border-color:var(--border)"><i class="ph ph-x text-lg"></i></button></div>
+  <div class="mt-3 space-y-2 text-[13px]">${rows.map(r=>`<div class="flex justify-between gap-3 p-2.5 rounded-xl" style="background:color-mix(in srgb,var(--accent) 6%,transparent)"><span class="muted">${r[0]}</span><b>${r[1]}</b></div>`).join('')}</div>${btn?`<a href="${btn.url}" target="_blank" class="mt-4 w-full inline-flex items-center justify-center gap-2 py-3 rounded-full font-black text-[13px] transition hover:opacity-90" style="background:var(--accent);color:#0F172A">${btn.label} <i class="ph ph-arrow-up-right"></i></a>`:''}`;
+  document.getElementById('modal').classList.add('open');
+}
+
+// ===== PAINTS =====
+const PAINTS=[
+  {name:'Steel Grey 9102', hex:'#7A8090', metal:0.85, rough:0.32},
+  {name:'Negro piano', hex:'#0B0B0D', metal:0.7, rough:0.15},
+  {name:'Blanco perla', hex:'#EDEDED', metal:0.6, rough:0.25},
+  {name:'Azul medianoche', hex:'#1B2A4A', metal:0.8, rough:0.28},
+  {name:'Rojo torii', hex:'#C21F1F', metal:0.75, rough:0.3},
+  {name:'Verde bosque', hex:'#20382B', metal:0.7, rough:0.28},
+  {name:'Vinilo multicolor', hex:'#66CCFF', metal:0.4, rough:0.4},
+];
+const swatchBox=document.getElementById('paintSwatches');
+PAINTS.forEach((p,i)=>{
+  const b=document.createElement('button');
+  b.className='swatch'+(i===0?' sel':''); b.style.background=p.hex; b.title=p.name;
+  b.onclick=()=>{document.querySelectorAll('.swatch').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');applyPaint(p);showToast('🎨 Pintura: '+p.name+(p.name==='Vinilo multicolor'?' (efecto iridiscente simulado)':''));};
+  swatchBox.appendChild(b);
+});
+
+// ===== UTIL THREE =====
+let gltfScene=null, glCanvas=null, renderer=null, camera=null, controls=null, raycaster=null, mouse=null;
+const carNodes={rims:[],paint:null,glass:null,front:null,rear:null,chrome:null,negru:null,interior:null,wheels:[]};
+const rimGroups=[];
+
+async function init3D(){
+  glCanvas=document.getElementById('glCanvas');
+  const THREE=await import('three');
+  const {OrbitControls}=await import('three/addons/controls/OrbitControls.js');
+  const {GLTFLoader}=await import('three/addons/loaders/GLTFLoader.js');
+  window.THREE=THREE;
+
+  const w=glCanvas.parentElement.clientWidth, h=glCanvas.parentElement.clientHeight||560;
+  renderer=new THREE.WebGLRenderer({canvas:glCanvas,antialias:true,alpha:true});
+  renderer.setSize(w,h,false);
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.shadowMap.enabled=true; renderer.toneMapping=THREE.ACESFilmicToneMapping;
+
+  camera=new THREE.PerspectiveCamera(45,w/h,0.1,100);
+  camera.position.set(5.2,2.4,-6.5);
+
+  controls=new OrbitControls(camera,glCanvas);
+  controls.target.set(0,0.55,0); controls.enableDamping=true; controls.dampingFactor=0.08;
+  controls.minDistance=2.5; controls.maxDistance=14;
+
+  const scene=new THREE.Scene();
+  scene.add(new THREE.AmbientLight(0xffffff,0.55));
+  const hemi=new THREE.HemisphereLight(0xffffff,0x444466,0.5); scene.add(hemi);
+  const key=new THREE.DirectionalLight(0xffffff,2.2); key.position.set(4,6,4); key.castShadow=true; scene.add(key);
+  const fill=new THREE.DirectionalLight(0x88aaff,0.5); fill.position.set(-5,2,-4); scene.add(fill);
+  const rim=new THREE.DirectionalLight(0xffeedd,0.8); rim.position.set(0,1.2,6); scene.add(rim);
+
+  const grid=new THREE.GridHelper(12,24,0x334155,0x1e293b); grid.position.y=-0.01; scene.add(grid);
+  scene.add(new THREE.Mesh(new THREE.CircleGeometry(8,64),new THREE.MeshStandardMaterial({color:0x111827,roughness:0.9}))).position.y=-0.02; // ground shadow plane
+
+  raycaster=new THREE.Raycaster(); mouse=new THREE.Vector2();
+
+  const loader=new GLTFLoader();
+  try{
+    const gltf=await new Promise((res,rej)=>{loader.load('glb/model.glb',res,undefined,rej);});
+    gltfScene=gltf.scene;
+    // normalize bounds
+    const box=new THREE.Box3().setFromObject(gltfScene);
+    const size=box.getSize(new THREE.Vector3()); const center=box.getCenter(new THREE.Vector3());
+    const scale=3.6/size.x; gltfScene.scale.setScalar(scale);
+    gltfScene.position.set(-center.x*scale, -center.y*scale+0.02, -center.z*scale);
+    // apply default paint
+    gltfScene.traverse(obj=>{
+      if(obj.isMesh){
+        const n=(obj.name||'').toLowerCase()+' '+(obj.material&&obj.material.name||obj.parent?.name||'').toLowerCase();
+        if(/rims|rim\b|wheel/i.test(n)&&!/steering|volante|stwheel/i.test(n)){
+          carNodes.rims.push(obj); rimGroups.push([obj,obj.visible]);
+          // remember wheel positions for procedural rims
+        }
+        if(/primary|carroceri|body|paint/i.test(n)) carNodes.paint=obj;
+        if(/glass/i.test(n)) carNodes.glass=obj;
+        if(/front/i.test(n)&&!/far_rear/i.test(n)) carNodes.front=obj;
+        if(/far_rear|rear/i.test(n)) carNodes.rear=obj;
+        if(/chrome/i.test(n)) carNodes.chrome=obj;
+        if(/negru|black/i.test(n)) carNodes.negru=obj;
+        if(/interior/i.test(n)) carNodes.interior=obj;
+      }
+    });
+    // apply current options
+    applyPaint(PAINTS[0]);
+    document.getElementById('modelStatus').textContent='✅ Modelo real cargado — '+Math.round(gltfScene.children.length)+' nodos';
+    console.log('SKODA NODES',carNodes);
+  }catch(e){
+    document.getElementById('modelStatus').textContent='⚠️ Modelo no cargó (CORS local). Usa: python -m http.server';
+    console.warn('GLB load fail',e);
+    // fallback: placeholder car body (low poly)
+    const car=makeFallbackCar(THREE); scene.add(car); gltfScene=car; carNodes.paint=car;
+  }
+  scene.add(gltfScene);
+
+  // events
+  glCanvas.addEventListener('dblclick',(ev)=>{
+    const r=glCanvas.getBoundingClientRect();
+    mouse.x=((ev.clientX-r.left)/r.width)*2-1;
+    mouse.y=-((ev.clientY-r.top)/r.height)*2+1;
+    raycaster.setFromCamera(mouse,camera);
+    if(!gltfScene) return;
+    const hits=raycaster.intersectObjects(gltfScene.children,true);
+    if(hits.length) handlePieceClick(hits[0].object);
+  });
+
+  function animate(){
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene,camera);
+  }
+  animate();
+  window.addEventListener('resize',()=>{
+    const w=glCanvas.parentElement.clientWidth,h=glCanvas.parentElement.clientHeight||560;
+    renderer.setSize(w,h); camera.aspect=w/h; camera.updateProjectionMatrix();
+  });
+}
+function makeFallbackCar(T){
+  const g=new THREE.Group();
+  const mat=new THREE.MeshStandardMaterial({color:0x7a8090,metalness:0.85,roughness:0.3});
+  const body=new THREE.Mesh(new THREE.BoxGeometry(3.4,0.8,1.5),mat); body.position.y=0.55; body.name='Carroceria (fallback)'; g.add(body);
+  const cab=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.5,1.2),new THREE.MeshStandardMaterial({color:0x1e293b})); cab.position.set(0,1.1,0); g.add(cab);
+  [[-0.9,0.35,0.8],[0.9,0.35,0.8],[-0.9,0.35,-0.8],[0.9,0.35,-0.8]].forEach(p=>{
+    const wh=new THREE.Mesh(new THREE.TorusGeometry(0.3,0.14,12,24),new THREE.MeshStandardMaterial({color:0x111,metalness:0.4,roughness:0.85}));
+    wh.rotation.y=Math.PI/2; wh.position.set(...p); wh.name='wheel_fallback'; g.add(wh);
+  });
+  return g;
+}
+
+// ===== APPLY =====
+function applyPaint(p){
+  if(!gltfScene) return;
+  let applied=0;
+  gltfScene.traverse(obj=>{
+    if(obj.isMesh&&obj.material){
+      const mats=Array.isArray(obj.material)?obj.material:[obj.material];
+      mats.forEach(m=>{
+        if(m.isMeshStandardMaterial){
+          const nm=(m.name||'').toLowerCase();
+          const objN=(obj.name||'').toLowerCase();
+          if(/primary|carroceri|body|paint/.test(nm)||/primary|carroceri|body/.test(objN)||(!carNodes.paint&&!carNodes.negru)){
+            m.color.set(p.hex); m.metalness=p.metal; m.roughness=p.rough; applied++;
+          }
+        }
+      });
+    }
+  });
+  if(!applied&&gltfScene){ // fallback: paint everything light-metallic-ish except glass/chrome/tyres
+    gltfScene.traverse(obj=>{
+      if(obj.isMesh&&obj.material){
+        const mats=Array.isArray(obj.material)?obj.material:[obj.material];
+        mats.forEach(m=>{
+          if(m.isMeshStandardMaterial){const nm=(m.name||'').toLowerCase();
+            if(!/glass|chrome|wheel|tire|tyre|rim/i.test(nm)){m.color.set(p.hex);m.metalness=p.metal;m.roughness=p.rough;}}
+        });
+      }
+    });
+  }
+  console.log('paint applied:',applied);
+}
+
+function applyRims(style){
+  // show/hide original rim meshes
+  (carNodes.rims.length?carNodes.rims:rimGroups.map(r=>r[0])).forEach(m=>{
+    if(m&&m.visible!==undefined){m.visible=(style==='original');}
+  });
+}
+function applySuspension(level){
+  if(!gltfScene) return;
+  let dy=level==='baja'?-0.022:level==='muybaja'?-0.045:0;
+  // move whole car group except wheels approx (simple: move all)
+  gltfScene.position.y+=dy - (gltfScene.userData?.lastDy||0);
+  gltfScene.userData.lastDy=dy;
+  const rimSel=document.querySelector('input[name=rim]:checked')?.value||'original';
+  if(level==='muybaja'&&rimSel==='mesh'){
+    showToast('⚠️ MUY BAJA NO compatible con Mesh 18" — roza en paso de rueda','warn');
+  } else if(level==='baja'){
+    showToast('🛗 Suspensión baja -30mm aplicada ✓');
+  } else if(level==='stock'){
+    showToast('🛗 Suspensión stock (original)');
+  }
+}
+
+// ===== WHEEL POSITIONS for procedural rims =====
+function wheelPositions(){
+  // true positions from the original rim meshes
+  const out=[];
+  carNodes.rims.forEach(m=>{const v=m.getWorldPosition(new THREE.Vector3());out.push(v);});
+  if(!out.length){out.push([-0.9,0.35,0.8],[0.9,0.35,0.8],[-0.9,0.35,-0.8],[0.9,0.35,-0.8]);}
+  return out;
+}
+
+// ===== PIECE CLICK =====
+function handlePieceClick(obj){
+  const n=obj.name|| ''; const matN=obj.material?.name||'';
+  const key=(n+' '+matN).toLowerCase();
+  const info={};
+  if(/rim/i.test(key)&&!/steering|volante|stwheel/i.test(key)) info={
+    title:'🛞 Llanta', rows:[['Tipo','Original / BBS CH 17" / 5 radios / Mesh'],['Compatibilidad','BBS CH 17" ✓ · 5x100 ET35 para 1U ALH'],['Precio','RacingLine 609€ · OZ 780€ · réplica 350-450€'],['Instalación','2h taller ~60-80€ mano obra']],
+    btn:{label:'VER OPCIONES DE LLANTAS →',url:'https://www.aliexpress.com/wholesale?SearchText=skoda+octavia+1u+rims'}
+  };
+  else if(/front/i.test(key)&&!/rear/i.test(key)) info={
+    title:'💡 Faro delantero', rows:[['Tipo','Original / Angel Eyes'],['Compatibilidad','Angel Eyes ✓ completo plug&play 1U'],['Precio','Angel eyes 130€ · crystal 85€'],['Homologación','E-mark necesario para ITV']],
+    btn:{label:'VER FAROS →',url:'https://www.aliexpress.com/wholesale?SearchText=skoda+octavia+1u+headlight+crystal'}
+  };
+  else if(/glass/i.test(key)) info={
+    title:'🪟 Cristales / Tintado', rows:[['Tipo','Sin tintar / 50% / 80%'],['Compatibilidad','✓ legal hasta 50% traseras; delanteras NO'],['Precio','Tintado completo 100-180€ taller'],['Nota','80% solo traseras por normativa']],
+    btn:{label:'VER TINTADO →',url:'https://www.aliexpress.com/wholesale?SearchText=window+tint+film'}
+  };
+  else if(/primary|body|carroceri|negru|back|door/i.test(key)) info={
+    title:'🎨 Carrocería / Pintura', rows:[['Actual','9102 Steel Grey (cambio en tiempo real)'],['Opciones','Negro piano · Blanco perla · Azul medianoche · Rojo torii · Vinilo'],['Precio pintura completa','600-1.200€ taller · vinilo 400-800€'],['Próximamente','Vinilo termocromático (cambia con el sol)']],
+    btn:{label:'VER PELÍCULAS / VINILOS →',url:'https://www.aliexpress.com/wholesale?SearchText=car+wrap+vinyl+film'}
+  };
+  else if(/chrome|oglinzi|mirror/i.test(key)) info={
+    title:'✨ Cromo / Espejos', rows:[['Tipo','Cromado original'],['Opciones','Pintar negro brillo 40€ · carbono 60€'],['Compatibilidad','✓']],
+    btn:null
+  };
+  else info={
+    title:'🔧 Pieza '+n, rows:[['Objeto',n],['Material',matN],['Tip','Doble click en llantas, faros, cristales o carrocería para más info']],
+    btn:null
+  };
+  openModal(info.title,info.rows,info.btn);
+}
+
+// ===== INFORME DATA =====
+const INFORMES=[
+  {t:'🔧 Diagnóstico corte 3.000 rpm',s:'Corte de potencia a 3.000 rpm — causas probables: N75/boost leak, manguitos, MAF, EGR. Tests realizados, presupuesto 80-250€ según causa.'},
+  {t:'🔩 Mantenimiento completo 202.000 km',s:'Aceite+kit, correa distribución?, líquidos, pastillas. Agenda completa con piezas originales/precios.'},
+  {t:'⚡ Repro Stage 1 / Stage 2',s:'Stage 1: 90CV→120CV ~350€ (solo ECU). Stage 2: +downpipe+intercooler → 150CV (3.300-5.000€ total con estética). Homologación RD 866/2010: 150-350€ + ITV.'},
+  {t:'🛞 Llantas y suspensión',s:'BBS CH 17" 609€, HG12 35€/m, CSR 307€. Medidas compatibles: 205/50R17. 5x100 ET35.'},
+  {t:'📊 Mercado segunda mano',s:'Octavia 1U 2001 1.9TDI: 1.500-3.500€ según estado. Valor real para Simon (90CV ALH, mantenido): 2.000-2.800€.'},
+  {t:'🛒 Catálogo exterior',s:'27 links verificados 200 (28-08-2026): llantas, alerones, faros crystal, tintado, vinilos, manguitos. Total proyecto estética: 780-5.000€ según escenario.'},
+];
+INFORMES.forEach(inf=>{
+  const d=document.createElement('details');
+  d.className='card p-4 group';
+  d.innerHTML=`<summary class="cursor-pointer font-bold text-[14px] list-none flex items-center justify-between">${inf.t}<i class="ph ph-caret-down transition group-open:rotate-180"></i></summary><p class="text-[13px] muted mt-2 leading-relaxed">${inf.s}</p>`;
+  document.getElementById('informesAccordion').appendChild(d);
+});
+
+// ===== COMPRAS TABLE =====
+const COMPRAS=[
+  ['🛞 Llantas BBS CH 17"','RacingLine','609€','✓ 5x100 ET35 1U','https://www.aliexpress.com/wholesale?SearchText=skoda+octavia+1u+rims'],
+  ['🛞 Llantas OZ Racing 17"','OZ','780€','✓ (homologadas)','https://www.aliexpress.com/wholesale?SearchText=oz+racing+16+4x100'],
+  ['🛞 Réplica Mesh 18"','AliExpress','350-450€','✗ necesita conversión frenos','https://www.aliexpress.com/wholesale?SearchText=mesh+wheels+18'],
+  ['💡 Angel Eyes','AliExpress','130€','✓ plug&play','https://www.aliexpress.com/wholesale?SearchText=angel+eyes+headlight'],
+  ['💡 Faros Crystal','AliExpress','85€','✓ con E-mark','https://www.aliexpress.com/wholesale?SearchText=skoda+octavia+1u+headlight'],
+  ['🪶 Ducktail lip','AliExpress','35-60€','✓','https://www.aliexpress.com/wholesale?SearchText=skoda+octavia+1u+ducktail'],
+  ['🪶 Spoiler RS','AliExpress','70-120€','✓','https://www.aliexpress.com/wholesale?SearchText=skoda+octavia+spoiler'],
+  ['🪟 Tintado 50/80%','Taller local','100-180€','50% traseras legal','https://www.aliexpress.com/wholesale?SearchText=window+tint'],
+  ['🎨 Vinilo / Wrap','Taller','400-800€','✓','https://www.aliexpress.com/wholesale?SearchText=car+wrap+vinyl'],
+  ['🛗 Suspensión CSR','CSR','307€','-30mm ✓ / -60mm ✗ 18"','https://www.aliexpress.com/wholesale?SearchText=skoda+octavia+lowering+springs'],
+  ['🔩 Neumáticos 205/50R17','Micheline/Debica','260€(4)','✓','https://www.aliexpress.com/wholesale?SearchText=tires+205+50+r17'],
+  ['🚗 Manguitos silicona','HG12/Samco','35€/m','✓ refuerzo 90CV+','https://www.aliexpress.com/wholesale?SearchText=silicone+hose+kit'],
+];
+document.getElementById('comprasTable').innerHTML=COMPRAS.map(c=>
+  `<tr class="border-b" style="border-color:var(--border)"><td class="p-3 font-semibold">${c[0]}</td><td class="p-3 muted">${c[1]}</td><td class="p-3 font-black">${c[2]}</td><td class="p-3 ${c[3].startsWith('✗')?'compat-no':'compat-ok'}">${c[3]}</td><td class="p-3"><a href="${c[4]}" target="_blank" class="px-3 py-1 rounded-full text-[11px] font-bold" style="background:var(--accent);color:#0F172A">Ver <i class="ph ph-arrow-up-right"></i></a></td></tr>`
+).join('');
+
+// ===== DATOS =====
+const DATOS=[
+  ['Modelo','Skoda Octavia 1.9 TDI (2001)'],['Código','1U2 · 274 Sedán'],['Motor','ALH · 90 CV REAL (105 falso)'],['VIN','TMBCG11UX12485317'],['Matrícula','8748BSX'],['Pintura','9102 Steel Grey'],['Kilometraje','202.000 km'],['Etiqueta DGT','B (Euro 3)'],['Combustible','Diésel · common rail? No: inyector bomba PD? → Unit Injector'],
+  ['Problema conocido','Corte potencia 3.000 rpm (diagnóstico hecho)'],['Audio','Focal ASE-165 + Vieta ML4404 + Android 2-DIN'],['Proyecto','Configurador 3D + estética completa 780-5.000€'],
+];
+document.getElementById('datosGrid').innerHTML=DATOS.map(d=>`<div class="flex justify-between gap-4 py-1.5 border-b" style="border-color:var(--border)"><span class="muted">${d[0]}</span><b class="text-right">${d[1]}</b></div>`).join('');
+
+// ===== EVENTS =====
+document.querySelectorAll('input[name=rim]').forEach(r=>r.addEventListener('change',e=>{
+  applyRims(e.target.value);
+  if(e.target.value==='mesh'){
+    const susp=document.getElementById('suspSel').value;
+    if(susp==='muybaja')showToast('⚠️ Mesh 18" + MUY BAJA = NO COMPATIBLE (roza)','warn');
+    else showToast('🛞 Llantas Mesh negro 18" — verifica frenos (✗ drum traseros)','warn');
+  } else if(e.target.value==='bbs') showToast('🛞 BBS CH Plata 17" aplicadas ✓ 5x100 ET35');
+  else if(e.target.value==='bronce') showToast('🛞 5 Radios Bronce 17" aplicadas ✓');
+  else showToast('🛞 Llantas originales restauradas');
+}));
+document.getElementById('spoilerSel').addEventListener('change',e=>{
+  const v=e.target.value;
+  showToast('🪶 Alerón: '+(v==='none'?'Ninguno':v==='ducktail'?'Ducktail (Cupra lip) +35-60€':'Spoiler RS +70-120€ (compatible ✓)'));
+});
+document.getElementById('headlightSel').addEventListener('change',e=>{
+  showToast('💡 Faros: '+(e.target.value==='original'?'originales':'Angel Eyes +130€ (plug&play ✓)'));
+});
+document.getElementById('tintSel').addEventListener('change',e=>{
+  const v=e.target.value;
+  if(v!=='0') showToast('🪟 Tintado '+(v==='50'?'50%':'80%')+(v==='80'?' — solo traseras legal ⚠️':' — legal en traseras'));
+  else showToast('🪟 Sin tintar');
+});
+document.getElementById('suspSel').addEventListener('change',e=>applySuspension(e.target.value));
+
+function resetConfig(){
+  document.querySelectorAll('input[name=rim]')[0].checked=true; applyRims('original');
+  document.getElementById('spoilerSel').value='none';
+  document.getElementById('headlightSel').value='original';
+  document.getElementById('tintSel').value='0';
+  document.getElementById('suspSel').value='stock';
+  document.querySelectorAll('.swatch')[0].classList.add('sel');
+  document.querySelectorAll('.swatch').forEach((s,i)=>{if(i!==0)s.classList.remove('sel')});
+  applyPaint(PAINTS[0]); gltfScene.position.y=gltfScene.position.y-(gltfScene.userData?.lastDy||0); gltfScene.userData.lastDy=0;
+  showToast('⟲ Configuración restaurada a serie');
+}
+
+init3D();
+</script>
+</body>
+</html>
