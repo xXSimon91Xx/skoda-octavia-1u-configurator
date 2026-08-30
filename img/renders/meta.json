@@ -63,5 +63,40 @@
   "file": "r30_granja_campo.png",
   "caption": "Campo de trigo en hora dorada",
   "cost": 0.03361425
+ },
+ {
+  "file": "r01_negro_urbano.png",
+  "caption": "r01 negro urbano",
+  "cost": 0
+ },
+ {
+  "file": "r32_explosion_pintura.png",
+  "caption": "r32 explosion pintura",
+  "cost": 0
+ },
+ {
+  "file": "r33_hielo_invierno.png",
+  "caption": "r33 hielo invierno",
+  "cost": 0
+ },
+ {
+  "file": "r34_lavadero.png",
+  "caption": "r34 lavadero",
+  "cost": 0
+ },
+ {
+  "file": "r35_puente_torii.png",
+  "caption": "r35 puente torii",
+  "cost": 0
+ },
+ {
+  "file": "r36_oni_demonio.png",
+  "caption": "r36 oni demonio",
+  "cost": 0
+ },
+ {
+  "file": "r37_serie_vodka_black.png",
+  "caption": "r37 serie vodka black",
+  "cost": 0
  }
 ]

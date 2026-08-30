@@ -179,7 +179,9 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
   <h2 class="font-black text-xl tracking-tight">🛒 Catálogo de compras — precios verificados (28-08-2026)</h2>
   <p class="text-[12px] muted mt-1">Links verificados HTTP 200 · presupuestos por combo · doble click en el 3D te lleva aquí · la llanta del configurador sale marcada <b style="color:var(--accent)">EN CONFIGURADOR</b></p>
   <div class="card mt-4 p-4">
-    <div class="flex items-center gap-3">
+    <div class="font-bold text-[13px] mb-2">🏪 Tiendas TOP España por categoría (verificadas)</div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2" id="tiendasGrid"></div>
+    <div class="flex items-center gap-3 mt-4 pt-3" style="border-top:1px solid var(--border)">
       <i class="ph ph-magnifying-glass text-xl muted"></i>
       <input id="catalogoSearch" type="text" placeholder="Buscar por nombre, marca o categoría… ej. BBS, 17, 5x100, vinilo negro" oninput="renderCatalogo()">
     </div>
@@ -965,6 +967,27 @@ const CATALOGO=[
 ];
 // pills de categoría
 const CAT_PILLS=[['TODAS','Todos'],['LANTAS','Llantas'],['NEUMATICOS','Neumáticos'],['ALERONES','Alerones'],['FAROS','Faros'],['TINTADO','Tintado'],['VINILOS','Vinilos/Wrap'],['SUSPENSION','Suspensión'],['INTERIOR','Interior'],['MOTOR','Motor'],['EXTERIOR_KIT','Kit exterior']];
+// ===== TIENDAS TOP ESPAÑA =====
+const TIENDAS=[
+ {n:'Oponeo.es',c:'Llantas y neumáticos',d:'El comparador grande SIN anti-bot: +6.000 refs 225/45R17 desde 65€ · 200+ llantas 17" 5x100 desde 119€ · envío 24-48h',u:'https://www.oponeo.es/llantas-aluminio/17/5x100-00'},
+ {n:'Autodoc.es',c:'Recambios',d:'TODO el catálogo VAG: amortiguadores, manguitos, distribución, faros. Cupones -15/25%. Ojo anti-bot (abrir en navegador)',u:'https://www.autodoc.es/repuestos/amortiguadores-10048/skoda/octavia/octavia-1u2/7909-1-9-tdi'},
+ {n:'Norauto',c:'Llantas y talleres',d:'Llantas OZ, MAK, Alutec en tienda física + montaje incluido. Buenos precios en campañas',u:'https://www.norauto.es/llantas-de-aluminio'},
+ {n:'Velonity.es',c:'Llantas MAK',d:'Distribuidor oficial MAK en España: Union ET38 57,1 a 227,99€/ud · configurador por coche',u:'https://velonity.es/17-pulgada-mak-llantasdealuminio'},
+ {n:'CarParts-Expert',c:'Alerones 1U',d:'Catálogo enorme filtrado Octavia I con/sin TÜV 150-400€ (CSR HL093 a 307€ con TÜV incluido)',u:'https://www.carparts-expert.com/es/exterior/alerones-techo-maletero/skoda/octavia-i-1u.html'},
+ {n:'CarHifi.eu',c:'Faros Angel Eyes',d:'Stock Sonar/DEPO/FK con envío EU — el espejo de FK Automotive (bloqueado por Cloudflare)',u:'https://www.carhifi.eu/search?sSearch=angel+eyes+octavia'},
+ {n:'Vinilatucoche.com',c:'Vinilos 3M',d:'Catálogo 3M 2080 completo desde 25,14€/m: gloss, satin, camaleón, fibra carbono',u:'https://vinilatucoche.com/catalogo/wrapping-film-3m-serie-1080-y-2080'},
+ {n:'SIR Visual',c:'Vinilos 3M oficial',d:'Distribuidor oficial 3M España: 2080-S12 Satin Black, M206 Matte Pine Green, serie completa',u:'https://www.sirvisual.com/esp/3m-wrap-film-serie-2080/'},
+ {n:'Oscaro.es',c:'Recambios VAG',d:'Recambios con precios limpios y filtro por VIN: manguitos, juntas, bombas de vacío, N75',u:'https://www.oscaro.es/catalogo-vehiculo-skoda-octavia-1u2-1-9-tdi-90-cv'},
+ {n:'Neumaticos-online.es',c:'Neumáticos',d:'Delticom (mismo stock que Tirendo): ofertas en 225/45R17, 195/65R15, 205/55R16',u:'https://www.neumaticos-online.es/coches'},
+ {n:'Wallapop',c:'2ª mano españa',d:'Llantas BBS CH (400-700€), alerón RS original, faros, interior — buscar 5x100 y 1U',u:'https://www.wallapop.com/app/search?keywords=llantas+5x100+17'},
+ {n:'AliExpress tuning',c:'Extras baratos',d:'Ducktails 30-80€, angel eyes 90-180€, canards, lips, vinilos — calidad-mediocre pero baratísimo',u:'https://es.aliexpress.com/w/wholesale-skoda-octavia-tuning.html'},
+];
+document.getElementById('tiendasGrid').innerHTML=TIENDAS.map(t=>`
+ <div class="p-3 rounded-xl" style="background:var(--tag)">
+   <div class="flex items-center justify-between"><b class="text-[12.5px]">${t.n}</b><span class="text-[9px] font-black px-2 py-0.5 rounded-full" style="background:var(--accent);color:#0F172A">${t.c}</span></div>
+   <p class="text-[11px] muted mt-1 leading-snug">${t.d}</p>
+   <a href="${t.u}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 mt-1.5 text-[11px] font-black" style="color:var(--accent)">IR →</a>
+ </div>`).join('');
 let CAT_FILTRO='TODAS';
 document.getElementById('catalogoPills').innerHTML=CAT_PILLS.map(([k,l])=>`<button onclick="catFiltro('${k}')" id="pill-${k}" class="px-3 py-1.5 rounded-full text-[12px] font-bold border transition" style="border-color:${k==='TODAS'?'var(--accent)':'var(--border)'};background:${k==='TODAS'?'var(--accent)':'transparent'};color:${k==='TODAS'?'#0F172A':'var(--text)'}">${l}</button>`).join('');
 function catFiltro(k){
