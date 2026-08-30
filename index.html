@@ -293,8 +293,9 @@ document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>
   document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
   b.classList.add('active');
   document.querySelectorAll('section[id^="tab-"]').forEach(s=>s.classList.add('hidden-tab'));
-  document.getElementById('tab-'+b.dataset.tab).classList.remove('hidden-tab');
-}));
+    document.getElementById('tab-'+b.dataset.tab).classList.remove('hidden-tab');
+    if(b.dataset.tab==='renders' && typeof renderRenders==='function') renderRenders(RENDER_CAT||'Todos');
+  }));
 document.querySelector('.tab-btn[data-tab="config"]').classList.add('active');
 
 // ===== TOAST =====
@@ -779,7 +780,7 @@ const RENDERS_DATA = [
   {f:'img/Flama-Nuevo-08.png', t:'Flama 08 · Blanco perla', d:'BBS CH plata · Angel eyes · Paseo marítimo', c:'Blanco'},
     {f:'img/renders/r01_negro_urbano.png', t:'Negro urbano', d:'Render IA — negro urbano', c:'Negro'},
   ];
-document.getElementById('rendersGrid').innerHTML = renderRenders('Todos');
+if(document.getElementById('rendersGrid')) document.getElementById('rendersGrid').innerHTML = renderRenders('Todos'); else setTimeout(()=>{if(document.getElementById('rendersGrid')) document.getElementById('rendersGrid').innerHTML = renderRenders('Todos');},200);
 // ===== FILTRO RENDERS POR COLOR =====
 let RENDER_CAT='Todos';
 const RENDER_CATS=['Todos','Gris','Negro','Blanco','Azul','Rojo','Verde','Vinilos'];
