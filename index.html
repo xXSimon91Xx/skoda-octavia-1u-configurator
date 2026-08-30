@@ -700,7 +700,7 @@ function wheelPositions(){
 function handlePieceClick(obj){
   const n=obj.name|| ''; const matN=obj.material?.name||'';
   const key=(n+' '+matN).toLowerCase();
-  const info={};
+  let info={};
   if(/rim/i.test(key)&&!/steering|volante|stwheel/i.test(key)) info={
     title:'🛞 Llanta', rows:[['Tipo','Original / BBS CH 17" / 5 radios / Mesh'],['Compatibilidad','BBS CH 17" ✓ · 5x100 ET35 para 1U ALH'],['Precio','RacingLine 609€ · OZ 780€ · réplica 350-450€'],['Instalación','2h taller ~60-80€ mano obra']],
     btn:{label:'VER OPCIONES DE LLANTAS →',url:'https://www.aliexpress.com/wholesale?SearchText=skoda+octavia+1u+rims'}
