@@ -49,6 +49,28 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
 .compat-no{color:#E30613;font-weight:700}
 .fade-in{animation:fadeIn .35s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.clk{cursor:pointer;transition:transform .15s,box-shadow .15s}
+.clk:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.14)}
+#lightbox{position:fixed;inset:0;background:rgba(2,6,17,.92);backdrop-filter:blur(8px);z-index:120;display:flex;align-items:center;justify-content:center;padding:30px;cursor:zoom-out}
+#lightbox.hidden-lb{display:none}
+#lightbox .lb-wrap{max-width:1300px;width:100%;text-align:center}
+#lightbox img{max-width:100%;max-height:82vh;border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.6);cursor:default}
+#lightbox h3{color:#fff;font-size:1.3rem;margin-top:14px}
+#lightbox p{color:#94A3B8;margin-top:4px;font-size:.95rem}
+.lb-close{position:absolute;top:22px;right:28px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;width:46px;height:46px;border-radius:50%;font-size:1.3rem;cursor:pointer}
+/* 4K+ */
+@media (min-width:2560px){
+  body{font-size:17px} #viewer3d{height:720px}
+  .max-w-\[1500px\]{max-width:2200px!important}
+  .max-w-\[1400px\]{max-width:2100px!important}
+  #catalogoGrid{grid-template-columns:repeat(5,1fr)!important}
+}
+@media (min-width:3840px){
+  body{font-size:19px} #viewer3d{height:900px}
+  .max-w-\[1500px\]{max-width:3200px!important}
+  .max-w-\[1400px\]{max-width:3000px!important}
+  #catalogoGrid{grid-template-columns:repeat(6,1fr)!important}
+}
 ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px}
 </style>
 </head>
@@ -58,13 +80,13 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
 <nav class="sticky top-0 z-50 backdrop-blur-xl border-b" style="background:color-mix(in srgb,var(--bg) 80%,transparent);border-color:var(--border)">
   <div class="max-w-[1400px] mx-auto px-4 h-[62px] flex items-center justify-between gap-3">
     <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-[10px]" style="background:var(--accent);color:#0F172A">SK<span>1U</span></div>
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-[15px]" style="background:var(--accent);color:#0F172A">SK<span>1U</span></div>
       <div class="hidden sm:block">
-        <div class="font-black text-[13px] tracking-[0.14em] leading-none">SKODA OCTAVIA 1U</div>
+        <div class="font-black text-[15px] tracking-[0.14em] leading-none">SKODA OCTAVIA 1U</div>
         <div class="text-[10.5px] tracking-widest muted font-medium mt-0.5">1.9 TDI · ALH 90CV REAL · 2001</div>
       </div>
     </div>
-    <div class="hidden md:flex items-center gap-1 text-[12.5px] font-medium">
+    <div class="hidden md:flex items-center gap-1 text-[15px] font-medium">
       <button class="tab-btn px-3.5 py-2 rounded-full" data-tab="config">🎨 Configurador</button>
       <button class="tab-btn px-3.5 py-2 rounded-full" data-tab="renders">🖼️ Renders IA</button>
       <button class="tab-btn px-3.5 py-2 rounded-full" data-tab="informes">📋 Informes</button>
@@ -86,10 +108,10 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
     <div class="card p-3 fade-in">
       <div class="flex flex-wrap items-center justify-between gap-2 px-1 pb-2">
         <div>
-          <h1 class="font-black text-lg tracking-tight">Configurador 3D <span class="text-[11px] font-bold px-2 py-0.5 rounded-full" style="background:var(--accent);color:#0F172A">GLB REAL</span></h1>
-          <p class="text-[11px] muted">Arrastra para orbitar · scroll para zoom · <b class="text-[12px]">doble click en una pieza</b> para info + compra</p>
+          <h1 class="font-black text-lg tracking-tight">Configurador 3D <span class="text-[15px] font-bold px-2 py-0.5 rounded-full" style="background:var(--accent);color:#0F172A">GLB REAL</span></h1>
+          <p class="text-[15px] muted">Arrastra para orbitar · scroll para zoom · <b class="text-[15px]">doble click en una pieza</b> para info + compra</p>
         </div>
-        <div class="flex items-center gap-2 text-[11px] font-bold">
+        <div class="flex items-center gap-2 text-[15px] font-bold">
           <span class="px-2.5 py-1 rounded-full" style="background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)" id="modelStatus">⏳ Cargando modelo…</span>
         </div>
       </div>
@@ -102,20 +124,20 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
     <!-- PANEL CONFIG -->
     <div class="card p-4 space-y-4 fade-in" style="max-height:640px;overflow:auto">
       <div>
-        <div class="text-[11px] tracking-widest font-bold muted">🎨 PINTURA</div>
+        <div class="text-[15px] tracking-widest font-bold muted">🎨 PINTURA</div>
         <div class="flex gap-2 flex-wrap mt-2" id="paintSwatches"></div>
       </div>
       <div>
-        <div class="text-[11px] tracking-widest font-bold muted">🛞 LLANTAS</div>
+        <div class="text-[15px] tracking-widest font-bold muted">🛞 LLANTAS</div>
         <div class="space-y-1.5 mt-2">
-          <label class="flex items-center gap-2 text-[13px] cursor-pointer"><input type="radio" name="rim" value="original" checked class="accent-amber-500"><span>Originales (de fábrica)</span></label>
-          <label class="flex items-center gap-2 text-[13px] cursor-pointer"><input type="radio" name="rim" value="bbs" class="accent-amber-500"><span>BBS CH Plata 17"</span></label>
-          <label class="flex items-center gap-2 text-[13px] cursor-pointer"><input type="radio" name="rim" value="bronce" class="accent-amber-500"><span>5 Radios Bronce 17"</span></label>
-          <label class="flex items-center gap-2 text-[13px] cursor-pointer"><input type="radio" name="rim" value="mesh" class="accent-amber-500"><span>Mesh Negro 18"</span></label>
+          <label class="flex items-center gap-2 text-[15px] cursor-pointer"><input type="radio" name="rim" value="original" checked class="accent-amber-500"><span>Originales (de fábrica)</span></label>
+          <label class="flex items-center gap-2 text-[15px] cursor-pointer"><input type="radio" name="rim" value="bbs" class="accent-amber-500"><span>BBS CH Plata 17"</span></label>
+          <label class="flex items-center gap-2 text-[15px] cursor-pointer"><input type="radio" name="rim" value="bronce" class="accent-amber-500"><span>5 Radios Bronce 17"</span></label>
+          <label class="flex items-center gap-2 text-[15px] cursor-pointer"><input type="radio" name="rim" value="mesh" class="accent-amber-500"><span>Mesh Negro 18"</span></label>
         </div>
       </div>
       <div>
-        <div class="text-[11px] tracking-widest font-bold muted">🪶 ALERÓN</div>
+        <div class="text-[15px] tracking-widest font-bold muted">🪶 ALERÓN</div>
         <select id="spoilerSel">
           <option value="none">Ninguno</option>
           <option value="ducktail">Ducktail (cupra lip)</option>
@@ -123,14 +145,14 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
         </select>
       </div>
       <div>
-        <div class="text-[11px] tracking-widest font-bold muted">💡 FAROS</div>
+        <div class="text-[15px] tracking-widest font-bold muted">💡 FAROS</div>
         <select id="headlightSel">
           <option value="original">Originales</option>
           <option value="angel">Angel Eyes +130€</option>
         </select>
       </div>
       <div>
-        <div class="text-[11px] tracking-widest font-bold muted">🪟 TINTADO</div>
+        <div class="text-[15px] tracking-widest font-bold muted">🪟 TINTADO</div>
         <select id="tintSel">
           <option value="0">Sin tintar</option>
           <option value="50">Tintado 50%</option>
@@ -138,7 +160,7 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
         </select>
       </div>
       <div>
-        <div class="text-[11px] tracking-widest font-bold muted">🛗 SUSPENSIÓN</div>
+        <div class="text-[15px] tracking-widest font-bold muted">🛗 SUSPENSIÓN</div>
         <select id="suspSel">
           <option value="stock">Stock (original)</option>
           <option value="baja">Baja (-30mm +CSR 307€)</option>
@@ -146,7 +168,7 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
         </select>
       </div>
       <div class="pt-1">
-        <button onclick="resetConfig()" class="w-full py-2.5 rounded-full font-bold text-[13px]" style="background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)">⟲ Reset configuración</button>
+        <button onclick="resetConfig()" class="w-full py-2.5 rounded-full font-bold text-[15px]" style="background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)">⟲ Reset configuración</button>
       </div>
       <div class="text-[10.5px] muted leading-relaxed p-3 rounded-xl" style="background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px dashed var(--accent)">
         <b>Tip:</b> doble click en llantas/alerón/faros/carrocería abre ficha de pieza con compatibilidad y link a la tienda.
@@ -158,13 +180,13 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
 <!-- TAB: RENDERS IA -->
 <section id="tab-renders" class="hidden-tab max-w-[1400px] mx-auto px-4 py-5">
   <div class="flex items-center justify-between flex-wrap gap-2">
-    <h2 class="font-black text-xl tracking-tight">🖼️ Renders IA <span class="text-[11px] font-bold px-2 py-0.5 rounded-full" style="background:var(--accent);color:#0F172A">23 REALES · VERIFICADOS</span></h2>
-    <div class="text-[11px] muted flex items-center gap-2"><i class="ph ph-magic-wand text-lg"></i> Generados con Gemini Image vía OpenRouter (~0,034 USD/img) — descripción de cada uno verificada por visión antes de publicar</div>
+    <h2 class="font-black text-xl tracking-tight">🖼️ Renders IA <span class="text-[15px] font-bold px-2 py-0.5 rounded-full" style="background:var(--accent);color:#0F172A">23 REALES · VERIFICADOS</span></h2>
+    <div class="text-[15px] muted flex items-center gap-2"><i class="ph ph-magic-wand text-lg"></i> Generados con Gemini Image vía OpenRouter (~0,034 USD/img) — descripción de cada uno verificada por visión antes de publicar</div>
   </div>
   <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-4 mt-5" id="rendersGrid"></div>
   <div class="card p-5 mt-4 flex flex-wrap items-center justify-between gap-3">
-    <div><div class="font-bold text-[14px]">🎬 Próximos renders (batch pendiente de crédito OpenRouter)</div><div class="text-[12px] muted mt-0.5">Más vinilos (camuflaje, rosa, dorado, batman) · Tunel neón · Cyberpunk · Track day · Drift · Snow · Nieve · Contraluz — el script reanuda solo cuando vuelve el crédito (salta los ya generados)</div></div>
-    <button disabled class="px-4 py-2 rounded-full text-[12px] font-bold opacity-50 cursor-not-allowed" style="background:var(--accent);color:#0F172A">⏳ En cola (crédito agotado por hoy)</button>
+    <div><div class="font-bold text-[16px]">🎬 Próximos renders (batch pendiente de crédito OpenRouter)</div><div class="text-[15px] muted mt-0.5">Más vinilos (camuflaje, rosa, dorado, batman) · Tunel neón · Cyberpunk · Track day · Drift · Snow · Nieve · Contraluz — el script reanuda solo cuando vuelve el crédito (salta los ya generados)</div></div>
+    <button disabled class="px-4 py-2 rounded-full text-[15px] font-bold opacity-50 cursor-not-allowed" style="background:var(--accent);color:#0F172A">⏳ En cola (crédito agotado por hoy)</button>
   </div>
 </section>
 
@@ -175,11 +197,11 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
 </section>
 
 <!-- TAB: COMPRAS -->
-<section id="tab-compras" class="hidden-tab max-w-[1000px] mx-auto px-4 py-5">
+<section id="tab-compras" class="hidden-tab max-w-[1500px] mx-auto px-4 py-5">
   <h2 class="font-black text-xl tracking-tight">🛒 Catálogo de compras — precios verificados (28-08-2026)</h2>
-  <p class="text-[12px] muted mt-1">Links verificados HTTP 200 · presupuestos por combo · doble click en el 3D te lleva aquí · la llanta del configurador sale marcada <b style="color:var(--accent)">EN CONFIGURADOR</b></p>
+  <p class="text-[15px] muted mt-1">Links verificados HTTP 200 · presupuestos por combo · doble click en el 3D te lleva aquí · la llanta del configurador sale marcada <b style="color:var(--accent)">EN CONFIGURADOR</b></p>
   <div class="card mt-4 p-4">
-    <div class="font-bold text-[13px] mb-2">🏪 Tiendas TOP España por categoría (verificadas)</div>
+    <div class="font-bold text-[15px] mb-2">🏪 Tiendas TOP España por categoría (verificadas)</div>
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2" id="tiendasGrid"></div>
     <div class="flex items-center gap-3 mt-4 pt-3" style="border-top:1px solid var(--border)">
       <i class="ph ph-magnifying-glass text-xl muted"></i>
@@ -187,11 +209,11 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
     </div>
     <div class="flex flex-wrap gap-1.5 mt-3" id="catalogoPills"></div>
   </div>
-  <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4" id="catalogoGrid"></div>
-  <div class="text-[11px] muted mt-2 mb-4">Medida homologable sin proyecto: <b>7Jx17 ET36-40 5x100 · 225/45R17</b> (−0,03 % diámetro, medida RS 1U). ET35 = pasa si no sobresale. Anillos de centrado 5-10 € si buje ≠ 57,1.</div>
+  <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-3 mt-4" id="catalogoGrid"></div>
+  <div class="text-[15px] muted mt-2 mb-4">Medida homologable sin proyecto: <b>7Jx17 ET36-40 5x100 · 225/45R17</b> (−0,03 % diámetro, medida RS 1U). ET35 = pasa si no sobresale. Anillos de centrado 5-10 € si buje ≠ 57,1.</div>
   <div class="grid md:grid-cols-2 gap-3 mt-4">
-    <div class="card p-4"><div class="font-bold text-[13px]">💶 Escenarios completos</div>
-      <div class="mt-2 space-y-1.5 text-[12.5px]">
+    <div class="card p-4"><div class="font-bold text-[15px]">💶 Escenarios completos</div>
+      <div class="mt-2 space-y-1.5 text-[15px]">
         <div class="flex justify-between"><span>Estética 1 combo</span><b>780–1.580€</b></div>
         <div class="flex justify-between"><span>Puesta a punto + estética</span><b>1.060–1.860€</b></div>
         <div class="flex justify-between"><span>+ Stage 1 (145CV)</span><b>1.450–2.250€</b></div>
@@ -199,8 +221,8 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
         <div class="flex justify-between"><span>Homologación agrupada RD866</span><b>150–350€ + ITV</b></div>
       </div>
     </div>
-    <div class="card p-4"><div class="font-bold text-[13px]">⚠️ Reglas de compatibilidad activas</div>
-      <div class="mt-2 space-y-1.5 text-[12px]">
+    <div class="card p-4"><div class="font-bold text-[15px]">⚠️ Reglas de compatibilidad activas</div>
+      <div class="mt-2 space-y-1.5 text-[15px]">
         <div class="compat-ok">✓ BBS CH 17" · 5x100 ET35 · OK 1U ALH</div>
         <div class="compat-ok">✓ Suspensión baja -30mm · OK con 17"</div>
         <div class="compat-no">✗ Suspensión MUY baja -60mm · NO compatible 18" (roza)</div>
@@ -214,11 +236,11 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
 <!-- TAB: DATOS -->
 <section id="tab-datos" class="hidden-tab max-w-[800px] mx-auto px-4 py-5">
   <h2 class="font-black text-xl tracking-tight">🗂️ Ficha técnica</h2>
-  <div class="card mt-4 p-5 grid sm:grid-cols-2 gap-x-8 gap-y-2.5 text-[13.5px]" id="datosGrid"></div>
+  <div class="card mt-4 p-5 grid sm:grid-cols-2 gap-x-8 gap-y-2.5 text-[15px]" id="datosGrid"></div>
 </section>
 
 <!-- FOOTER -->
-<footer class="border-t mt-8 py-6 text-center text-[11px] muted" style="border-color:var(--border)">
+<footer class="border-t mt-8 py-6 text-center text-[15px] muted" style="border-color:var(--border)">
   SKODA OCTAVIA 1U — Configurador personal · VIN TMBCG11UX12485317 · 8748BSX · Hecho por Hermes para Simon · glTF CC-BY tonielpro520
 </footer>
 
@@ -226,8 +248,17 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
 <div id="toast" class="toast"></div>
 <div id="modal" class="modal"><div class="modal-card fade-in" id="modalCard"></div></div>
 
+<!-- LIGHTBOX RENDERS -->
+<div id="lightbox" class="hidden-lb">
+  <button class="lb-close" onclick="closeRender()">✕</button>
+  <div class="lb-wrap">
+    <img id="lbImg" src="" alt="Render IA">
+    <h3 id="lbTitle"></h3>
+    <p id="lbDesc"></p>
+  </div>
+</div>
 <script>
-// ===== THEME =====
+// ===== STATE =====
 const html=document.documentElement;
 function toggleTheme(){
   const cur=html.dataset.theme==='dark'?'light':'dark';
@@ -259,7 +290,7 @@ function showToast(msg, warn=false){
 function openModal(title, rows, btn){
   const card=document.getElementById('modalCard');
   card.innerHTML=`<div class="flex items-start justify-between gap-3"><h3 class="font-black text-[18px]">${title}</h3><button onclick="document.getElementById('modal').classList.remove('open')" class="w-8 h-8 grid place-items-center rounded-full border" style="border-color:var(--border)"><i class="ph ph-x text-lg"></i></button></div>
-  <div class="mt-3 space-y-2 text-[13px]">${rows.map(r=>`<div class="flex justify-between gap-3 p-2.5 rounded-xl" style="background:color-mix(in srgb,var(--accent) 6%,transparent)"><span class="muted">${r[0]}</span><b>${r[1]}</b></div>`).join('')}</div>${btn?`<a href="${btn.url}" target="_blank" class="mt-4 w-full inline-flex items-center justify-center gap-2 py-3 rounded-full font-black text-[13px] transition hover:opacity-90" style="background:var(--accent);color:#0F172A">${btn.label} <i class="ph ph-arrow-up-right"></i></a>`:''}`;
+  <div class="mt-3 space-y-2 text-[15px]">${rows.map(r=>`<div class="flex justify-between gap-3 p-2.5 rounded-xl" style="background:color-mix(in srgb,var(--accent) 6%,transparent)"><span class="muted">${r[0]}</span><b>${r[1]}</b></div>`).join('')}</div>${btn?`<a href="${btn.url}" target="_blank" class="mt-4 w-full inline-flex items-center justify-center gap-2 py-3 rounded-full font-black text-[15px] transition hover:opacity-90" style="background:var(--accent);color:#0F172A">${btn.label} <i class="ph ph-arrow-up-right"></i></a>`:''}`;
   document.getElementById('modal').classList.add('open');
 }
 
@@ -483,17 +514,55 @@ function removeRimInstances(){
     window.__rimInstances = null;
   }
 }
+// ===== HELPERS GEOMÉTRICOS (el glb perdió nombres con Draco → todo por geometría real) =====
+function getCarBox(){
+  const box=new THREE.Box3().setFromObject(gltfScene);
+  return {box, s:box.getSize(new THREE.Vector3()), c:box.getCenter(new THREE.Vector3())};
+}
+function setWorldY(obj, wy){
+  obj.updateMatrixWorld(true);
+  const wp2=new THREE.Vector3(); obj.getWorldPosition(wp2);
+  wp2.y=wy;
+  obj.position.copy(obj.parent.worldToLocal(wp2));
+}
+// MORRO = +Z, ZAGA = -Z (verificado: cámara en z=-6.5 ve la zaga; ruedas delanteras z=+1.37)
+const FRONT_Z=1, REAR_Z=-1;
+function getRearZ(){ const g=getCarBox(); return g.c.z + REAR_Z*(g.s.z/2); }
+function getFrontZ(){ const g=getCarBox(); return g.c.z + FRONT_Z*(g.s.z/2); }
+function getSuspDy(){ return gltfScene.userData.suspDy||0; }
+function suspendProceduralParts(dy){
+  // mover llantas procedurales/BBS con la carrocería
+  const all=[...__procRims, ...(window.__rimInstances||[])];
+  all.forEach(m=>{ m.updateMatrixWorld(true); const wp=new THREE.Vector3(); m.getWorldPosition(wp); wp.y+=dy; m.position.copy(m.parent.worldToLocal(wp)); });
+}
+
 function applySuspension(level){
   if(!gltfScene) return;
-  let dy=level==='baja'?-0.022:level==='muybaja'?-0.045:0;
-  // move whole car group except wheels approx (simple: move all)
-  gltfScene.position.y+=dy - (gltfScene.userData?.lastDy||0);
-  gltfScene.userData.lastDy=dy;
+  const dy=level==='baja'?-0.030:level==='muybaja'?-0.060:0;
+  const diff=dy-(gltfScene.userData.suspDy||0);
+  if(Math.abs(diff)<0.0001){
+    showToast(level==='stock'?'🛗 Suspensión stock (original)':level==='baja'?'🛗 Suspensión baja -30mm aplicada ✓':'🛗 Suspensión MUY baja -60mm');
+    return;
+  }
+  // bajar SOLO carrocería (no ruedas) en WORLD Y — efecto lowering real
+  gltfScene.updateMatrixWorld(true);
+  gltfScene.traverse(o=>{
+    if(o.isMesh){
+      const n=((o.name||'')+' '+(o.material&&o.material.name||o.parent?.name||'')).toLowerCase();
+      if(/rim|wheel|tyre|tire|neum/i.test(n)) return; // ruedas se quedan
+      const wp=new THREE.Vector3(); o.getWorldPosition(wp);
+      setWorldY(o, wp.y+diff);
+    }
+  });
+  suspendProceduralParts(diff);
+  gltfScene.userData.suspDy=dy;
   const rimSel=document.querySelector('input[name=rim]:checked')?.value||'original';
   if(level==='muybaja'&&rimSel==='mesh'){
     showToast('⚠️ MUY BAJA NO compatible con Mesh 18" — roza en paso de rueda','warn');
   } else if(level==='baja'){
-    showToast('🛗 Suspensión baja -30mm aplicada ✓');
+    showToast('🛗 Suspensión baja -30mm aplicada ✓ (carrocería baja, ruedas en el suelo)');
+  } else if(level==='verylow'){
+    showToast('🛗 Suspensión MUY baja -60mm');
   } else if(level==='stock'){
     showToast('🛗 Suspensión stock (original)');
   }
@@ -505,26 +574,23 @@ function removeSpoiler(){ __spoilMeshes.forEach(m=>{if(m.parent)m.parent.remove(
 function addSpoiler(type){
   removeSpoiler();
   if(type==='none'||!gltfScene) return;
-  const box=new THREE.Box3().setFromObject(gltfScene);
-  const s=box.getSize(new THREE.Vector3()); const c=box.getCenter(new THREE.Vector3());
-  let zBack, yBase;
-  if(carNodes.rear){ const wp=carNodes.rear.getWorldPosition(new THREE.Vector3()); zBack=wp.z; yBase=wp.y; }
-  else { zBack=c.z+s.z/2; yBase=c.y+s.y*0.62; }
-  const dir = (zBack>c.z)?1:-1;
+  const g=getCarBox();
+  const zBack=getRearZ();                 // extremo -Z = zaga (verificado)
+  const yBase=0.60+getSuspDy();           // altura maletero 1U desde el suelo
   const mat=new THREE.MeshStandardMaterial({color:0x14161a,metalness:0.65,roughness:0.32});
   if(type==='ducktail'){
     const m=new THREE.Mesh(new THREE.BoxGeometry(1.55,0.045,0.15),mat);
-    m.position.set(c.x, yBase+0.10, zBack-dir*0.06);
-    m.rotation.x=-dir*0.06;
+    m.position.set(g.c.x, yBase+0.08, zBack+0.05);
+    m.rotation.x=-0.08;
     gltfScene.add(m); __spoilMeshes.push(m);
   } else if(type==='rs'){
     const blade=new THREE.Mesh(new THREE.BoxGeometry(1.72,0.055,0.30),mat);
-    blade.position.set(c.x, yBase+0.20, zBack-dir*0.14);
-    blade.rotation.x=-dir*0.12;
+    blade.position.set(g.c.x, yBase+0.20, zBack+0.10);
+    blade.rotation.x=-0.10;
     gltfScene.add(blade); __spoilMeshes.push(blade);
     [-0.55,0.55].forEach(dx=>{
       const leg=new THREE.Mesh(new THREE.BoxGeometry(0.05,0.16,0.06),mat);
-      leg.position.set(c.x+dx, yBase+0.10, zBack-dir*0.10);
+      leg.position.set(g.c.x+dx, yBase+0.05, zBack+0.06);
       gltfScene.add(leg); __spoilMeshes.push(leg);
     });
   }
@@ -533,28 +599,53 @@ function removeAE(){ __aeMeshes.forEach(m=>{if(m.parent)m.parent.remove(m);}); _
 function addAngelEyes(on){
   removeAE();
   if(!on||!gltfScene) return;
-  if(!carNodes.front){ showToast('⚠️ No se localizaron los faros en el modelo','warn'); return; }
-  const wp=carNodes.front.getWorldPosition(new THREE.Vector3());
+  const g=getCarBox();
+  const zFront=getFrontZ();               // extremo +Z = morro (verificado)
+  const yHead=0.75+getSuspDy();           // altura de los faros del 1U
   const mat=new THREE.MeshStandardMaterial({color:0xffe9a8,emissive:0xffd875,emissiveIntensity:2.4,metalness:0.1,roughness:0.2});
-  [-0.60,0.60].forEach(dx=>{
-    const ring=new THREE.Mesh(new THREE.TorusGeometry(0.085,0.018,12,28),mat);
-    ring.position.set(wp.x+dx, wp.y-0.01, wp.z);
-    ring.rotation.y=Math.PI/2; // anillo en plano XZ mirando al frente del coche
+  [-0.62,0.62].forEach(dx=>{
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(0.095,0.02,12,28),mat);
+    ring.position.set(g.c.x+dx, yHead, zFront-0.02);
+    ring.rotation.y=Math.PI/2;
     gltfScene.add(ring); __aeMeshes.push(ring);
   });
-  showToast('💡 Angel Eyes encendidos (emissive) — +130€ kit plug&play');
+  showToast('💡 Angel Eyes encendidos en los faros (emissive) — +130€ kit plug&play');
 }
 function applyTint(level){
   if(!gltfScene) return;
   const targets=[];
   gltfScene.traverse(obj=>{ if(obj.isMesh){ const n=((obj.name||'')+' '+(obj.material&&obj.material.name||'')).toLowerCase(); if(/glass|luneta|cristal|window/i.test(n)) targets.push(obj); } });
   if(!targets.length){ showToast('⚠️ No se encontraron cristales en el modelo','warn'); return; }
-  const op = level==='50'?0.55 : level==='80'?0.22 : 1;
+  // guardar opacidades originales UNA vez (primera llamada)
+  if(!gltfScene.userData._tintInit){ gltfScene.userData._tintInit={}; }
+  const store=gltfScene.userData._tintInit;
   targets.forEach(m=>{
     const mats=Array.isArray(m.material)?m.material:[m.material];
-    mats.forEach(mt=>{ if(mt&&mt.transparent!==undefined){ mt.transparent = op<1; mt.opacity=op; mt.depthWrite = op>=1; } });
+    mats.forEach(mt=>{
+      if(!mt||mt.transparent===undefined) return;
+      const key=(m.uuid||'')+mt.uuid;
+      if(store[key]===undefined) store[key]={op:mt.opacity,tr:mt.transparent,color:(mt.color?mt.color.getHex():0)};
+    });
   });
-  showToast(level==='0'?'🪟 Sin tintar (cristales originales)':'🪟 Tintado '+(level==='50'?'50%':'80%')+(level==='80'?' — SOLO traseras legal ⚠️':' — legal en traseras'));
+  // target de opacidad: 0(original/transparente) 50(medio) 80(MUY oscuro — traseras legal)
+  const target = level==='50' ? 0.50 : level==='80' ? 0.16 : null;
+  targets.forEach(m=>{
+    const mats=Array.isArray(m.material)?m.material:[m.material];
+    mats.forEach(mt=>{
+      if(!mt||mt.transparent===undefined) return;
+      const key=(m.uuid||'')+mt.uuid;
+      const orig=store[key]||{op:0.85,tr:true};
+      if(target===null){
+        mt.opacity=orig.op; mt.transparent=orig.tr; mt.depthWrite=false;
+      }else{
+        mt.opacity=Math.min(target, orig.op);
+        mt.transparent=true;
+        mt.depthWrite=false;
+        mt.needsUpdate=true;
+      }
+    });
+  });
+  showToast(level==='0'?'🪟 Cristales restaurados (sin tintar)':level==='50'?'🪟 Tintado 50% — legal en traseras':'🪟 Tintado 80% (MUY oscuro) — SOLO traseras ⚠️');
 }
 function buildRimGroup(style){
   const g=new THREE.Group();
@@ -663,8 +754,20 @@ const RENDERS_DATA = [
   {f:'img/Flama-Nuevo-08.png', t:'Flama 08 · Blanco perla', d:'BBS CH plata · Angel eyes · Paseo marítimo'},
 ];
 document.getElementById('rendersGrid').innerHTML = RENDERS_DATA.map((r,i)=>
-  `<div class="card overflow-hidden fade-in"><img src="${r.f}" class="w-full h-52 object-cover" alt="${r.t}" loading="lazy"><div class="p-3"><div class="font-black text-[13px]">${String(i+1).padStart(2,'0')} · ${r.t}</div><div class="text-[11px] muted mt-0.5">${r.d}</div></div></div>`
+  `<div class="card overflow-hidden fade-in clk" onclick="openRender(${i})" role="button" tabindex="0"><img src="${r.f}" class="w-full h-52 object-cover hover:scale-105 transition" alt="${r.t}" loading="lazy"><div class="p-3"><div class="font-black text-[15px]">${String(i+1).padStart(2,'0')} · ${r.t}</div><div class="text-[15px] muted mt-0.5">${r.d}</div><div class="text-[15px] mt-1" style="color:var(--accent)">🔍 Click para ampliar</div></div></div>`
 ).join('');
+// ===== LIGHTBOX RENDERS =====
+function openRender(i){
+  const r=RENDERS_DATA[i]; if(!r) return;
+  document.getElementById('lbImg').src=r.f;
+  document.getElementById('lbTitle').textContent=r.t;
+  document.getElementById('lbDesc').textContent=r.d+' · '+(r.meta||'');
+  document.getElementById('lightbox').classList.remove('hidden-lb');
+  document.body.style.overflow='hidden';
+}
+function closeRender(){ document.getElementById('lightbox').classList.add('hidden-lb'); document.body.style.overflow=''; }
+document.getElementById('lightbox').addEventListener('click',e=>{ if(e.target.id==='lightbox'||e.target.classList.contains('lb-close')) closeRender(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeRender(); });
 
 // ===== INFORMES DATA (completo, desde vault) =====
 const INFORMES=[
@@ -795,9 +898,9 @@ const INFORMES=[
  ]},
 ];
 document.getElementById('informesAccordion').innerHTML=INFORMES.map(inf=>
-  `<details class="card p-4 group fade-in"><summary class="cursor-pointer font-bold text-[14px] list-none flex items-center justify-between gap-2">${inf.t}<i class="ph ph-caret-down transition group-open:rotate-180"></i></summary>
-  <p class="text-[12px] muted mt-1.5 mb-2">${inf.s}</p>
-  <ul class="space-y-1.5">${inf.b.map(x=>`<li class="text-[12.5px] leading-relaxed pl-4 relative" style="color:var(--text)"><span class="absolute left-0 top-[7px] w-1.5 h-1.5 rounded-full" style="background:var(--accent)"></span>${x}</li>`).join('')}</ul></details>`
+  `<details class="card p-4 group fade-in"><summary class="cursor-pointer font-bold text-[16px] list-none flex items-center justify-between gap-2">${inf.t}<i class="ph ph-caret-down transition group-open:rotate-180"></i></summary>
+  <p class="text-[15px] muted mt-1.5 mb-2">${inf.s}</p>
+  <ul class="space-y-1.5">${inf.b.map(x=>`<li class="text-[15px] leading-relaxed pl-4 relative" style="color:var(--text)"><span class="absolute left-0 top-[7px] w-1.5 h-1.5 rounded-full" style="background:var(--accent)"></span>${x}</li>`).join('')}</ul></details>`
 ).join('');
 
 // ===== CATÁLOGO COMPRAS (grande) =====
@@ -1015,12 +1118,12 @@ const TIENDAS=[
 ];
 document.getElementById('tiendasGrid').innerHTML=TIENDAS.map(t=>`
  <div class="p-3 rounded-xl" style="background:var(--tag)">
-   <div class="flex items-center justify-between"><b class="text-[12.5px]">${t.n}</b><span class="text-[9px] font-black px-2 py-0.5 rounded-full" style="background:var(--accent);color:#0F172A">${t.c}</span></div>
-   <p class="text-[11px] muted mt-1 leading-snug">${t.d}</p>
-   <a href="${t.u}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 mt-1.5 text-[11px] font-black" style="color:var(--accent)">IR →</a>
+   <div class="flex items-center justify-between"><b class="text-[15px]">${t.n}</b><span class="text-[9px] font-black px-2 py-0.5 rounded-full" style="background:var(--accent);color:#0F172A">${t.c}</span></div>
+   <p class="text-[15px] muted mt-1 leading-snug">${t.d}</p>
+   <a href="${t.u}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 mt-1.5 text-[15px] font-black" style="color:var(--accent)">IR →</a>
  </div>`).join('');
 let CAT_FILTRO='TODAS';
-document.getElementById('catalogoPills').innerHTML=CAT_PILLS.map(([k,l])=>`<button onclick="catFiltro('${k}')" id="pill-${k}" class="px-3 py-1.5 rounded-full text-[12px] font-bold border transition" style="border-color:${k==='TODAS'?'var(--accent)':'var(--border)'};background:${k==='TODAS'?'var(--accent)':'transparent'};color:${k==='TODAS'?'#0F172A':'var(--text)'}">${l}</button>`).join('');
+document.getElementById('catalogoPills').innerHTML=CAT_PILLS.map(([k,l])=>`<button onclick="catFiltro('${k}')" id="pill-${k}" class="px-3 py-1.5 rounded-full text-[15px] font-bold border transition" style="border-color:${k==='TODAS'?'var(--accent)':'var(--border)'};background:${k==='TODAS'?'var(--accent)':'transparent'};color:${k==='TODAS'?'#0F172A':'var(--text)'}">${l}</button>`).join('');
 function catFiltro(k){
   CAT_FILTRO=k;
   document.querySelectorAll('#catalogoPills button').forEach(b=>{
@@ -1043,7 +1146,7 @@ function renderCatalogo(){
     return (i.n+' '+(i.marca||'')+' '+i.cat).toLowerCase().includes(q);
   });
   if(!items.length){
-    el.innerHTML='<div class="card p-6 text-center text-[13px] muted">🔍 Sin resultados para «'+q+'» — prueba «BBS», «17», «5x100», «vinilo»…</div>';
+    el.innerHTML='<div class="card p-6 text-center text-[15px] muted">🔍 Sin resultados para «'+q+'» — prueba «BBS», «17», «5x100», «vinilo»…</div>';
     return;
   }
   el.innerHTML=items.map(i=>{
@@ -1051,11 +1154,11 @@ function renderCatalogo(){
     const color=no?'var(--red)':warn?'#EAB308':ok?'#10b981':'var(--muted)';
     const badge=(i.cfg&&i.cfg===CONFIG_RIM)?'<span class="ml-1.5 inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-full" style="background:var(--accent);color:#0F172A;letter-spacing:.05em" title="Seleccionada en el configurador 3D">★ EN CONFIGURADOR</span>':'';
     return `<div class="card p-3 fade-in flex flex-col gap-1" style="${no?'opacity:.55':''}">
-      <div class="flex items-center justify-between gap-2"><span class="text-[9.5px] font-black tracking-[0.12em] muted">${i.cat}</span><b class="text-[13px]" style="color:var(--accent)">${i.p}</b></div>
-      <div class="font-bold text-[13px] leading-tight leading-snug">${i.n}${badge}</div>
-      <div class="text-[11px] muted">Marca: ${i.marca}</div>
-      <div class="text-[11.5px] leading-snug" style="color:${color}">${i.c}</div>
-      <a href="${i.u}" target="_blank" rel="noopener" class="mt-1.5 inline-flex items-center justify-center gap-1.5 py-2 rounded-full text-[12px] font-black transition hover:opacity-85" style="background:var(--accent);color:#0F172A">COMPRAR <i class="ph ph-arrow-up-right"></i></a>
+      <div class="flex items-center justify-between gap-2"><span class="text-[15px] font-black tracking-[0.12em] muted">${i.cat}</span><b class="text-[15px]" style="color:var(--accent)">${i.p}</b></div>
+      <div class="font-bold text-[15px] leading-tight leading-snug">${i.n}${badge}</div>
+      <div class="text-[15px] muted">Marca: ${i.marca}</div>
+      <div class="text-[16px] leading-snug" style="color:${color}">${i.c}</div>
+      <a href="${i.u}" target="_blank" rel="noopener" class="mt-1.5 inline-flex items-center justify-center gap-1.5 py-2 rounded-full text-[15px] font-black transition hover:opacity-85" style="background:var(--accent);color:#0F172A">COMPRAR <i class="ph ph-arrow-up-right"></i></a>
     </div>`;
   }).join('');
 }
