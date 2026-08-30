@@ -780,7 +780,8 @@ const RENDERS_DATA = [
   {f:'img/Flama-Nuevo-08.png', t:'Flama 08 · Blanco perla', d:'BBS CH plata · Angel eyes · Paseo marítimo', c:'Blanco'},
     {f:'img/renders/r01_negro_urbano.png', t:'Negro urbano', d:'Render IA — negro urbano', c:'Negro'},
   ];
-if(document.getElementById('rendersGrid')) document.getElementById('rendersGrid').innerHTML = renderRenders('Todos'); else setTimeout(()=>{if(document.getElementById('rendersGrid')) document.getElementById('rendersGrid').innerHTML = renderRenders('Todos');},200);
+// render inicial diferido: asegura que todo (incl. module) esté listo
+window.addEventListener('load', function(){ setTimeout(function(){ if(typeof renderRenders==='function' && document.getElementById('rendersGrid')) renderRenders('Todos'); }, 100); });
 // ===== FILTRO RENDERS POR COLOR =====
 let RENDER_CAT='Todos';
 const RENDER_CATS=['Todos','Gris','Negro','Blanco','Azul','Rojo','Verde','Vinilos'];
