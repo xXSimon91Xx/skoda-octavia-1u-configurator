@@ -193,9 +193,10 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
 </section>
 
 <!-- TAB: INFORMES -->
-<section id="tab-informes" class="hidden-tab max-w-[900px] mx-auto px-4 py-5">
+<section id="tab-informes" class="hidden-tab max-w-[1600px] mx-auto px-4 py-5">
   <h2 class="font-black text-xl tracking-tight">📋 Informes del coche</h2>
-  <div class="space-y-3 mt-4" id="informesAccordion"></div>
+  <p class="text-[15px] muted mt-1">8 informes completos con datos verificados · doble click en el 3D también te informa</p>
+  <div class="grid md:grid-cols-2 xl:grid-cols-2 gap-4 mt-4" id="informesAccordion"></div>
 </section>
 
 <!-- TAB: COMPRAS -->
@@ -740,16 +741,6 @@ const RENDERS_DATA = [
   {f:'img/renders/r07_vinilo_chrome.png', t:'Vinilo cromo espejo', d:'Refleja cielo y edificios por completo', c:'Vinilos'},
   {f:'img/renders/r08_vinilo_azul_violaceo.png', t:'Vinilo iridiscente azul-violeta', d:'Color shift en garaje neón', c:'Vinilos'},
   {f:'img/renders/r09_vinilo_mint.png', t:'Vinilo verde menta mate', d:'Fondo tropical con día brillante', c:'Verde'},
-  {f:'img/renders/r27_lejos_montana.png', t:'Paso de montaña', d:'Vista aérea con nubes dramáticas', c:'Escenarios'},
-  {f:'img/renders/r28_espejo_agua.png', t:'Reflejo en agua', d:'Hora azul con simetría perfecta', c:'Escenarios'},
-  {f:'img/renders/r29_desierto_ruta66.png', t:'Ruta 66', d:'Desierto con cactus, motel y atardecer', c:'Escenarios'},
-  {f:'img/renders/r30_granja_campo.png', t:'Campo de trigo', d:'Hora dorada rural', c:'Escenarios'},
-  {f:'img/renders/r32_explosion_pintura.png', t:'Explosión de pintura', d:'Estudio dinámico con colores', c:'Escenarios'},
-  {f:'img/renders/r33_hielo_invierno.png', t:'Lago helado', d:'Cristales de hielo alpinos', c:'Escenarios'},
-  {f:'img/renders/r34_lavadero.png', t:'En el lavadero', d:'Espuma y agua, día brillante', c:'Escenarios'},
-  {f:'img/renders/r35_puente_torii.png', t:'Torii en el agua', d:'Estilo Miyajima', c:'Escenarios'},
-  {f:'img/renders/r36_oni_demonio.png', t:'Máscara Oni', d:'Frontal con máscara, fondo templo', c:'Escenarios'},
-  {f:'img/renders/r37_serie_vodka_black.png', t:'Negro mate franja roja', d:'Estilo carreras, calipers rojos', c:'Negro'},
   {f:'img/Flama-Nuevo-01.png', t:'Flama 01 · Negro piano brillo', d:'BBS CH plata 17" · Angel eyes · Calle urbana', c:'Negro'},
   {f:'img/Flama-Nuevo-02.png', t:'Flama 02 · Verde bosque satinado', d:'5 radios bronce 17" · Ducktail', c:'Verde'},
   {f:'img/Flama-Nuevo-05.png', t:'Flama 05 · Azul medianoche', d:'Mesh negro 18" · RS · Noche neón', c:'Azul'},
@@ -758,7 +749,7 @@ const RENDERS_DATA = [
 document.getElementById('rendersGrid').innerHTML = renderRenders('Todos');
 // ===== FILTRO RENDERS POR COLOR =====
 let RENDER_CAT='Todos';
-const RENDER_CATS=['Todos','Gris','Negro','Blanco','Azul','Rojo','Verde','Vinilos','Escenarios'];
+const RENDER_CATS=['Todos','Gris','Negro','Blanco','Azul','Rojo','Verde','Vinilos'];
 document.getElementById('renderFilters').innerHTML=RENDER_CATS.map(c=>
   `<button onclick="setRenderCat('${c}')" id="rc-${c}" class="px-3 py-1.5 rounded-full text-[13px] font-bold border transition" style="border-color:${c==='Todos'?'var(--accent)':'var(--border)'};background:${c==='Todos'?'var(--accent)':'transparent'};color:${c==='Todos'?'#0F172A':'var(--text)'}">${c}</button>`).join('');
 function setRenderCat(c){
