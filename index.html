@@ -5,7 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SKODA OCTAVIA 1U — Configurador ModsNation Style</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='10' y='20' width='80' height='55' rx='12' fill='%23C9A86A'/><rect x='28' y='10' width='44' height='20' rx='6' fill='%230F172A'/><circle cx='27' cy='68' r='10' fill='%230F172A'/><circle cx='73' cy='68' r='10' fill='%230F172A'/></svg>">
-<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com">
+// accordion informes: abrir uno cierra los demas (compat total)
+document.addEventListener('click', function(e){
+  var s = e.target.closest('#informesAccordion summary');
+  if(!s) return;
+  var d = s.closest('details');
+  document.querySelectorAll('#informesAccordion details').forEach(function(o){ if(o!==d) o.removeAttribute('open'); });
+});
+</script>
 <script>
 tailwind.config = { theme: { extend: {
   colors: { navy: '#0F172A', 'navy-2': '#1E293B', gold: '#C9A86A', 'gold-2': '#D4AF37', steel: '#7A8090', red: '#E30613' },
@@ -779,12 +787,23 @@ const RENDERS_DATA = [
   {f:'img/Flama-Nuevo-05.png', t:'Flama 05 · Azul medianoche', d:'Mesh negro 18" · RS · Noche neón', c:'Azul'},
   {f:'img/Flama-Nuevo-08.png', t:'Flama 08 · Blanco perla', d:'BBS CH plata · Angel eyes · Paseo marítimo', c:'Blanco'},
     {f:'img/renders/r01_negro_urbano.png', t:'Negro urbano', d:'Render IA — negro urbano', c:'Negro'},
+  ], {f:'img/renders/r27_lejos_montana.png', t:'Paso de montaña', d:'Render IA · vista aérea de curva de montaña', c:'Escenarios'},
+  {f:'img/renders/r28_espejo_agua.png', t:'Espejo de agua', d:'Render IA · reflejo en agua quieta a la hora azul', c:'Escenarios'},
+  {f:'img/renders/r29_desierto_ruta66.png', t:'Ruta 66', d:'Render IA · carretera desértica estilo Ruta 66', c:'Escenarios'},
+  {f:'img/renders/r30_granja_campo.png', t:'Campo de trigo', d:'Render IA · campo de trigo en hora dorada', c:'Escenarios'},
+  {f:'img/renders/r32_explosion_pintura.png', t:'Explosión de pintura', d:'Render IA · explosión de pintura', c:'Escenarios'},
+  {f:'img/renders/r33_hielo_invierno.png', t:'Hielo invierno', d:'Render IA · hielo invierno', c:'Escenarios'},
+  {f:'img/renders/r34_lavadero.png', t:'Lavadero', d:'Render IA · lavadero', c:'Escenarios'},
+  {f:'img/renders/r35_puente_torii.png', t:'Puente torii', d:'Render IA · puente torii', c:'Escenarios'},
+  {f:'img/renders/r36_oni_demonio.png', t:'Oni demonio', d:'Render IA · oni demonio', c:'Escenarios'},
+  {f:'img/renders/r37_serie_vodka_black.png', t:'Serie vodka black', d:'Render IA · serie vodka black', c:'Escenarios'},
+];
   ];
 // render inicial diferido: asegura que todo (incl. module) esté listo
 window.addEventListener('load', function(){ setTimeout(function(){ if(typeof renderRenders==='function' && document.getElementById('rendersGrid')) renderRenders('Todos'); }, 100); });
 // ===== FILTRO RENDERS POR COLOR =====
 let RENDER_CAT='Todos';
-const RENDER_CATS=['Todos','Gris','Negro','Blanco','Azul','Rojo','Verde','Vinilos'];
+const RENDER_CATS=['Todos','Gris','Negro','Blanco','Azul','Rojo','Verde','Vinilos','Escenarios'];
 document.getElementById('renderFilters').innerHTML=RENDER_CATS.map(c=>
   `<button onclick="setRenderCat('${c}')" id="rc-${c}" class="px-3 py-1.5 rounded-full text-[13px] font-bold border transition" style="border-color:${c==='Todos'?'var(--accent)':'var(--border)'};background:${c==='Todos'?'var(--accent)':'transparent'};color:${c==='Todos'?'#0F172A':'var(--text)'}">${c}</button>`).join('');
 function setRenderCat(c){
@@ -944,7 +963,7 @@ const INFORMES=[
  ]},
 ];
 document.getElementById('informesAccordion').innerHTML=INFORMES.map((inf,i)=>
-  `<details name="informe-${i}" class="card p-4 group fade-in"><summary class="cursor-pointer font-bold text-[16px] list-none flex items-center justify-between gap-2">${inf.t}<i class="ph ph-caret-down transition group-open:rotate-180"></i></summary>
+  `<details class="card p-4 group fade-in inf-ac"><summary class="cursor-pointer font-bold text-[16px] list-none flex items-center justify-between gap-2">${inf.t}<i class="ph ph-caret-down transition group-open:rotate-180"></i></summary>
   <p class="text-[15px] muted mt-1.5 mb-2">${inf.s}</p>
   <ul class="space-y-1.5">${inf.b.map(x=>`<li class="text-[15px] leading-relaxed pl-4 relative" style="color:var(--text)"><span class="absolute left-0 top-[7px] w-1.5 h-1.5 rounded-full" style="background:var(--accent)"></span>${x}</li>`).join('')}</ul></details>`
 ).join('');
