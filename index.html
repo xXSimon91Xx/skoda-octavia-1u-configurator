@@ -36,7 +36,7 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 .swatch{width:34px;height:34px;border-radius:50%;border:2px solid var(--border);cursor:pointer;transition:transform .15s}
 .swatch:hover{transform:scale(1.15)}
 .swatch.sel{border:3px solid var(--accent);box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--accent)}
-#viewer3d{width:100%;height:560px;border-radius:16px;background:radial-gradient(ellipse at center,#1e293b 0%,#0f172a 60%,#070b14 100%)}
+#viewer3d{width:100%;height:700px;border-radius:16px;background:radial-gradient(ellipse at center,#1e293b 0%,#0f172a 60%,#070b14 100%)}
 #glCanvas{width:100% !important;height:100% !important;display:block;border-radius:16px}
 select,input[type=range]{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:13px;width:100%}
 .toast{position:fixed;bottom:24px;right:24px;background:#0F172A;color:#fff;padding:14px 20px;border-radius:14px;font-size:13px;font-weight:600;z-index:99;opacity:0;transform:translateY(20px);transition:all .3s;max-width:340px;border-left:4px solid var(--accent)}
@@ -84,7 +84,7 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
       <div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-[15px]" style="background:var(--accent);color:#0F172A">SK<span>1U</span></div>
       <div class="hidden sm:block">
         <div class="font-black text-[15px] tracking-[0.14em] leading-none">SKODA OCTAVIA 1U</div>
-        <div class="text-[10.5px] tracking-widest muted font-medium mt-0.5">1.9 TDI · ALH 90CV REAL · 2001</div>
+        <div class="text-[12.5px] tracking-widest muted font-medium mt-0.5">1.9 TDI · ALH 90CV REAL · 2001</div>
       </div>
     </div>
     <div class="flex items-center gap-1 text-[15px] font-medium overflow-x-auto" style="scrollbar-width:none;-ms-overflow-style:none">
@@ -103,8 +103,8 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
 </nav>
 
 <!-- TAB: CONFIGURADOR -->
-<section id="tab-config" class="max-w-[1400px] mx-auto px-4 py-5">
-  <div class="grid lg:grid-cols-[1fr_320px] gap-4">
+<section id="tab-config" class="max-w-[1600px] mx-auto px-4 py-5">
+  <div class="grid lg:grid-cols-[1fr_360px] gap-4">
     <!-- VIEWER -->
     <div class="card p-3 fade-in">
       <div class="flex flex-wrap items-center justify-between gap-2 px-1 pb-2">
@@ -117,7 +117,7 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
         </div>
       </div>
       <div id="viewer3d"><canvas id="glCanvas"></canvas></div>
-      <div class="flex flex-wrap gap-1.5 mt-2 px-1 text-[10.5px] muted">
+      <div class="flex flex-wrap gap-1.5 mt-2 px-1 text-[12.5px] muted">
         <span class="px-2 py-0.5 rounded-full border" style="border-color:var(--border)">Piezas: FL/FR/RL/RR rims · primary · glass · front · chrome</span>
         <span class="px-2 py-0.5 rounded-full border" style="border-color:var(--border)">Archivo: 2000_skoda_octavia.glb (4.9MB, CC-BY)</span>
       </div>
@@ -171,7 +171,7 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
       <div class="pt-1">
         <button onclick="resetConfig()" class="w-full py-2.5 rounded-full font-bold text-[15px]" style="background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)">⟲ Reset configuración</button>
       </div>
-      <div class="text-[10.5px] muted leading-relaxed p-3 rounded-xl" style="background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px dashed var(--accent)">
+      <div class="text-[12.5px] muted leading-relaxed p-3 rounded-xl" style="background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px dashed var(--accent)">
         <b>Tip:</b> doble click en llantas/alerón/faros/carrocería abre ficha de pieza con compatibilidad y link a la tienda.
       </div>
     </div>
@@ -184,6 +184,7 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
     <h2 class="font-black text-xl tracking-tight">🖼️ Renders IA <span class="text-[15px] font-bold px-2 py-0.5 rounded-full" style="background:var(--accent);color:#0F172A">23 REALES · VERIFICADOS</span></h2>
     <div class="text-[15px] muted flex items-center gap-2"><i class="ph ph-magic-wand text-lg"></i> Generados con Gemini Image vía OpenRouter (~0,034 USD/img) — descripción de cada uno verificada por visión antes de publicar</div>
   </div>
+  <div class="flex flex-wrap gap-1.5 mt-3" id="renderFilters"></div>
   <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-4 mt-5" id="rendersGrid"></div>
   <div class="card p-5 mt-4 flex flex-wrap items-center justify-between gap-3">
     <div><div class="font-bold text-[16px]">🎬 Próximos renders (batch pendiente de crédito OpenRouter)</div><div class="text-[15px] muted mt-0.5">Más vinilos (camuflaje, rosa, dorado, batman) · Tunel neón · Cyberpunk · Track day · Drift · Snow · Nieve · Contraluz — el script reanuda solo cuando vuelve el crédito (salta los ya generados)</div></div>
@@ -730,33 +731,51 @@ function handlePieceClick(obj){
 
 // ===== RENDERS GRID =====
 const RENDERS_DATA = [
-  {f:'img/renders/r01_steel_grey_studio.png', t:'Steel Grey 9102 de serie', d:'Estudio oscuro con focos y suelo espejo'},
-  {f:'img/renders/r02_negro_piano_urbano.png', t:'Negro piano brillo', d:'Calle urbana nocturna con reflejos neón'},
-  {f:'img/renders/r03_blanco_perla_mar.png', t:'Blanco perla', d:'Paseo marítimo en hora dorada'},
-  {f:'img/renders/r04_azul_medianoche.png', t:'Azul medianoche', d:'Noche de lluvia con luces'},
-  {f:'img/renders/r05_rojo_torii.png', t:'Rojo torii', d:'Frente a torii con cerezos y atardecer'},
-  {f:'img/renders/r06_verde_bosque.png', t:'Verde bosque satinado', d:'Carretera de bosque con niebla'},
-  {f:'img/renders/r07_vinilo_chrome.png', t:'Vinilo cromo espejo', d:'Refleja cielo y edificios por completo'},
-  {f:'img/renders/r08_vinilo_azul_violaceo.png', t:'Vinilo iridiscente azul-violeta', d:'Color shift en garaje neón'},
-  {f:'img/renders/r09_vinilo_mint.png', t:'Vinilo verde menta mate', d:'Fondo tropical con día brillante'},
-  {f:'img/renders/r27_lejos_montana.png', t:'Paso de montaña', d:'Vista aérea con nubes dramáticas'},
-  {f:'img/renders/r28_espejo_agua.png', t:'Reflejo en agua', d:'Hora azul con simetría perfecta'},
-  {f:'img/renders/r29_desierto_ruta66.png', t:'Ruta 66', d:'Desierto con cactus, motel y atardecer'},
-  {f:'img/renders/r30_granja_campo.png', t:'Campo de trigo', d:'Hora dorada rural'},
-  {f:'img/renders/r32_explosion_pintura.png', t:'Explosión de pintura', d:'Estudio dinámico con colores'},
-  {f:'img/renders/r33_hielo_invierno.png', t:'Lago helado', d:'Cristales de hielo alpinos'},
-  {f:'img/renders/r34_lavadero.png', t:'En el lavadero', d:'Espuma y agua, día brillante'},
-  {f:'img/renders/r35_puente_torii.png', t:'Torii en el agua', d:'Estilo Miyajima'},
-  {f:'img/renders/r36_oni_demonio.png', t:'Máscara Oni', d:'Frontal con máscara, fondo templo'},
-  {f:'img/renders/r37_serie_vodka_black.png', t:'Negro mate franja roja', d:'Estilo carreras, calipers rojos'},
-  {f:'img/Flama-Nuevo-01.png', t:'Flama 01 · Negro piano brillo', d:'BBS CH plata 17" · Angel eyes · Calle urbana'},
-  {f:'img/Flama-Nuevo-02.png', t:'Flama 02 · Verde bosque satinado', d:'5 radios bronce 17" · Ducktail'},
-  {f:'img/Flama-Nuevo-05.png', t:'Flama 05 · Azul medianoche', d:'Mesh negro 18" · RS · Noche neón'},
-  {f:'img/Flama-Nuevo-08.png', t:'Flama 08 · Blanco perla', d:'BBS CH plata · Angel eyes · Paseo marítimo'},
+  {f:'img/renders/r01_steel_grey_studio.png', t:'Steel Grey 9102 de serie', d:'Estudio oscuro con focos y suelo espejo', c:'Gris'},
+  {f:'img/renders/r02_negro_piano_urbano.png', t:'Negro piano brillo', d:'Calle urbana nocturna con reflejos neón', c:'Negro'},
+  {f:'img/renders/r03_blanco_perla_mar.png', t:'Blanco perla', d:'Paseo marítimo en hora dorada', c:'Blanco'},
+  {f:'img/renders/r04_azul_medianoche.png', t:'Azul medianoche', d:'Noche de lluvia con luces', c:'Azul'},
+  {f:'img/renders/r05_rojo_torii.png', t:'Rojo torii', d:'Frente a torii con cerezos y atardecer', c:'Rojo'},
+  {f:'img/renders/r06_verde_bosque.png', t:'Verde bosque satinado', d:'Carretera de bosque con niebla', c:'Verde'},
+  {f:'img/renders/r07_vinilo_chrome.png', t:'Vinilo cromo espejo', d:'Refleja cielo y edificios por completo', c:'Vinilos'},
+  {f:'img/renders/r08_vinilo_azul_violaceo.png', t:'Vinilo iridiscente azul-violeta', d:'Color shift en garaje neón', c:'Vinilos'},
+  {f:'img/renders/r09_vinilo_mint.png', t:'Vinilo verde menta mate', d:'Fondo tropical con día brillante', c:'Verde'},
+  {f:'img/renders/r27_lejos_montana.png', t:'Paso de montaña', d:'Vista aérea con nubes dramáticas', c:'Escenarios'},
+  {f:'img/renders/r28_espejo_agua.png', t:'Reflejo en agua', d:'Hora azul con simetría perfecta', c:'Escenarios'},
+  {f:'img/renders/r29_desierto_ruta66.png', t:'Ruta 66', d:'Desierto con cactus, motel y atardecer', c:'Escenarios'},
+  {f:'img/renders/r30_granja_campo.png', t:'Campo de trigo', d:'Hora dorada rural', c:'Escenarios'},
+  {f:'img/renders/r32_explosion_pintura.png', t:'Explosión de pintura', d:'Estudio dinámico con colores', c:'Escenarios'},
+  {f:'img/renders/r33_hielo_invierno.png', t:'Lago helado', d:'Cristales de hielo alpinos', c:'Escenarios'},
+  {f:'img/renders/r34_lavadero.png', t:'En el lavadero', d:'Espuma y agua, día brillante', c:'Escenarios'},
+  {f:'img/renders/r35_puente_torii.png', t:'Torii en el agua', d:'Estilo Miyajima', c:'Escenarios'},
+  {f:'img/renders/r36_oni_demonio.png', t:'Máscara Oni', d:'Frontal con máscara, fondo templo', c:'Escenarios'},
+  {f:'img/renders/r37_serie_vodka_black.png', t:'Negro mate franja roja', d:'Estilo carreras, calipers rojos', c:'Negro'},
+  {f:'img/Flama-Nuevo-01.png', t:'Flama 01 · Negro piano brillo', d:'BBS CH plata 17" · Angel eyes · Calle urbana', c:'Negro'},
+  {f:'img/Flama-Nuevo-02.png', t:'Flama 02 · Verde bosque satinado', d:'5 radios bronce 17" · Ducktail', c:'Verde'},
+  {f:'img/Flama-Nuevo-05.png', t:'Flama 05 · Azul medianoche', d:'Mesh negro 18" · RS · Noche neón', c:'Azul'},
+  {f:'img/Flama-Nuevo-08.png', t:'Flama 08 · Blanco perla', d:'BBS CH plata · Angel eyes · Paseo marítimo', c:'Blanco'},
 ];
-document.getElementById('rendersGrid').innerHTML = RENDERS_DATA.map((r,i)=>
-  `<div class="card overflow-hidden fade-in clk" onclick="openRender(${i})" role="button" tabindex="0"><img src="${r.f}" class="w-full h-52 object-cover hover:scale-105 transition" alt="${r.t}" loading="lazy"><div class="p-3"><div class="font-black text-[15px]">${String(i+1).padStart(2,'0')} · ${r.t}</div><div class="text-[15px] muted mt-0.5">${r.d}</div><div class="text-[15px] mt-1" style="color:var(--accent)">🔍 Click para ampliar</div></div></div>`
-).join('');
+document.getElementById('rendersGrid').innerHTML = renderRenders('Todos');
+// ===== FILTRO RENDERS POR COLOR =====
+let RENDER_CAT='Todos';
+const RENDER_CATS=['Todos','Gris','Negro','Blanco','Azul','Rojo','Verde','Vinilos','Escenarios'];
+document.getElementById('renderFilters').innerHTML=RENDER_CATS.map(c=>
+  `<button onclick="setRenderCat('${c}')" id="rc-${c}" class="px-3 py-1.5 rounded-full text-[13px] font-bold border transition" style="border-color:${c==='Todos'?'var(--accent)':'var(--border)'};background:${c==='Todos'?'var(--accent)':'transparent'};color:${c==='Todos'?'#0F172A':'var(--text)'}">${c}</button>`).join('');
+function setRenderCat(c){
+  RENDER_CAT=c;
+  document.querySelectorAll('#renderFilters button').forEach(b=>{
+    const on=b.id==='rc-'+c;
+    b.style.background=on?'var(--accent)':'transparent'; b.style.borderColor=on?'var(--accent)':'var(--border)'; b.style.color=on?'#0F172A':'var(--text)';
+  });
+  renderRenders(c);
+}
+function renderRenders(cat){
+  const items = cat==='Todos' ? RENDERS_DATA : RENDERS_DATA.filter(r=>r.c===cat);
+  document.getElementById('rendersGrid').innerHTML = items.map((r,i)=>
+    `<div class="card overflow-hidden fade-in clk" onclick="openRender(${RENDERS_DATA.indexOf(r)})" role="button" tabindex="0"><img src="${r.f}" class="w-full h-52 object-cover hover:scale-105 transition" alt="${r.t}" loading="lazy"><div class="p-3"><div class="font-black text-[15px]">${String(RENDERS_DATA.indexOf(r)+1).padStart(2,'0')} · ${r.t}</div><div class="text-[13px] muted mt-0.5">${r.d}</div><div class="text-[11px] mt-1" style="color:var(--accent)">🔍 Click para ampliar</div></div></div>`
+  ).join('');
+  if(!items.length) document.getElementById('rendersGrid').innerHTML='<div class="card p-6 text-center text-[13px] muted">Sin renders en «'+cat+'» aún — se generan con crédito.</div>';
+}
 // ===== LIGHTBOX RENDERS =====
 function openRender(i){
   const r=RENDERS_DATA[i]; if(!r) return;
@@ -1119,7 +1138,7 @@ const TIENDAS=[
 ];
 document.getElementById('tiendasGrid').innerHTML=TIENDAS.map(t=>`
  <div class="p-3 rounded-xl" style="background:var(--tag)">
-   <div class="flex items-center justify-between"><b class="text-[15px]">${t.n}</b><span class="text-[9px] font-black px-2 py-0.5 rounded-full" style="background:var(--accent);color:#0F172A">${t.c}</span></div>
+   <div class="flex items-center justify-between"><b class="text-[15px]">${t.n}</b><span class="text-[11px] font-black px-2 py-0.5 rounded-full" style="background:var(--accent);color:#0F172A">${t.c}</span></div>
    <p class="text-[15px] muted mt-1 leading-snug">${t.d}</p>
    <a href="${t.u}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 mt-1.5 text-[15px] font-black" style="color:var(--accent)">IR →</a>
  </div>`).join('');
@@ -1153,7 +1172,7 @@ function renderCatalogo(){
   el.innerHTML=items.map(i=>{
     const ok=i.c.startsWith('✓'), no=i.c.startsWith('✗'), warn=i.c.startsWith('⚠');
     const color=no?'var(--red)':warn?'#EAB308':ok?'#10b981':'var(--muted)';
-    const badge=(i.cfg&&i.cfg===CONFIG_RIM)?'<span class="ml-1.5 inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-full" style="background:var(--accent);color:#0F172A;letter-spacing:.05em" title="Seleccionada en el configurador 3D">★ EN CONFIGURADOR</span>':'';
+    const badge=(i.cfg&&i.cfg===CONFIG_RIM)?'<span class="ml-1.5 inline-flex items-center gap-1 text-[11px] font-black px-2 py-0.5 rounded-full" style="background:var(--accent);color:#0F172A;letter-spacing:.05em" title="Seleccionada en el configurador 3D">★ EN CONFIGURADOR</span>':'';
     return `<div class="card p-3 fade-in flex flex-col gap-1" style="${no?'opacity:.55':''}">
       <div class="flex items-center justify-between gap-2"><span class="text-[15px] font-black tracking-[0.12em] muted">${i.cat}</span><b class="text-[15px]" style="color:var(--accent)">${i.p}</b></div>
       <div class="font-bold text-[15px] leading-tight leading-snug">${i.n}${badge}</div>
