@@ -365,8 +365,9 @@ async function init3D(){
   const fill=new THREE.DirectionalLight(0x88aaff,0.5); fill.position.set(-5,2,-4); scene.add(fill);
   const rim=new THREE.DirectionalLight(0xffeedd,0.8); rim.position.set(0,1.2,6); scene.add(rim);
 
-  const grid=new THREE.GridHelper(12,24,0x334155,0x1e293b); grid.position.y=0; scene.add(grid);
-  scene.add(new THREE.Mesh(new THREE.CircleGeometry(8,64),new THREE.MeshStandardMaterial({color:0x111827,roughness:0.9}))).position.y=-0.005; // ground shadow plane
+  const grid=new THREE.GridHelper(12,24,0x526079,0x31405a); // grid sutil (nada de plano negro)
+  grid.material.opacity=0.30; grid.material.transparent=true;
+  grid.position.y=0.0; scene.add(grid); // el modelo apoya en y=0 (minY normalizado): el grid no atraviesa la carrocería
 
   raycaster=new THREE.Raycaster(); mouse=new THREE.Vector2();
 
@@ -414,7 +415,8 @@ async function init3D(){
     });
     // apply current options
     applyPaint(PAINTS[0]);
-    document.getElementById('modelStatus').textContent='✅ Modelo real cargado — '+Math.round(gltfScene.children.length)+' nodos';
+    const _nC=Math.round(gltfScene.children.length);
+    document.getElementById('modelStatus').textContent='✅ Modelo real cargado — '+_nC+(_nC===1?' nodo':' nodos');
     console.log('SKODA NODES',carNodes);
   }catch(e){
     document.getElementById('modelStatus').textContent='⚠️ Modelo no cargó (CORS local). Usa: python -m http.server';
@@ -508,12 +510,10 @@ function applyRims(style){
         anchor.getWorldPosition(tmp); anchor.getWorldQuaternion(q); anchor.getWorldScale(s);
         const rim = gltf.scene.clone(true);
         // scale rim to match wheel: rim glb radio=0.5; hueco real de rueda ~0.27-0.29 mundo
-        const rimSize = 0.5; // tune visual
+        const rimSize = 0.42; // tune visual (hueco real ~0.27-0.29; glb radio 0.5)
         rim.scale.setScalar(s.x > 0.001 ? (rimSize/s.x) : 1.0);
-        rim.position.copy(tmp);
-        rim.quaternion.copy(q);
-        // rotate rim to face outward: tripo model faces +Z viewer, wheel axis is X (Z on sides)
-        rim.rotateY(i % 2 === 0 ? Math.PI/2 : Math.PI/2);
+        rim.position.copy(tmp); rim.position.y = tmp.y; // centrada en el eje de la rueda, sin offset Y extra
+        rim.quaternion.copy(q); // hereda la orientacion real del anchor: SIN rotacion Y extra (desorientaba la llanta)
         rim.traverse(o=>{ if(o.isMesh){ o.castShadow=true; } });
         (window.__SCENE||gltfScene).add(rim);
         window.__rimInstances.push(rim);
@@ -628,6 +628,22 @@ function addAngelEyes(on){
     ring.rotation.y=Math.PI/2;
     gltfScene.add(ring); __aeMeshes.push(ring);
   });
+  // 'front' activa los faros REALES del glb (emissive), no solo los anillos procedurales
+  gltfScene.traverse(o=>{
+    if(!o.isMesh) return;
+    const fname=((o.name||'')+' '+(o.material&&o.material.name||'')).toLowerCase();
+    if(!/front/.test(fname)||/rear|far_rear/.test(fname)) return;
+    const fmats=Array.isArray(o.material)?o.material:[o.material];
+    fmats.forEach(mt=>{
+      if(mt&&mt.isMeshStandardMaterial){
+        if(gltfScene.userData._aeEmOrig===undefined) gltfScene.userData._aeEmOrig=mt.emissiveIntensity||0;
+        mt.emissive=mt.emissive||new THREE.Color(0x000000);
+        mt.emissive.set(on?0xffd875:0x000000);
+        mt.emissiveIntensity=on?1.6:(gltfScene.userData._aeEmOrig||0);
+        mt.needsUpdate=true;
+      }
+    });
+  });
   showToast('💡 Angel Eyes encendidos en los faros (emissive) — +130€ kit plug&play');
 }
 function applyTint(level){
@@ -692,8 +708,8 @@ function applyProceduralRims(style){
   anchors.forEach(anchor=>{
     anchor.getWorldPosition(tmp); anchor.getWorldQuaternion(q);
     const rim=buildRimGroup(style);
-    rim.position.copy(tmp); rim.quaternion.copy(q);
-    rim.rotateY(Math.PI/2);
+    rim.position.copy(tmp); rim.position.y = tmp.y; // centrada en el eje de la rueda, sin offset Y extra
+    rim.quaternion.copy(q); // orientacion del anchor: SIN rotacion Y extra
     (window.__SCENE||gltfScene).add(rim); __procRims.push(rim);
   });
 }
@@ -761,22 +777,12 @@ const RENDERS_DATA = [
   {f:'img/Flama-Nuevo-02.png', t:'Flama 02 · Verde bosque satinado', d:'5 radios bronce 17" · Ducktail', c:'Verde'},
   {f:'img/Flama-Nuevo-05.png', t:'Flama 05 · Azul medianoche', d:'Mesh negro 18" · RS · Noche neón', c:'Azul'},
   {f:'img/Flama-Nuevo-08.png', t:'Flama 08 · Blanco perla', d:'BBS CH plata · Angel eyes · Paseo marítimo', c:'Blanco'},
-    {f:'img/renders/r27_lejos_montana.png', t:'Paso de montaña', d:'Vista aérea de curva de montaña', c:'Otros'},
-    {f:'img/renders/r28_espejo_agua.png', t:'Espejo de agua', d:'Reflejo en agua quieta a la hora azul', c:'Otros'},
-    {f:'img/renders/r29_desierto_ruta66.png', t:'Ruta 66', d:'Carretera desértica estilo Ruta 66', c:'Otros'},
-    {f:'img/renders/r30_granja_campo.png', t:'Campo de trigo', d:'Campo de trigo en hora dorada', c:'Otros'},
     {f:'img/renders/r01_negro_urbano.png', t:'Negro urbano', d:'Render IA — negro urbano', c:'Negro'},
-    {f:'img/renders/r32_explosion_pintura.png', t:'Explosión de pintura', d:'Render IA — explosión de pintura', c:'Otros'},
-    {f:'img/renders/r33_hielo_invierno.png', t:'Hielo invierno', d:'Render IA — hielo invierno', c:'Otros'},
-    {f:'img/renders/r34_lavadero.png', t:'Lavadero', d:'Render IA — lavadero', c:'Otros'},
-    {f:'img/renders/r35_puente_torii.png', t:'Puente torii', d:'Render IA — puente torii', c:'Otros'},
-    {f:'img/renders/r36_oni_demonio.png', t:'Oni demonio', d:'Render IA — oni demonio', c:'Otros'},
-    {f:'img/renders/r37_serie_vodka_black.png', t:'Serie vodka black', d:'Render IA — serie vodka black', c:'Negro'},
   ];
 document.getElementById('rendersGrid').innerHTML = renderRenders('Todos');
 // ===== FILTRO RENDERS POR COLOR =====
 let RENDER_CAT='Todos';
-const RENDER_CATS=['Todos','Gris','Negro','Blanco','Azul','Rojo','Verde','Vinilos','Otros'];
+const RENDER_CATS=['Todos','Gris','Negro','Blanco','Azul','Rojo','Verde','Vinilos'];
 document.getElementById('renderFilters').innerHTML=RENDER_CATS.map(c=>
   `<button onclick="setRenderCat('${c}')" id="rc-${c}" class="px-3 py-1.5 rounded-full text-[13px] font-bold border transition" style="border-color:${c==='Todos'?'var(--accent)':'var(--border)'};background:${c==='Todos'?'var(--accent)':'transparent'};color:${c==='Todos'?'#0F172A':'var(--text)'}">${c}</button>`).join('');
 function setRenderCat(c){
@@ -935,8 +941,8 @@ const INFORMES=[
   '<a href="https://www.oponeo.es/llantas-aluminio/17/5x100-00" target="_blank">Llantas 17" 5x100 — Oponeo →</a> · <a href="https://www.carhifi.eu/search?sSearch=angel+eyes+octavia" target="_blank">Angel Eyes — CarHifi →</a>'
  ]},
 ];
-document.getElementById('informesAccordion').innerHTML=INFORMES.map(inf=>
-  `<details class="card p-4 group fade-in"><summary class="cursor-pointer font-bold text-[16px] list-none flex items-center justify-between gap-2">${inf.t}<i class="ph ph-caret-down transition group-open:rotate-180"></i></summary>
+document.getElementById('informesAccordion').innerHTML=INFORMES.map((inf,i)=>
+  `<details name="informe-${i}" class="card p-4 group fade-in"><summary class="cursor-pointer font-bold text-[16px] list-none flex items-center justify-between gap-2">${inf.t}<i class="ph ph-caret-down transition group-open:rotate-180"></i></summary>
   <p class="text-[15px] muted mt-1.5 mb-2">${inf.s}</p>
   <ul class="space-y-1.5">${inf.b.map(x=>`<li class="text-[15px] leading-relaxed pl-4 relative" style="color:var(--text)"><span class="absolute left-0 top-[7px] w-1.5 h-1.5 rounded-full" style="background:var(--accent)"></span>${x}</li>`).join('')}</ul></details>`
 ).join('');
