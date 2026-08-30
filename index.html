@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SKODA OCTAVIA 1U — Configurador ModsNation Style</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='10' y='20' width='80' height='55' rx='12' fill='%23C9A86A'/><rect x='28' y='10' width='44' height='20' rx='6' fill='%230F172A'/><circle cx='27' cy='68' r='10' fill='%230F172A'/><circle cx='73' cy='68' r='10' fill='%230F172A'/></svg>">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = { theme: { extend: {
@@ -86,13 +87,13 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
         <div class="text-[10.5px] tracking-widest muted font-medium mt-0.5">1.9 TDI · ALH 90CV REAL · 2001</div>
       </div>
     </div>
-    <div class="hidden md:flex items-center gap-1 text-[15px] font-medium">
-      <button class="tab-btn px-3.5 py-2 rounded-full" data-tab="config">🎨 Configurador</button>
-      <button class="tab-btn px-3.5 py-2 rounded-full" data-tab="renders">🖼️ Renders IA</button>
-      <button class="tab-btn px-3.5 py-2 rounded-full" data-tab="informes">📋 Informes</button>
-      <button class="tab-btn px-3.5 py-2 rounded-full" data-tab="compras">🛒 Compras</button>
-      <button class="tab-btn px-3.5 py-2 rounded-full" data-tab="datos">🗂️ Datos</button>
-    </div>
+    <div class="flex items-center gap-1 text-[15px] font-medium overflow-x-auto" style="scrollbar-width:none;-ms-overflow-style:none">
+          <button class="tab-btn px-3.5 py-2 rounded-full whitespace-nowrap" data-tab="config">🎨 Configurador</button>
+          <button class="tab-btn px-3.5 py-2 rounded-full whitespace-nowrap" data-tab="renders">🖼️ Renders IA</button>
+          <button class="tab-btn px-3.5 py-2 rounded-full whitespace-nowrap" data-tab="informes">📋 Informes</button>
+          <button class="tab-btn px-3.5 py-2 rounded-full whitespace-nowrap" data-tab="compras">🛒 Compras</button>
+          <button class="tab-btn px-3.5 py-2 rounded-full whitespace-nowrap" data-tab="datos">🗂️ Datos</button>
+        </div>
     <div class="flex items-center gap-2">
       <button onclick="toggleTheme()" class="w-9 h-9 grid place-items-center rounded-full border text-lg" style="border-color:var(--border)" title="Dark/Light">
         <i id="themeIcon" class="ph ph-moon"></i>
