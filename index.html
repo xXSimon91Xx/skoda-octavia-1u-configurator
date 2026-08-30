@@ -161,14 +161,30 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
         </select>
       </div>
       <div>
-        <div class="text-[15px] tracking-widest font-bold muted">🛗 SUSPENSIÓN</div>
-        <select id="suspSel">
-          <option value="stock">Stock (original)</option>
-          <option value="baja">Baja (-30mm +CSR 307€)</option>
-          <option value="muybaja">MUY baja (-60mm)</option>
-        </select>
-      </div>
-      <div class="pt-1">
+              <div class="text-[15px] tracking-widest font-bold muted">🛗 SUSPENSIÓN</div>
+              <select id="suspSel">
+                <option value="stock">Stock (original)</option>
+                <option value="baja">Baja (-30mm +CSR 307€)</option>
+                <option value="muybaja">MUY baja (-60mm)</option>
+              </select>
+            </div>
+            <div>
+              <div class="text-[15px] tracking-widest font-bold muted">🪽 KIT EXTERIOR</div>
+              <select id="lipSel">
+                <option value="none">Lip delantero: Ninguno</option>
+                <option value="lip">Lip splitter delantero (+80€ Sculptor)</option>
+              </select>
+              <select id="diffSel" class="mt-2">
+                <option value="none">Difusor trasero: Ninguno</option>
+                <option value="diff">Difusor trasero (+120€)</option>
+              </select>
+              <select id="exhaustSel" class="mt-2">
+                <option value="original">Escape: Original</option>
+                <option value="deportivo">Escape deportivo 90mm (+60€)</option>
+                <option value="doble">Escape doble ovalado (+120€)</option>
+              </select>
+            </div>
+            <div class="pt-1">
         <button onclick="resetConfig()" class="w-full py-2.5 rounded-full font-bold text-[15px]" style="background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)">⟲ Reset configuración</button>
       </div>
       <div class="text-[12.5px] muted leading-relaxed p-3 rounded-xl" style="background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px dashed var(--accent)">
@@ -1208,13 +1224,65 @@ document.getElementById('headlightSel').addEventListener('change',e=>{
 document.getElementById('tintSel').addEventListener('change',e=>applyTint(e.target.value));
 document.getElementById('suspSel').addEventListener('change',e=>applySuspension(e.target.value));
 
+// ===== KIT EXTERIOR: lip, difusor, escape (geometría: morro +Z, zaga -Z) =====
+var __kitMeshes=[];
+function removeKit(){ __kitMeshes.forEach(m=>{if(m.parent)m.parent.remove(m);}); __kitMeshes=[]; }
+function addLip(on){
+  if(!on||!gltfScene) return;
+  const g=getCarBox(); const zF=getFrontZ(); const dy=getSuspDy();
+  const mat=new THREE.MeshStandardMaterial({color:0x14161a,metalness:0.6,roughness:0.4});
+  const lip=new THREE.Mesh(new THREE.BoxGeometry(1.82,0.06,0.22),mat);
+  lip.position.set(g.c.x, 0.22+dy, zF+0.04);
+  gltfScene.add(lip); __kitMeshes.push(lip);
+}
+function addDiffuser(on){
+  if(!on||!gltfScene) return;
+  const g=getCarBox(); const zB=getRearZ(); const dy=getSuspDy();
+  const mat=new THREE.MeshStandardMaterial({color:0x14161a,metalness:0.6,roughness:0.4});
+  const df=new THREE.Mesh(new THREE.BoxGeometry(1.70,0.14,0.18),mat);
+  df.position.set(g.c.x, 0.26+dy, zB-0.08);
+  df.rotation.x=-0.25;
+  gltfScene.add(df); __kitMeshes.push(df);
+}
+function addExhaust(kind){
+  if(kind==='original') return;
+  if(!gltfScene) return;
+  const g=getCarBox(); const zB=getRearZ(); const dy=getSuspDy();
+  const mat=new THREE.MeshStandardMaterial({color:0x8a919e,metalness:0.95,roughness:0.25});
+  const pos = kind==='doble' ? [-0.42,0.42] : [-0.36,0.36];
+  pos.forEach(dx=>{
+    const t1=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.055,0.16,16),mat);
+    t1.rotation.x=Math.PI/2;
+    t1.position.set(g.c.x+dx, 0.24+dy, zB-0.12);
+    gltfScene.add(t1); __kitMeshes.push(t1);
+    if(kind==='doble'){
+      const t2=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,0.10,16),mat);
+      t2.rotation.x=Math.PI/2;
+      t2.position.set(g.c.x+dx, 0.16+dy, zB-0.13);
+      gltfScene.add(t2); __kitMeshes.push(t2);
+    }
+  });
+}
+function applyKit(){
+  removeKit();
+  addLip(document.getElementById('lipSel').value==='lip');
+  addDiffuser(document.getElementById('diffSel').value==='diff');
+  addExhaust(document.getElementById('exhaustSel').value);
+}
+document.getElementById('lipSel').addEventListener('change',()=>{applyKit();showToast(document.getElementById('lipSel').value==='lip'?'🪽 Lip splitter aplicado (morro) +80€ — homologar agrupado':'🪽 Lip retirado');});
+document.getElementById('diffSel').addEventListener('change',()=>{applyKit();showToast(document.getElementById('diffSel').value==='diff'?'🪽 Difusor trasero aplicado +120€ — homologar agrupado':'🪽 Difusor retirado');});
+document.getElementById('exhaustSel').addEventListener('change',()=>{applyKit();const v=document.getElementById('exhaustSel').value;showToast(v==='original'?'🔧 Escape original':v==='doble'?'🔧 Escape doble ovalado +120€':'🔧 Escape deportivo 90mm +60€');});
+
 function resetConfig(){
   document.querySelectorAll('input[name=rim]')[0].checked=true; applyRims('original');
-  removeSpoiler(); removeAE(); applyTint('0'); removeProcRims();
+  removeSpoiler(); removeAE(); applyTint('0'); removeProcRims(); removeKit();
   document.getElementById('spoilerSel').value='none';
   document.getElementById('headlightSel').value='original';
   document.getElementById('tintSel').value='0';
   document.getElementById('suspSel').value='stock';
+  document.getElementById('lipSel').value='none';
+  document.getElementById('diffSel').value='none';
+  document.getElementById('exhaustSel').value='original';
   document.querySelectorAll('.swatch')[0].classList.add('sel');
   document.querySelectorAll('.swatch').forEach((s,i)=>{if(i!==0)s.classList.remove('sel')});
   applyPaint(PAINTS[0]); gltfScene.position.y=gltfScene.position.y-(gltfScene.userData?.lastDy||0); gltfScene.userData.lastDy=0;
