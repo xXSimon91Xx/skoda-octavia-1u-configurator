@@ -315,8 +315,8 @@ async function init3D(){
   const fill=new THREE.DirectionalLight(0x88aaff,0.5); fill.position.set(-5,2,-4); scene.add(fill);
   const rim=new THREE.DirectionalLight(0xffeedd,0.8); rim.position.set(0,1.2,6); scene.add(rim);
 
-  const grid=new THREE.GridHelper(12,24,0x334155,0x1e293b); grid.position.y=-0.01; scene.add(grid);
-  scene.add(new THREE.Mesh(new THREE.CircleGeometry(8,64),new THREE.MeshStandardMaterial({color:0x111827,roughness:0.9}))).position.y=-0.02; // ground shadow plane
+  const grid=new THREE.GridHelper(12,24,0x334155,0x1e293b); grid.position.y=0; scene.add(grid);
+  scene.add(new THREE.Mesh(new THREE.CircleGeometry(8,64),new THREE.MeshStandardMaterial({color:0x111827,roughness:0.9}))).position.y=-0.005; // ground shadow plane
 
   raycaster=new THREE.Raycaster(); mouse=new THREE.Vector2();
 
@@ -343,7 +343,7 @@ async function init3D(){
     gltfScene.updateMatrixWorld(true);
     const box2=new THREE.Box3().setFromObject(gltfScene);
     const center=box2.getCenter(new THREE.Vector3()); const min=box2.min;
-    gltfScene.position.set(-center.x, -min.y - 0.12, -center.z);
+    gltfScene.position.set(-center.x, -min.y, -center.z);
     gltfScene.updateMatrixWorld(true);
     // apply default paint
     gltfScene.traverse(obj=>{
