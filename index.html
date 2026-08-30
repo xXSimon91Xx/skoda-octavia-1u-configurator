@@ -343,7 +343,7 @@ async function init3D(){
     gltfScene.updateMatrixWorld(true);
     const box2=new THREE.Box3().setFromObject(gltfScene);
     const center=box2.getCenter(new THREE.Vector3()); const min=box2.min;
-    gltfScene.position.set(-center.x, -min.y, -center.z);
+    gltfScene.position.set(-center.x, -min.y - 0.12, -center.z);
     gltfScene.updateMatrixWorld(true);
     // apply default paint
     gltfScene.traverse(obj=>{
