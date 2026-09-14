@@ -765,36 +765,47 @@ function handlePieceClick(obj){
 
 // ===== RENDERS GRID =====
 const RENDERS_DATA = [
-  {f:'img/renders/r01_steel_grey_studio.png', t:'Steel Grey 9102 de serie', d:'Estudio oscuro con focos y suelo espejo', c:'Gris'},
+  // ===== GRIS (coche de serie 9102) =====
+  {f:'img/renders/r01_steel_grey_studio.png', t:'Steel Grey 9102 (de serie)', d:'Estudio oscuro con focos y suelo espejo', c:'Gris'},
+  {f:'img/renders/r05_rojo_torii.png', t:'Gris plata · torii y cerezos', d:'Coche GRIS real (el archivo decía «rojo» — la IA lo pintó gris)', c:'Gris'},
+  {f:'img/renders/r27_lejos_montana.png', t:'Paso de montaña', d:'Curva alpina dramática con el coche en primer plano', c:'Gris'},
+  {f:'img/renders/r28_espejo_agua.png', t:'Reflejo en nave', d:'Suelo mojado y reflejo completo del coche', c:'Gris'},
+  {f:'img/renders/r29_desierto_ruta66.png', t:'Ruta 66', d:'Carretera desértica con motel y cactus', c:'Gris'},
+  {f:'img/renders/r30_granja_campo.png', t:'Campo de trigo', d:'Hora dorada en la campiña', c:'Gris'},
+  {f:'img/renders/r32_explosion_pintura.png', t:'Explosión de pintura', d:'Nube multicolor en taller industrial', c:'Gris'},
+  {f:'img/renders/r33_hielo_invierno.png', t:'Lago helado', d:'Escarcha, luces encendidas y montañas nevadas', c:'Gris'},
+  {f:'img/renders/r34_lavadero.png', t:'Lavadero', d:'Espuma y pistola a presión', c:'Gris'},
+  {f:'img/renders/r35_puente_torii.png', t:'Torii de Miyajima', d:'El gran torii sobre el agua', c:'Gris'},
+  {f:'img/renders/r36_oni_demonio.png', t:'Noche del oni', d:'Santuario nocturno con máscara de oni', c:'Gris'},
+  // ===== NEGRO =====
   {f:'img/renders/r02_negro_piano_urbano.png', t:'Negro piano brillo', d:'Calle urbana nocturna con reflejos neón', c:'Negro'},
+  {f:'img/renders/r01_negro_urbano.png', t:'Negro urbano', d:'Lluvia, neones y reflejos en el asfalto', c:'Negro'},
+  {f:'img/renders/r37_serie_vodka_black.png', t:'Negro mate competición (vodka black)', d:'Garaje de taller · detalles rojos y llantas negras', c:'Negro'},
+  {f:'img/renders/r40_render_negro_estudio.png', t:'Negro brillo en estudio', d:'Estudio oscuro con suelo reflectante', c:'Negro'},
+  {f:'img/renders/r41_render_negro_calle.png', t:'Negro · hora azul', d:'Calle mojada con farolas encendidas', c:'Negro'},
+  {f:'img/Flama-Nuevo-01.png', t:'Flama 01 · Negro piano', d:'BBS CH plata 17" · Angel eyes · Calle urbana', c:'Negro'},
+  // ===== BLANCO =====
   {f:'img/renders/r03_blanco_perla_mar.png', t:'Blanco perla', d:'Paseo marítimo en hora dorada', c:'Blanco'},
+  {f:'img/Flama-Nuevo-08.png', t:'Flama 08 · Blanco perla', d:'BBS CH plata · Angel eyes · Paseo marítimo', c:'Blanco'},
+  // ===== AZUL =====
   {f:'img/renders/r04_azul_medianoche.png', t:'Azul medianoche', d:'Noche de lluvia con luces', c:'Azul'},
-  {f:'img/renders/r05_rojo_torii.png', t:'Rojo torii', d:'Frente a torii con cerezos y atardecer', c:'Rojo'},
+  {f:'img/Flama-Nuevo-05.png', t:'Flama 05 · Azul medianoche', d:'Mesh negro 18" · RS · Noche neón', c:'Azul'},
+  // ===== VERDE =====
   {f:'img/renders/r06_verde_bosque.png', t:'Verde bosque satinado', d:'Carretera de bosque con niebla', c:'Verde'},
+  {f:'img/renders/r38_render_verde.png', t:'Verde bosque mate', d:'Nave industrial abandonada al atardecer · pinzas verdes', c:'Verde'},
+  {f:'img/Flama-Nuevo-02.png', t:'Flama 02 · Verde bosque', d:'5 radios bronce 17" · Ducktail', c:'Verde'},
+  // ===== PÚRPURA =====
+  {f:'img/renders/r39_render_purpura.png', t:'Púrpura profundo metalizado', d:'Calle centroeuropea bajo la lluvia', c:'Púrpura'},
+  // ===== VINILOS =====
   {f:'img/renders/r07_vinilo_chrome.png', t:'Vinilo cromo espejo', d:'Refleja cielo y edificios por completo', c:'Vinilos'},
   {f:'img/renders/r08_vinilo_azul_violaceo.png', t:'Vinilo iridiscente azul-violeta', d:'Color shift en garaje neón', c:'Vinilos'},
-  {f:'img/renders/r09_vinilo_mint.png', t:'Vinilo verde menta mate', d:'Fondo tropical con día brillante', c:'Verde'},
-  {f:'img/Flama-Nuevo-01.png', t:'Flama 01 · Negro piano brillo', d:'BBS CH plata 17" · Angel eyes · Calle urbana', c:'Negro'},
-  {f:'img/Flama-Nuevo-02.png', t:'Flama 02 · Verde bosque satinado', d:'5 radios bronce 17" · Ducktail', c:'Verde'},
-  {f:'img/Flama-Nuevo-05.png', t:'Flama 05 · Azul medianoche', d:'Mesh negro 18" · RS · Noche neón', c:'Azul'},
-  {f:'img/Flama-Nuevo-08.png', t:'Flama 08 · Blanco perla', d:'BBS CH plata · Angel eyes · Paseo marítimo', c:'Blanco'},
-    {f:'img/renders/r01_negro_urbano.png', t:'Negro urbano', d:'Render IA — negro urbano', c:'Negro'},
-  {f:'img/renders/r27_lejos_montana.png', t:'Paso de montaña', d:'Render IA · vista aérea de curva de montaña', c:'Escenarios'},
-  {f:'img/renders/r28_espejo_agua.png', t:'Espejo de agua', d:'Render IA · reflejo en agua quieta a la hora azul', c:'Escenarios'},
-  {f:'img/renders/r29_desierto_ruta66.png', t:'Ruta 66', d:'Render IA · carretera desértica estilo Ruta 66', c:'Escenarios'},
-  {f:'img/renders/r30_granja_campo.png', t:'Campo de trigo', d:'Render IA · campo de trigo en hora dorada', c:'Escenarios'},
-  {f:'img/renders/r32_explosion_pintura.png', t:'Explosión de pintura', d:'Render IA · explosión de pintura', c:'Escenarios'},
-  {f:'img/renders/r33_hielo_invierno.png', t:'Hielo invierno', d:'Render IA · hielo invierno', c:'Escenarios'},
-  {f:'img/renders/r34_lavadero.png', t:'Lavadero', d:'Render IA · lavadero', c:'Escenarios'},
-  {f:'img/renders/r35_puente_torii.png', t:'Puente torii', d:'Render IA · puente torii', c:'Escenarios'},
-  {f:'img/renders/r36_oni_demonio.png', t:'Oni demonio', d:'Render IA · oni demonio', c:'Escenarios'},
-  {f:'img/renders/r37_serie_vodka_black.png', t:'Serie vodka black', d:'Render IA · serie vodka black', c:'Escenarios'},
+  {f:'img/renders/r09_vinilo_mint.png', t:'Vinilo verde menta mate', d:'Acabado vinílico en garaje con luz tropical', c:'Vinilos'},
   ];
   // render inicial diferido: asegura que todo (incl. module) esté listo
 window.addEventListener('load', function(){ setTimeout(function(){ if(typeof renderRenders==='function' && document.getElementById('rendersGrid')) renderRenders('Todos'); }, 100); });
 // ===== FILTRO RENDERS POR COLOR =====
 let RENDER_CAT='Todos';
-const RENDER_CATS=['Todos','Gris','Negro','Blanco','Azul','Rojo','Verde','Vinilos','Escenarios'];
+const RENDER_CATS=['Todos','Gris','Negro','Blanco','Azul','Rojo','Verde','Púrpura','Vinilos'];
 document.getElementById('renderFilters').innerHTML=RENDER_CATS.map(c=>
   `<button onclick="setRenderCat('${c}')" id="rc-${c}" class="px-3 py-1.5 rounded-full text-[13px] font-bold border transition" style="border-color:${c==='Todos'?'var(--accent)':'var(--border)'};background:${c==='Todos'?'var(--accent)':'transparent'};color:${c==='Todos'?'#0F172A':'var(--text)'}">${c}</button>`).join('');
 function setRenderCat(c){
