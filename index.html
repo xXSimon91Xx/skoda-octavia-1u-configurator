@@ -198,7 +198,7 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
 <section id="tab-renders" class="hidden-tab max-w-[1400px] mx-auto px-4 py-5">
   <div class="flex items-center justify-between flex-wrap gap-2">
     <h2 class="font-black text-xl tracking-tight">🖼️ Renders IA <span class="text-[15px] font-bold px-2 py-0.5 rounded-full" style="background:var(--accent);color:#0F172A">13 REALES · VERIFICADOS</span></h2>
-    <div class="text-[15px] muted flex items-center gap-2"><i class="ph ph-magic-wand text-lg"></i> Generados con Gemini Image vía OpenRouter (~0,034 USD/img) — descripción de cada uno verificada por visión antes de publicar</div>
+    <div class="text-[15px] muted flex items-center gap-2"><i class="ph ph-magic-wand text-lg"></i> Generados con IA (OpenRouter Gemini + Higgsfield Soul 2) — cada render verificado por visión antes de publicar · llantas descritas de modelos reales (JR3, JR9)</div>
   </div>
   <div class="flex flex-wrap gap-1.5 mt-3" id="renderFilters"></div>
   <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-4 mt-5" id="rendersGrid"></div>
@@ -783,6 +783,10 @@ const RENDERS_DATA = [
   {f:'img/renders/r37_serie_vodka_black.png', t:'Negro mate competición (vodka black)', d:'Garaje de taller · detalles rojos y llantas negras', c:'Negro'},
   {f:'img/renders/r40_render_negro_estudio.png', t:'Negro brillo en estudio', d:'Estudio oscuro con suelo reflectante', c:'Negro'},
   {f:'img/renders/r41_render_negro_calle.png', t:'Negro · hora azul', d:'Calle mojada con farolas encendidas', c:'Negro'},
+  {f:'img/renders/r42_negro_llantas_blancas.jpg', t:'Negro mate · llantas blancas (estilo JR3)', d:'El look vodka black con llantas blancas gloss 6 radios · garaje con softbox', c:'Negro'},
+  {f:'img/renders/r44_negro_jaula_competicion.jpg', t:'Negro mate · jaula antivuelco', d:'Preparación de circuito: jaula, arneses, franja roja y pinzas rojas', c:'Negro'},
+  {f:'img/renders/r45_negro_widebody.jpg', t:'Negro mate widebody', d:'Kit ancho con splitter, faldones y llantas oscuras multiradio', c:'Negro'},
+  {f:'img/renders/r47_piano_black_bronce.jpg', t:'Negro brillo · llantas bronce (estilo JR9)', d:'Franja roja fina y llantas bronce multiradio · Octavia Mk1 exacto', c:'Negro'},
   {f:'img/Flama-Nuevo-01.png', t:'Flama 01 · Negro piano', d:'BBS CH plata 17" · Angel eyes · Calle urbana', c:'Negro'},
   // ===== BLANCO =====
   {f:'img/renders/r03_blanco_perla_mar.png', t:'Blanco perla', d:'Paseo marítimo en hora dorada', c:'Blanco'},
@@ -793,9 +797,11 @@ const RENDERS_DATA = [
   // ===== VERDE =====
   {f:'img/renders/r06_verde_bosque.png', t:'Verde bosque satinado', d:'Carretera de bosque con niebla', c:'Verde'},
   {f:'img/renders/r38_render_verde.png', t:'Verde bosque mate', d:'Nave industrial abandonada al atardecer · pinzas verdes', c:'Verde'},
+  {f:'img/renders/r43_verde_llantas_blancas.jpg', t:'Verde bosque · llantas blancas (estilo JR3)', d:'Satinado oscuro con franja negra, llantas blancas 6 radios y suelo espejo', c:'Verde'},
   {f:'img/Flama-Nuevo-02.png', t:'Flama 02 · Verde bosque', d:'5 radios bronce 17" · Ducktail', c:'Verde'},
   // ===== PÚRPURA =====
   {f:'img/renders/r39_render_purpura.png', t:'Púrpura profundo metalizado', d:'Calle centroeuropea bajo la lluvia', c:'Púrpura'},
+  {f:'img/renders/r46_purpura_franja_dorada.jpg', t:'Púrpura metalizado · franja dorada', d:'Violeta profundo con detalles dorados y llantas plata multiradio', c:'Púrpura'},
   // ===== VINILOS =====
   {f:'img/renders/r07_vinilo_chrome.png', t:'Vinilo cromo espejo', d:'Refleja cielo y edificios por completo', c:'Vinilos'},
   {f:'img/renders/r08_vinilo_azul_violaceo.png', t:'Vinilo iridiscente azul-violeta', d:'Color shift en garaje neón', c:'Vinilos'},
@@ -973,6 +979,48 @@ document.getElementById('informesAccordion').innerHTML=INFORMES.map((inf,i)=>
 // ===== CATÁLOGO COMPRAS (grande) =====
 const CATALOGO=[
  // ── LLANTAS (5x100 para Octavia 1U) ──
+ // ═══════════════════════════════════════════════════════════════
+ // ⭐ LLANTAS REALES — LINKS DIRECTOS VERIFICADOS (14-sep-2026)
+ // ═══════════════════════════════════════════════════════════════
+ {n:'⭐ JR3 17×7 ET40 5×100 Matt Black (SPEC EXACTA)', cat:'LANTAS', marca:'Japan Racing', p:'148,76 €/ud · ~595 €/juego', c:'✓ 17×7 ET40 5×100 · buje 57,1 · NUEVA con factura · la jugada bb', u:'https://rodiautosport.es/es/llantas-japan-racing/1696076-jr-wheels-jr3-17x7-et40-5x100-matt-black-5902211989196.html'},
+ {n:'JR3 desde 118 € — distribuidor OFICIAL JR España', cat:'LANTAS', marca:'Japan Racing', p:'118 €/ud · ~470 €/juego', c:'✓ el precio más bajo en JR3 nueva · Selcus', u:'https://www.selcus.com/3200-llantas-japan-racing'},
+ {n:'JR3 (más colores y acabados)', cat:'LANTAS', marca:'Japan Racing', p:'145 €/ud', c:'✓ gun metal, bronce, blanco, plata…', u:'https://llantasyruedas.es/inicio/275-llantas-para-coche-japan-racing-jr3.html'},
+ {n:'JR3 Gun Metal 17×7 ET40 5×100', cat:'LANTAS', marca:'Japan Racing', p:'180 €/ud', c:'✓ acabado gun metal · spec exacta 17×7 ET40', u:'https://dna-autoparts.com/producto/jr-wheels-jr3-17x7-et40-5x100-gun-metal'},
+ {n:'JR9 7,5×17 ET35 5×100 — OFERTA', cat:'LANTAS', marca:'Japan Racing', p:'175 €/ud · ~700 €/juego', c:'⚠️ más ancha (7,5J) y ET35 · multirradio · Mundollantas', u:'https://mundollantas.es/component/virtuemart/manufacturer/japan-racing.html'},
+ {n:'JR9 17×7,5 ET35 5×100 oro/bord poli', cat:'LANTAS', marca:'Japan Racing', p:'185 €/ud', c:'✓ 5×100 · RaceAltered Import', u:'https://www.racealtered-import.com/shop/es/jr-9/23690-jr-wheels-jr9-17x75-et35-5x100-1143-or-bord-poli-5902211926191.html'},
+ {n:'Juegos JR completos (4 uds)', cat:'LANTAS', marca:'Japan Racing', p:'575-595 €/juego', c:'✓ juego completo · Llantasonline', u:'https://www.llantasonline.es/c/llantas-por-marca/llantas-japan-racing'},
+ {n:'JR3 más tiendas (Magnum Performance)', cat:'LANTAS', marca:'Japan Racing', p:'—', c:'✓ comparar precios', u:'https://www.magnumperformance.es/producto/llanta-jr-wheels-japan-racing-jr3'},
+ {n:'⭐ Borbet Y 7×17 ET40 5×100 (alemana con TÜV)', cat:'LANTAS', marca:'Borbet', p:'130,89 €/ud · ~525 €/juego', c:'✓ buje 57,1 directo · TÜV alemán · calidad-precio top', u:'https://www.distri-auto.es/llantas/marca-aleacion-borbet/y-749/7x17-et40-5x100-57-1-1396633'},
+ {n:'Dezent TR (negro pulido · silver · negro brillo)', cat:'LANTAS', marca:'Dezent', p:'186 €/ud', c:'✓ 3 acabados · alemana', u:'https://www.norauto.es/c/50158-llantas-de-aluminio-17.html'},
+ {n:'Oponeo — 242 modelos 5×100 17"', cat:'LANTAS', marca:'Varias', p:'119-387 €/ud · envío gratis', c:'✓ ATS, Autec, Alutec, Anzio, RC Design…', u:'https://www.oponeo.es/llantas-aluminio/17/5x100-00'},
+ {n:'Amazon.es — alemanas 7,5×17 ET38 5×100', cat:'LANTAS', marca:'Autec/Brock/DBV/RH', p:'~140-200 €/ud', c:'✓ Autec, Brock, DBV, RH', u:'https://www.amazon.es/llantas-17-5x100'},
+ {n:'Recambioscoches — 5×100 17"', cat:'LANTAS', marca:'Varias', p:'desde 145,58 € · envío gratis', c:'✓ filtro por coche', u:'https://www.recambioscoches.es/s/llantas-5x100-17'},
+ {n:'Réplicas CUPRA style / Summer / R 17" (OFERTA)', cat:'LANTAS', marca:'Réplica', p:'149 €/ud', c:'✓ 5×100 · oferta Mundollantas', u:'https://mundollantas.es/llantas-vehiculo-actual/llantas-mejor-precio/llantas-para-audi/1911/audi-anclaje-5x100/17-pulgadas-5x100-3.html'},
+ {n:'Kit NUEVO RS7-style 7,5×17 ET35 (LLANTAS MKR)', cat:'LANTAS', marca:'MKR', p:'preguntar', c:'✓ garantía + envío · busca "LLANTAS MKR" en Wallapop Barcelona', u:'https://es.wallapop.com/motor-y-accesorios/llantas-5x100/barcelona'},
+ // ── 2ª MANO — los links de caza diaria ──
+ {n:'🔎 Wallapop 5×100 17"', cat:'LANTAS', marca:'2ª mano', p:'170-350 €/juego', c:'✓ León FR 170-250 € · Audi TT 8N 200-350 € · test-fit antes de gomas', u:'https://es.wallapop.com/motor-y-accesorios/llantas-5x100-de-17-pulgadas'},
+ {n:'🔎 Wallapop BBS 17" (292 anuncios)', cat:'LANTAS', marca:'BBS', p:'400-800 €/juego', c:'✓ el flex absoluto · BBS RC/CO/CH', u:'https://es.wallapop.com/motor-y-accesorios/llantas-bbs-de-17-pulgadas'},
+ {n:'🔎 Milanuncios 5×100 17', cat:'LANTAS', marca:'2ª mano', p:'170-350 €', c:'✓ visto: León FR 17" desguace 250 €', u:'https://www.milanuncios.com/recambios-y-accesorios/llantas-5x100-17.htm'},
+ {n:'🔎 Milanuncios BBS 17 5×100', cat:'LANTAS', marca:'BBS', p:'—', c:'✓ caza BBS', u:'https://www.milanuncios.com/recambios-y-accesorios/bbs-17-5x100.htm'},
+ {n:'🔎 eBay.es 5×100 17', cat:'LANTAS', marca:'Varias', p:'—', c:'✓ con envío', u:'https://www.ebay.es/sch/i.html?_nkw=llantas+5x100+17'},
+ {n:'🔎 Kleinanzeigen (Alemania · chollos fuertes)', cat:'LANTAS', marca:'Varias', p:'—', c:'✓ busca "5x100 17 Zoll" · enviar a ES con cuidado', u:'https://www.kleinanzeigen.de/s-5x100-17-zoll/k0'},
+ {n:'🛞 Falken 225/45R17 (calidad/precio bb)', cat:'NEUMATICOS', marca:'Falken', p:'desde 78,71 €/ud', c:'✓ la goma recomendada · índice 91V+', u:'https://www.neumaticos.es/neumaticos/falken-225-45-17/108+200+201+202'},
+ {n:'🛞 225/45R17 budget (diario)', cat:'NEUMATICOS', marca:'Varias', p:'desde 55,09 €/ud', c:'✓ económica · montaje 15-20 €/rueda aparte', u:'https://www.neumaticoslider.es/neumatico-auto-225-45-17'},
+ {n:'🛞 Comparador 225/45R17', cat:'NEUMATICOS', marca:'Varias', p:'—', c:'✓ compara todas las tiendas', u:'https://www.queneumatico.es/225-45-r17.htm'},
+ // ── MANTENIMIENTO (pedido AutoDoc 14-sep-2026) ──
+ {n:'🧰 Cárter aceite RIDEX 592O0004 (OE 038103603N)', cat:'MOTOR', marca:'RIDEX', p:'26,99 €', c:'✓ OE 038103603N verificado · buscar por ref en autodoc', u:'https://www.autodoc.es/search?keyword=038103603N'},
+ {n:'🧰 Aceite Total Quartz 9000 Energy 5W-40 5L', cat:'MOTOR', marca:'Total', p:'37,99 €', c:'✓ especificación VW 505 00 verificada · cambio 14-sep → sep-2027 / 15.000 km', u:'https://www.autodoc.es/search?keyword=Total+Quartz+9000+Energy+5W-40'},
+ {n:'🧰 Filtro aceite RIDEX + junta tórica', cat:'MOTOR', marca:'RIDEX', p:'4,59 €', c:'✓ la junta va con el filtro (no hace falta comprarla aparte cada año)', u:'https://www.autodoc.es/search?keyword=filtro+aceite+octavia+1.9+tdi+alh'},
+ {n:'🧰 Silicona PAYEN HR397T (para pegar el cárter)', cat:'MOTOR', marca:'PAYEN', p:'6,29 €', c:'✓ sellador de juntas · imprescindible al montar el cárter', u:'https://www.autodoc.es/search?keyword=PAYEN+HR397T'},
+ {n:'🧰 Retén SKV 53SKV424 + tapón RIDEX con arandela', cat:'MOTOR', marca:'SKV/RIDEX', p:'3,59 € + 1,99 €', c:'✓ retén y tapón nuevos al cambiar aceite', u:'https://www.autodoc.es/search?keyword=tapon+carter+octavia+1.9+tdi'},
+ {n:'🧰 Sensor temperatura exterior RIDEX 1186S0008 (G17)', cat:'MOTOR', marca:'RIDEX', p:'4,59 €', c:'✓ paragolpes delantero zona baja lado conductor · si marca −40 °C = fallo', u:'https://www.autodoc.es/search?keyword=sensor+temperatura+exterior+octavia+1u'},
+ {n:'🧰 Limpias RIDEX 530/475 mm', cat:'MOTOR', marca:'RIDEX', p:'13,49 €', c:'✓ par nuevo', u:'https://www.autodoc.es/search?keyword=escobillas+limpiaparabrisas+octavia+1u'},
+ {n:'🧰 Cupón AutoDoc WSF6HI3H (−3%) — caducó 15-sep', cat:'MOTOR', marca:'AutoDoc', p:'−3%', c:'⏰ caducado · pedir nuevo cupón antes del siguiente pedido · envío gratis ≥120 €', u:'https://www.autodoc.es/'},
+ {n:'🔧 Turbo GT1749V OE 038253019C (reemplazo exacto VNT15)', cat:'MOTOR', marca:'Garrett', p:'373 € nuevo', c:'✓ quitar y poner (mismos agujeros) · ref 713672-2 · buscar por referencia', u:'https://www.autodoc.es/search?keyword=038253019C'},
+ {n:'🔧 Turbo VNT17 (upgrade +30 CV, plug&play ALH)', cat:'MOTOR', marca:'Garrett/Genérico', p:'200-450 €', c:'⚠️ +potencia >15% = reforma de potencia (proyecto + ITV) · requiere repro obligatoria', u:'https://es.aliexpress.com/w/wholesale-vnt17-turbo-1-9-tdi.html'},
+ {n:'🔧 Repro Stage 1 EDC15 (BR-Performance 110→140 CV)', cat:'MOTOR', marca:'BR-Performance', p:'390 €', c:'✓ apto ITV · garantía 5 años · Barcelona · 2ª mano gratis', u:'https://br-performance.es/'},
+ {n:'🧰 Amortiguadores KYB traseros (kit 2 uds + guardapolvos)', cat:'SUSPENSION', marca:'KYB', p:'116,35 €', c:'✓ KYB1185N0557 · ref OEM 1J0 513 025 BG · cambiar por parejas', u:'https://www.autodoc.es/kyb/26474849'},
+ {n:'🧰 Copelas traseras RIDEX 1180S0103', cat:'SUSPENSION', marca:'RIDEX', p:'—', c:'✓ junto con los amortiguadores KYB', u:'https://www.autodoc.es/ridex/8058090'},
  {n:'BBS CH 17" Réplica (look CH)', cat:'LANTAS', marca:'BBS', p:'609 €', c:'✓ 5x100 ET38 · buje 57,1 (anillos si 72) · réplica, original descatalogado', cfg:'bbs', u:'https://www.oponeo.es/llantas-aluminio/17/5x100-00'},
  {n:'OZ Racing Superturismo 17" 5x100 (juego)', cat:'LANTAS', marca:'OZ', p:'780 €', c:'✓ 5x100 ET35 · homologadas OZ', cfg:'oz', u:'https://www.oponeo.es/llantas-aluminio/17/5x100-00'},
  {n:'OZ Rally Racing 7x17 ET35 nueva', cat:'LANTAS', marca:'OZ', p:'451 €/ud · 1.400-1.800 €', c:'⚠️ ET35 fuera de rango OE 36-40 (pasa si no roza ni sobresale)', u:'https://www.norauto.es/p/llanta-de-aluminio-oz-rally-racing-7x17-5x100-et35-letra-blanca-roja-2180004.html'},
