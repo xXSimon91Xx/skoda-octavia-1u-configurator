@@ -421,12 +421,13 @@ async function init3D(){
   window.__SCENE=scene; window.__RENDERER=renderer; // debug handle (verificacion automatizada)
   window.__CAMERA=camera; window.__CONTROLS=controls;
   // ★ Estudio de render: coloca la camara por azimut/elevacion/distancia y devuelve el frame
-  window.__studio=function(az,el,r,ty,tx){
-    ty=(ty===undefined)?0.62:ty; tx=tx||0;
+  window.__studio=function(az,el,r,ty,tx,tz){
+    ty=(ty===undefined)?0.62:ty; tx=tx||0; tz=tz||0;
     var a=az*Math.PI/180, e=el*Math.PI/180;
     var d=r*Math.cos(e);
-    camera.position.set(tx+d*Math.sin(a), ty+r*Math.sin(e), -d*Math.cos(a));
-    controls.target.set(tx,ty,0); controls.update(); camera.updateProjectionMatrix();
+    camera.position.set(tx+d*Math.sin(a), ty+r*Math.sin(e), tz-d*Math.cos(a));
+    camera.near=0.05; 
+    controls.target.set(tx,ty,tz); controls.update(); camera.updateProjectionMatrix();
     renderer.render(scene,camera);
     return {az:az,el:el,r:r};
   };
