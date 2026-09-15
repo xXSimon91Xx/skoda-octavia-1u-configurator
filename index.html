@@ -1447,6 +1447,8 @@ document.addEventListener('click', function(e){
 // ═══ TILT 3D (15-sep-2026 v2) — motor delegado; nunca inclina el visor 3D, mapa ni paneles con scroll ═══
 (function(){
   window.__TILT_DEBUG = { apply: 0, elegidos: 0, ultErr: null };
+  var _rm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var _force = false; try{ _force = localStorage.getItem('sk3d') === 'on'; }catch(e){}
   if(_rm && !_force){
     var w = document.createElement('div'); w.id = 'fx-warn';
     w.innerHTML = '⚠️ <b>Tu Windows/navegador tiene «reducir movimiento» activado</b>, por eso el 3D está apagado. <button id="fx-force">Activar el 3D igualmente</button>';
