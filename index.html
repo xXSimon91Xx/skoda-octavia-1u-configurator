@@ -349,7 +349,7 @@ async function init3D(){
   renderer=new THREE.WebGLRenderer({canvas:glCanvas,antialias:true,alpha:true});
   renderer.setSize(w,h,false);
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  renderer.shadowMap.enabled=true; renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.shadowMap.enabled=true; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05;
 
   camera=new THREE.PerspectiveCamera(45,w/h,0.1,100);
   camera.position.set(5.2,2.4,-6.5);
@@ -360,8 +360,17 @@ async function init3D(){
 
   const scene=new THREE.Scene();
   window.__SCENE = scene; // raiz (identidad): los objetos en world coords se anaden aqui
-  scene.add(new THREE.AmbientLight(0xffffff,0.55));
-  const hemi=new THREE.HemisphereLight(0xffffff,0x444466,0.5); scene.add(hemi);
+  scene.add(new THREE.AmbientLight(0xffffff,0.22));
+  // ★ PREMIUM: reflejos de estudio reales (RoomEnvironment + PMREM) — la pintura refleja como en un showroom
+  try{
+    const {RoomEnvironment}=await import('three/addons/environments/RoomEnvironment.js');
+    const pmrem=new THREE.PMREMGenerator(renderer);
+    scene.environment=pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  }catch(_e){ console.warn('RoomEnvironment no disponible', _e); }
+  // ★ PREMIUM: contact shadow (ancla el coche al suelo, sin plano opaco)
+  const shadowPlane=new THREE.Mesh(new THREE.PlaneGeometry(16,16), new THREE.ShadowMaterial({opacity:0.38}));
+  shadowPlane.rotation.x=-Math.PI/2; shadowPlane.position.y=0.003; shadowPlane.receiveShadow=true; scene.add(shadowPlane);
+  const hemi=new THREE.HemisphereLight(0xffffff,0x444466,0.35); scene.add(hemi);
   const key=new THREE.DirectionalLight(0xffffff,2.2); key.position.set(4,6,4); key.castShadow=true; scene.add(key);
   const fill=new THREE.DirectionalLight(0x88aaff,0.5); fill.position.set(-5,2,-4); scene.add(fill);
   const rim=new THREE.DirectionalLight(0xffeedd,0.8); rim.position.set(0,1.2,6); scene.add(rim);
@@ -400,6 +409,8 @@ async function init3D(){
     // apply default paint
     gltfScene.traverse(obj=>{
       if(obj.isMesh){
+        obj.castShadow=true; obj.receiveShadow=true;
+        if(obj.material){ obj.material.envMapIntensity=1.15; if(obj.material.needsUpdate!==undefined) obj.material.needsUpdate=true; }
         const n=(obj.name||'').toLowerCase()+' '+(obj.material&&obj.material.name||obj.parent?.name||'').toLowerCase();
         if(/rims|rim\b|wheel/i.test(n)&&!/steering|volante|stwheel/i.test(n)){
           carNodes.rims.push(obj); rimGroups.push([obj,obj.visible]);
