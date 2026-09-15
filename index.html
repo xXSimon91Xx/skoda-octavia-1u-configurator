@@ -448,6 +448,23 @@ async function init3D(){
   const fill=new THREE.DirectionalLight(0x88aaff,0.85); fill.position.set(-5,2,-4); scene.add(fill);
   const rim=new THREE.DirectionalLight(0xffeedd,0.8); rim.position.set(0,1.2,6); scene.add(rim);
 
+  // ★ SUELO DE ESTUDIO: gradiente radial (canvas) para que la sombra de contacto se vea como en un showroom
+  try{
+    const cv=document.createElement('canvas'); cv.width=cv.height=512;
+    const g2=cv.getContext('2d');
+    const rg=g2.createRadialGradient(256,256,20,256,256,256);
+    rg.addColorStop(0,'#2f3442'); rg.addColorStop(0.45,'#1a1f29'); rg.addColorStop(1,'#06080d');
+    g2.fillStyle=rg; g2.fillRect(0,0,512,512);
+    // leve viñeta para centrar la mirada
+    const vg=g2.createRadialGradient(256,256,150,256,256,260);
+    vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,0.55)');
+    g2.fillStyle=vg; g2.fillRect(0,0,512,512);
+    const ftex=new THREE.CanvasTexture(cv);
+    if(THREE.SRGBColorSpace!==undefined && ftex.colorSpace!==undefined) ftex.colorSpace=THREE.SRGBColorSpace;
+    const floor=new THREE.Mesh(new THREE.PlaneGeometry(28,28), new THREE.MeshStandardMaterial({map:ftex, roughness:0.82, metalness:0.15}));
+    floor.rotation.x=-Math.PI/2; floor.position.y=-0.004; floor.receiveShadow=true; scene.add(floor);
+    window.__FLOOR=floor;
+  }catch(_e){ console.warn('suelo estudio', _e); }
   const grid=new THREE.GridHelper(12,24,0x526079,0x31405a); // grid sutil (nada de plano negro)
   grid.material.opacity=0.30; grid.material.transparent=true;
   grid.position.y=0.0; scene.add(grid); // el modelo apoya en y=0 (minY normalizado): el grid no atraviesa la carrocería
