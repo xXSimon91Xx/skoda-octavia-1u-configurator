@@ -34,7 +34,7 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 .grid3d,.g3d{perspective:1500px}
 .card.tilt3d{transform-style:preserve-3d;position:relative;will-change:transform;
   transition:transform .35s cubic-bezier(.22,.61,.36,1),box-shadow .35s,border-color .35s}
-.card.tilt3d.tilting{transition:transform .08s linear}
+.card.tilt3d.tilting{transition:transform .08s linear;animation:none!important}
 .card .glare3d{position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;z-index:3}
 .card.tilting .glare3d{opacity:1}
 .card.tilt3d.tilting{box-shadow:0 26px 50px -20px rgba(0,0,0,.8);border-color:var(--accent)}
