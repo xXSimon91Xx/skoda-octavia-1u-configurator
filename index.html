@@ -1430,24 +1430,26 @@ document.addEventListener('click', function(e){
   document.querySelectorAll('#informesAccordion details').forEach(function(o){ if(o!==d) o.removeAttribute('open'); });
 });
 
-// ═══ TILT 3D (15-sep-2026) — no toca el visor Three.js, paneles con scroll ni el mapa ═══
+// ═══ TILT 3D (15-sep-2026 v2) — motor delegado; nunca inclina el visor 3D, mapa ni paneles con scroll ═══
 (function(){
+  window.__TILT_DEBUG = { apply: 0, elegidos: 0, ultErr: null };
   if(!window.matchMedia || !matchMedia('(hover:hover) and (pointer:fine)').matches){
     document.documentElement.classList.add('no-tilt3d'); return;
   }
   var MAXD = 9, cur = null, raf = 0, lastEv = null;
-  function elegible(el){
-    if(!el) return false;
-    if(el.closest('#viewer3d, .leaflet-container, #glCanvas')) return false;
-    if(el.querySelector('#viewer3d, canvas, .leaflet-container, table')) return false;  // NO inclinar la card que CONTIENE el visor 3D/mapa/tabla
-    if(el.style && el.style.overflowY === 'auto') return false;
-    if(el.scrollHeight > el.clientHeight + 8 && getComputedStyle(el).overflowY !== 'visible') return false;
-    return true;
+  function excluido(el){
+    if(!el) return true;
+    if(el.closest('#viewer3d, .leaflet-container')) return true;            // dentro del 3D o del mapa
+    if(el.querySelector('#viewer3d, canvas, .leaflet-container')) return true; // card que CONTIENE el 3D/mapa
+    if(el.classList.contains('no-tilt3d')) return true;
+    if(el.style && el.style.overflowY === 'auto') return true;              // panel de controles con scroll
+    return false;
   }
   function reset(el){
     if(!el) return;
     el.classList.remove('tilting');
-    el.style.transform = ''; el.style.removeProperty('--mx'); el.style.removeProperty('--my');
+    el.style.transform = '';
+    el.style.removeProperty('--mx'); el.style.removeProperty('--my');
     var g = el.querySelector(':scope > .glare3d'); if(g) g.style.opacity = 0;
   }
   function glare(el){
@@ -1456,35 +1458,42 @@ document.addEventListener('click', function(e){
     return g;
   }
   function apply(){
-    raf = 0;
-    if(!cur || !lastEv) return;
-    var r = cur.getBoundingClientRect();
-    if(r.width < 8 || r.height < 8) return;
-    var px = Math.max(-.5, Math.min(.5, (lastEv.clientX - r.left) / r.width - .5));
-    var py = Math.max(-.5, Math.min(.5, (lastEv.clientY - r.top) / r.height - .5));
-    cur.style.transform = 'perspective(1100px) rotateY(' + (px * MAXD * 2).toFixed(2) + 'deg) rotateX(' +
-      (-py * MAXD * 2).toFixed(2) + 'deg) translateZ(20px) scale(1.018)';
-    cur.style.setProperty('--mx', px.toFixed(3));
-    cur.style.setProperty('--my', py.toFixed(3));
-    var g = glare(cur); g.style.opacity = 1;
-    g.style.background = 'radial-gradient(360px circle at ' + ((px + .5) * 100).toFixed(1) + '% ' +
-      ((py + .5) * 100).toFixed(1) + '%, rgba(255,255,255,.14), rgba(255,255,255,.04) 42%, transparent 64%)';
+    raf = 0; window.__TILT_DEBUG.apply++;
+    try{
+      if(!cur || !lastEv) return;
+      var r = cur.getBoundingClientRect();
+      if(r.width < 8 || r.height < 8) return;
+      var px = Math.max(-.5, Math.min(.5, (lastEv.clientX - r.left) / r.width - .5));
+      var py = Math.max(-.5, Math.min(.5, (lastEv.clientY - r.top) / r.height - .5));
+      cur.style.transform = 'perspective(1100px) rotateY(' + (px * MAXD * 2).toFixed(2) + 'deg) rotateX(' +
+        (-py * MAXD * 2).toFixed(2) + 'deg) translateZ(20px) scale(1.018)';
+      cur.style.setProperty('--mx', px.toFixed(3));
+      cur.style.setProperty('--my', py.toFixed(3));
+      var g = glare(cur); g.style.opacity = 1;
+      g.style.background = 'radial-gradient(360px circle at ' + ((px + .5) * 100).toFixed(1) + '% ' +
+        ((py + .5) * 100).toFixed(1) + '%, rgba(255,255,255,.14), rgba(255,255,255,.04) 42%, transparent 64%)';
+    }catch(err){ window.__TILT_DEBUG.ultErr = String(err && err.message || err); }
   }
   document.addEventListener('mousemove', function(e){
-    var el = e.target && e.target.closest ? e.target.closest('.card') : null;
-    if(el && !el.classList.contains('tilt3d')){
-      if(el.parentElement) el.parentElement.classList.add('grid3d');
-      el.classList.add('tilt3d');
+    var el = (e.target && e.target.closest) ? e.target.closest('.card') : null;
+    var t = excluido(el) ? null : el;
+    if(t !== cur){
+      reset(cur); cur = t;
+      if(cur){ cur.classList.add('tilt3d'); cur.classList.add('tilting'); window.__TILT_DEBUG.elegidos++; }
     }
-    var t = (el && elegible(el)) ? el : null;
-    if(t !== cur){ reset(cur); cur = t; if(cur) cur.classList.add('tilting'); }
     lastEv = e;
     if(cur && !raf) raf = requestAnimationFrame(apply);
   }, { passive: true });
   document.addEventListener('mouseleave', function(){ reset(cur); cur = null; }, { passive: true });
   window.addEventListener('scroll', function(){ if(cur){ reset(cur); cur = null; } }, { passive: true });
+  // las cards de la galeria reciben la clase base (perspectiva/transicion) sin necesidad de hover
+  function marcar(){
+    document.querySelectorAll('.card').forEach(function(c){
+      if(!excluido(c) && !c.querySelector('table')) c.classList.add('tilt3d');
+    });
+  }
+  setTimeout(marcar, 1500);
 })();
-
 </script>
 </body>
 </html>
