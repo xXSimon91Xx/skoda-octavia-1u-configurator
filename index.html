@@ -178,6 +178,21 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
         </div>
       </div>
       <div>
+        <div class="text-[15px] tracking-widest font-bold muted">🎨 VINILO (elige las zonas)</div>
+        <div class="flex flex-wrap gap-2 mt-2" id="viniloZonas">
+          <label class="flex items-center gap-1.5 text-[14px] cursor-pointer"><input type="checkbox" value="capo" class="accent-amber-500"><span>Capó</span></label>
+          <label class="flex items-center gap-1.5 text-[14px] cursor-pointer"><input type="checkbox" value="techo" class="accent-amber-500"><span>Techo</span></label>
+          <label class="flex items-center gap-1.5 text-[14px] cursor-pointer"><input type="checkbox" value="laterales" class="accent-amber-500"><span>Laterales</span></label>
+          <label class="flex items-center gap-1.5 text-[14px] cursor-pointer"><input type="checkbox" value="espejos" class="accent-amber-500"><span>Espejos</span></label>
+          <label class="flex items-center gap-1.5 text-[14px] cursor-pointer"><input type="checkbox" value="maletero" class="accent-amber-500"><span>Maletero</span></label>
+        </div>
+        <div class="flex items-center gap-2 mt-2">
+          <span class="text-[14px] muted">Color:</span>
+          <div class="flex gap-1.5" id="viniloColores"></div>
+          <button type="button" id="viniloQuitar" class="text-[13px] px-2 py-1 rounded-lg" style="background:var(--surface);border:1px solid var(--border)">Quitar</button>
+        </div>
+      </div>
+      <div>
         <div class="text-[15px] tracking-widest font-bold muted">🪶 ALERÓN</div>
         <select id="spoilerSel">
           <option value="none">Ninguno</option>
@@ -796,7 +811,64 @@ function addAngelEyes(on){
   });
   showToast('💡 Angel Eyes encendidos en los faros (emissive) — +130€ kit plug&play');
 }
+// ★★★ VINILO SELECTIVO POR ZONAS (capo, techo, laterales, espejos, maletero) ★★★
+var __viniloMeshes = [];
+const VINILO_COLORES = {rojo:0xd42a2a, negro:0x111114, blanco:0xeef0f2, plata:0xb9bec6, dorado:0xc8a24e, azul:0x1b3f8a};
+const VINILO_ZONAS = {capo:'Capó', techo:'Techo', laterales:'Laterales', espejos:'Espejos', maletero:'Maletero'};
+function quitarVinilo(){ __viniloMeshes.forEach(m=>{ if(m.parent) m.parent.remove(m); }); __viniloMeshes = []; }
+function aplicarVinilo(zonas, color){
+  quitarVinilo();
+  if(!gltfScene || !zonas || !zonas.length){ showToast('🎨 Vinilo retirado'); return; }
+  const col = VINILO_COLORES[color] || VINILO_COLORES.rojo;
+  const b = new THREE.Box3().setFromObject(gltfScene);
+  const s = b.getSize(new THREE.Vector3()), c = b.getCenter(new THREE.Vector3());
+  const mitadL = s.z/2, mitadA = s.x/2, altoTecho = b.max.y;
+  const mat = new THREE.MeshStandardMaterial({color:col, metalness:0.35, roughness:0.28, side:THREE.DoubleSide});
+  const matB = new THREE.MeshStandardMaterial({color:col, metalness:0.30, roughness:0.35, side:THREE.DoubleSide});
+  zonas.forEach(function(z){
+    if(z==='capo'){
+      // dos bandas racing sobre el capó (de morro a parabrisas)
+      [-0.16,0.16].forEach(function(dx){
+        const m = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.006, mitadL*0.78), mat);
+        m.position.set(c.x+dx, altoTecho-0.30, c.z + mitadL*0.20);
+        m.rotation.x = -0.055;   // ligera inclinacion del capo
+        __viniloMeshes.push(m); (window.__SCENE||gltfScene).add(m);
+      });
+    }
+    if(z==='techo'){
+      [-0.16,0.16].forEach(function(dx){
+        const m = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.006, mitadL*0.40), mat);
+        m.position.set(c.x+dx, altoTecho+0.006, c.z - mitadL*0.20);
+        __viniloMeshes.push(m); (window.__SCENE||gltfScene).add(m);
+      });
+    }
+    if(z==='laterales'){
+      [-1,1].forEach(function(sg){
+        const m = new THREE.Mesh(new THREE.BoxGeometry(0.006, 0.075, mitadL*1.15), matB);
+        m.position.set(c.x + sg*(mitadA+0.004), b.min.y + s.y*0.44, c.z);
+        __viniloMeshes.push(m); (window.__SCENE||gltfScene).add(m);
+      });
+    }
+    if(z==='espejos'){
+      [-1,1].forEach(function(sg){
+        const m = new THREE.Mesh(new THREE.BoxGeometry(0.028, 0.075, 0.11), matB);
+        m.position.set(c.x + sg*(mitadA+0.02), b.min.y + s.y*0.62, c.z + mitadL*0.42);
+        __viniloMeshes.push(m); (window.__SCENE||gltfScene).add(m);
+      });
+    }
+    if(z==='maletero'){
+      const m = new THREE.Mesh(new THREE.BoxGeometry(mitadA*0.9, 0.006, 0.26), mat);
+      m.position.set(c.x, altoTecho-0.16, c.z - mitadL*0.78);
+      m.rotation.x = 0.16;
+      __viniloMeshes.push(m); (window.__SCENE||gltfScene).add(m);
+    }
+  });
+  showToast('🎨 Vinilo '+zonas.map(z=>VINILO_ZONAS[z]).join('+')+' aplicado');
+}
+
 function applyTint(level){
+  // niveles reales: 0 = sin tintar (cristal de serie), 50% = intermedio, 80% = oscuro
+  const OP = {'0':0.34, '50':0.20, '80':0.09}[String(level)] ?? 0.34;
   if(!gltfScene) return;
   const targets=[];
   gltfScene.traverse(obj=>{ if(obj.isMesh){ const n=((obj.name||'')+' '+(obj.material&&obj.material.name||'')).toLowerCase(); if(/glass|luneta|cristal|window/i.test(n)) targets.push(obj); } });
@@ -1526,6 +1598,36 @@ document.querySelectorAll('input[name=rim]').forEach(r=>r.addEventListener('chan
   else if(e.target.value==='bronce') showToast('🛞 5 Radios Bronce 17" aplicadas ✓');
   else showToast('🛞 Llantas originales restauradas');
 }));
+// ── vinilo: swatches de color + aplicacion
+(function(){
+  var vc=document.getElementById('viniloColores');
+  if(vc){
+    Object.keys(VINILO_COLORES).forEach(function(k,i){
+      var b=document.createElement('button'); b.type='button'; b.className='vinilo-col'+(i===0?' sel':'');
+      b.setAttribute('data-color',k); b.title=k;
+      b.style.cssText='width:22px;height:22px;border-radius:50%;border:2px solid var(--border);cursor:pointer;background:#'+VINILO_COLORES[k].toString(16).padStart(6,'0');
+      vc.appendChild(b);
+    });
+    vc.addEventListener('click',function(ev){
+      var b=ev.target.closest('.vinilo-col'); if(!b) return;
+      vc.querySelectorAll('.vinilo-col').forEach(function(x){x.classList.remove('sel');x.style.borderColor='var(--border)';});
+      b.classList.add('sel'); b.style.borderColor='var(--accent)';
+      aplicarVinilo(zonasVinilo(), colorVinilo());
+    });
+  }
+  var zc=document.getElementById('viniloZonas');
+  if(zc) zc.addEventListener('change',function(){ aplicarVinilo(zonasVinilo(), colorVinilo()); });
+  var q=document.getElementById('viniloQuitar');
+  if(q) q.addEventListener('click',function(){ zc&&zc.querySelectorAll('input').forEach(function(i){i.checked=false;}); quitarVinilo(); showToast('🎨 Vinilo retirado'); });
+})();
+function zonasVinilo(){
+  var z=document.getElementById('viniloZonas'); if(!z) return [];
+  return [...z.querySelectorAll('input:checked')].map(function(i){return i.value;});
+}
+function colorVinilo(){
+  var s=document.querySelector('#viniloColores .vinilo-col.sel');
+  return s?s.getAttribute('data-color'):'rojo';
+}
 document.getElementById('spoilerSel').addEventListener('change',e=>{
   const v=e.target.value; addSpoiler(v);
   showToast(v==='none'?'🪶 Alerón: Ninguno':v==='ducktail'?'🪶 Ducktail aplicado (visible en 3D) +35-60€':'🪶 Spoiler RS aplicado (visible en 3D) +70-120€ — homologar agrupado');
@@ -1589,7 +1691,7 @@ document.getElementById('exhaustSel').addEventListener('change',()=>{applyKit();
 
 function resetConfig(){
   document.querySelectorAll('input[name=rim]')[0].checked=true; applyRims('original');
-  removeSpoiler(); removeAE(); applyTint('0'); removeProcRims(); removeKit();
+  removeSpoiler(); removeAE(); applyTint('0'); removeProcRims(); removeKit(); quitarVinilo();
   document.getElementById('spoilerSel').value='none';
   document.getElementById('headlightSel').value='original';
   document.getElementById('tintSel').value='0';
