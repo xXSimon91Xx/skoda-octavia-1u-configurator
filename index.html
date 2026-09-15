@@ -478,6 +478,37 @@ async function init3D(){
     });
     // apply current options
     applyPaint(PAINTS[0]);
+    // ── ★ MATERIALES PREMIUM: cristales reales, cromados, llantas y faros ──
+    try{
+      gltfScene.traverse(obj=>{
+        if(!obj.isMesh||!obj.material) return;
+        const mats=Array.isArray(obj.material)?obj.material:[obj.material];
+        mats.forEach(m=>{
+          const nom=((obj.name||'')+' '+(m.name||'')+' '+((obj.parent&&obj.parent.name)||'')).toLowerCase();
+          if(/glass|vidre|cristal|window|luna/i.test(nom)){
+            m.transparent=true; m.opacity=0.30; m.metalness=0.0; m.roughness=0.04;
+            m.depthWrite=false; m.envMapIntensity=2.0; m.side=THREE.DoubleSide;
+            if(m.color) m.color.set(0x9fc4e8);
+            m.needsUpdate=true;
+          } else if(/chrome|crom/i.test(nom)){
+            m.metalness=1.0; m.roughness=0.10; m.envMapIntensity=2.0; m.needsUpdate=true;
+          } else if(/rim|wheel|llanta|tyre|tire|neum/i.test(nom)){
+            if(/rim|llanta|wheel/i.test(nom)&&!/tyre|tire|neum/i.test(nom)){ m.metalness=0.92; m.roughness=0.20; m.envMapIntensity=1.7; }
+            else { m.metalness=0.05; m.roughness=0.85; m.envMapIntensity=0.6; }
+            m.needsUpdate=true;
+          } else if(/front|far|light|llum|faro/i.test(nom)){
+            m.metalness=0.30; m.roughness=0.10; m.envMapIntensity=2.0; m.needsUpdate=true;
+          } else if(/primary|carroceri|body|paint/i.test(nom)){
+            m.metalness=Math.max(m.metalness||0, 0.62);
+            m.roughness=Math.min(m.roughness===undefined?0.3:m.roughness, 0.26);
+            m.envMapIntensity=1.5;
+            if(m.clearcoat!==undefined){ m.clearcoat=0.85; m.clearcoatRoughness=0.10; }  // barniz de fábrica
+            m.needsUpdate=true;
+          }
+        });
+      });
+      console.log('materiales premium aplicados');
+    }catch(e){ console.warn('materiales premium', e); }
     const _nC=Math.round(gltfScene.children.length);
     document.getElementById('modelStatus').textContent='✅ Modelo real cargado — '+_nC+(_nC===1?' nodo':' nodos');
     console.log('SKODA NODES',carNodes);
