@@ -55,6 +55,10 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
 .toast.show{opacity:1;transform:translateY(0)}
 .toast.warn{border-left-color:#E30613}
 .hidden-tab{display:none}
+.tabnav{position:relative;flex:1;min-width:0}
+.tabnav::after{content:'';position:absolute;right:-2px;top:0;bottom:0;width:26px;pointer-events:none;
+  background:linear-gradient(to left,var(--bg),color-mix(in srgb,var(--bg) 55%,transparent),transparent)}
+@media(min-width:1024px){.tabnav::after{display:none}}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:80;display:none;align-items:center;justify-content:center}
 .modal.open{display:flex}
 .modal-card{background:var(--card);border:1px solid var(--border);border-radius:20px;max-width:420px;width:92%;padding:24px;max-height:80vh;overflow:auto}
@@ -99,7 +103,7 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
         <div class="text-[12.5px] tracking-widest muted font-medium mt-0.5">1.9 TDI · ALH 90CV REAL · 2001</div>
       </div>
     </div>
-    <div class="flex items-center gap-1 text-[15px] font-medium overflow-x-auto" style="scrollbar-width:none;-ms-overflow-style:none">
+    <div class="tabnav flex items-center gap-1 text-[15px] font-medium overflow-x-auto" style="scrollbar-width:none;-ms-overflow-style:none">
           <button class="tab-btn px-3.5 py-2 rounded-full whitespace-nowrap" data-tab="config">🎨 Configurador</button>
           <button class="tab-btn px-3.5 py-2 rounded-full whitespace-nowrap" data-tab="renders">🖼️ Renders IA</button>
           <button class="tab-btn px-3.5 py-2 rounded-full whitespace-nowrap" data-tab="informes">📋 Informes</button>
