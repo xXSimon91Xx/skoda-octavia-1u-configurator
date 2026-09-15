@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Configurador 3D del Skoda Octavia 1U 1.9 TDI (2001): pinturas, llantas reales 5x100, renders IA y catálogo de piezas con precios verificados.">
+<meta name="theme-color" content="#070B14">
+<meta property="og:title" content="SKODA OCTAVIA 1U — Configurador 3D + Catálogo">
+<meta property="og:description" content="Configura pintura y llantas en 3D real, 34 renders IA y 219 piezas con precios verificados.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="img/renders/r01_estudio_gris.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <title>SKODA OCTAVIA 1U — Configurador ModsNation Style</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='10' y='20' width='80' height='55' rx='12' fill='%23C9A86A'/><rect x='28' y='10' width='44' height='20' rx='6' fill='%230F172A'/><circle cx='27' cy='68' r='10' fill='%230F172A'/><circle cx='73' cy='68' r='10' fill='%230F172A'/></svg>">
 <script src="https://cdn.tailwindcss.com"></script>
@@ -808,46 +815,46 @@ function handlePieceClick(obj){
 // ===== RENDERS GRID =====
 const RENDERS_DATA = [
   // ===== GRIS (coche de serie 9102) =====
-  {f:'img/renders/r01_steel_grey_studio.png', t:'Steel Grey 9102 (de serie)', d:'Estudio oscuro con focos y suelo espejo', c:'Gris'},
-  {f:'img/renders/r05_rojo_torii.png', t:'Gris plata · torii y cerezos', d:'Coche GRIS real (el archivo decía «rojo» — la IA lo pintó gris)', c:'Gris'},
-  {f:'img/renders/r27_lejos_montana.png', t:'Paso de montaña', d:'Curva alpina dramática con el coche en primer plano', c:'Gris'},
+  {f:'img/renders/r01_steel_grey_studio.jpg', t:'Steel Grey 9102 (de serie)', d:'Estudio oscuro con focos y suelo espejo', c:'Gris'},
+  {f:'img/renders/r05_rojo_torii.jpg', t:'Gris plata · torii y cerezos', d:'Coche GRIS real (el archivo decía «rojo» — la IA lo pintó gris)', c:'Gris'},
+  {f:'img/renders/r27_lejos_montana.jpg', t:'Paso de montaña', d:'Curva alpina dramática con el coche en primer plano', c:'Gris'},
   {f:'img/renders/r28_espejo_agua.png', t:'Reflejo en nave', d:'Suelo mojado y reflejo completo del coche', c:'Gris'},
-  {f:'img/renders/r29_desierto_ruta66.png', t:'Ruta 66', d:'Carretera desértica con motel y cactus', c:'Gris'},
-  {f:'img/renders/r30_granja_campo.png', t:'Campo de trigo', d:'Hora dorada en la campiña', c:'Gris'},
+  {f:'img/renders/r29_desierto_ruta66.jpg', t:'Ruta 66', d:'Carretera desértica con motel y cactus', c:'Gris'},
+  {f:'img/renders/r30_granja_campo.jpg', t:'Campo de trigo', d:'Hora dorada en la campiña', c:'Gris'},
   {f:'img/renders/r32_explosion_pintura.png', t:'Explosión de pintura', d:'Nube multicolor en taller industrial', c:'Gris'},
-  {f:'img/renders/r33_hielo_invierno.png', t:'Lago helado', d:'Escarcha, luces encendidas y montañas nevadas', c:'Gris'},
-  {f:'img/renders/r34_lavadero.png', t:'Lavadero', d:'Espuma y pistola a presión', c:'Gris'},
+  {f:'img/renders/r33_hielo_invierno.jpg', t:'Lago helado', d:'Escarcha, luces encendidas y montañas nevadas', c:'Gris'},
+  {f:'img/renders/r34_lavadero.jpg', t:'Lavadero', d:'Espuma y pistola a presión', c:'Gris'},
   {f:'img/renders/r35_puente_torii.png', t:'Torii de Miyajima', d:'El gran torii sobre el agua', c:'Gris'},
-  {f:'img/renders/r36_oni_demonio.png', t:'Noche del oni', d:'Santuario nocturno con máscara de oni', c:'Gris'},
+  {f:'img/renders/r36_oni_demonio.jpg', t:'Noche del oni', d:'Santuario nocturno con máscara de oni', c:'Gris'},
   // ===== NEGRO =====
-  {f:'img/renders/r02_negro_piano_urbano.png', t:'Negro piano brillo', d:'Calle urbana nocturna con reflejos neón', c:'Negro'},
-  {f:'img/renders/r01_negro_urbano.png', t:'Negro urbano', d:'Lluvia, neones y reflejos en el asfalto', c:'Negro'},
-  {f:'img/renders/r37_serie_vodka_black.png', t:'Negro mate competición (vodka black)', d:'Garaje de taller · detalles rojos y llantas negras', c:'Negro'},
-  {f:'img/renders/r40_render_negro_estudio.png', t:'Negro brillo en estudio', d:'Estudio oscuro con suelo reflectante', c:'Negro'},
-  {f:'img/renders/r41_render_negro_calle.png', t:'Negro · hora azul', d:'Calle mojada con farolas encendidas', c:'Negro'},
+  {f:'img/renders/r02_negro_piano_urbano.jpg', t:'Negro piano brillo', d:'Calle urbana nocturna con reflejos neón', c:'Negro'},
+  {f:'img/renders/r01_negro_urbano.jpg', t:'Negro urbano', d:'Lluvia, neones y reflejos en el asfalto', c:'Negro'},
+  {f:'img/renders/r37_serie_vodka_black.jpg', t:'Negro mate competición (vodka black)', d:'Garaje de taller · detalles rojos y llantas negras', c:'Negro'},
+  {f:'img/renders/r40_render_negro_estudio.jpg', t:'Negro brillo en estudio', d:'Estudio oscuro con suelo reflectante', c:'Negro'},
+  {f:'img/renders/r41_render_negro_calle.jpg', t:'Negro · hora azul', d:'Calle mojada con farolas encendidas', c:'Negro'},
   {f:'img/renders/r42_negro_llantas_blancas.jpg', t:'Negro mate · llantas blancas (estilo JR3)', d:'El look vodka black con llantas blancas gloss 6 radios · garaje con softbox', c:'Negro'},
   {f:'img/renders/r44_negro_jaula_competicion.jpg', t:'Negro mate · jaula antivuelco', d:'Preparación de circuito: jaula, arneses, franja roja y pinzas rojas', c:'Negro'},
   {f:'img/renders/r45_negro_widebody.jpg', t:'Negro mate widebody', d:'Kit ancho con splitter, faldones y llantas oscuras multiradio', c:'Negro'},
   {f:'img/renders/r47_piano_black_bronce.jpg', t:'Negro brillo · llantas bronce (estilo JR9)', d:'Franja roja fina y llantas bronce multiradio · Octavia Mk1 exacto', c:'Negro'},
   {f:'img/Flama-Nuevo-01.png', t:'Flama 01 · Negro piano', d:'BBS CH plata 17" · Angel eyes · Calle urbana', c:'Negro'},
   // ===== BLANCO =====
-  {f:'img/renders/r03_blanco_perla_mar.png', t:'Blanco perla', d:'Paseo marítimo en hora dorada', c:'Blanco'},
+  {f:'img/renders/r03_blanco_perla_mar.jpg', t:'Blanco perla', d:'Paseo marítimo en hora dorada', c:'Blanco'},
   {f:'img/Flama-Nuevo-08.png', t:'Flama 08 · Blanco perla', d:'BBS CH plata · Angel eyes · Paseo marítimo', c:'Blanco'},
   // ===== AZUL =====
-  {f:'img/renders/r04_azul_medianoche.png', t:'Azul medianoche', d:'Noche de lluvia con luces', c:'Azul'},
+  {f:'img/renders/r04_azul_medianoche.jpg', t:'Azul medianoche', d:'Noche de lluvia con luces', c:'Azul'},
   {f:'img/Flama-Nuevo-05.png', t:'Flama 05 · Azul medianoche', d:'Mesh negro 18" · RS · Noche neón', c:'Azul'},
   // ===== VERDE =====
   {f:'img/renders/r06_verde_bosque.png', t:'Verde bosque satinado', d:'Carretera de bosque con niebla', c:'Verde'},
-  {f:'img/renders/r38_render_verde.png', t:'Verde bosque mate', d:'Nave industrial abandonada al atardecer · pinzas verdes', c:'Verde'},
+  {f:'img/renders/r38_render_verde.jpg', t:'Verde bosque mate', d:'Nave industrial abandonada al atardecer · pinzas verdes', c:'Verde'},
   {f:'img/renders/r43_verde_llantas_blancas.jpg', t:'Verde bosque · llantas blancas (estilo JR3)', d:'Satinado oscuro con franja negra, llantas blancas 6 radios y suelo espejo', c:'Verde'},
   {f:'img/Flama-Nuevo-02.png', t:'Flama 02 · Verde bosque', d:'5 radios bronce 17" · Ducktail', c:'Verde'},
   // ===== PÚRPURA =====
-  {f:'img/renders/r39_render_purpura.png', t:'Púrpura profundo metalizado', d:'Calle centroeuropea bajo la lluvia', c:'Púrpura'},
+  {f:'img/renders/r39_render_purpura.jpg', t:'Púrpura profundo metalizado', d:'Calle centroeuropea bajo la lluvia', c:'Púrpura'},
   {f:'img/renders/r46_purpura_franja_dorada.jpg', t:'Púrpura metalizado · franja dorada', d:'Violeta profundo con detalles dorados y llantas plata multiradio', c:'Púrpura'},
   // ===== VINILOS =====
   {f:'img/renders/r07_vinilo_chrome.png', t:'Vinilo cromo espejo', d:'Refleja cielo y edificios por completo', c:'Vinilos'},
   {f:'img/renders/r08_vinilo_azul_violaceo.png', t:'Vinilo iridiscente azul-violeta', d:'Color shift en garaje neón', c:'Vinilos'},
-  {f:'img/renders/r09_vinilo_mint.png', t:'Vinilo verde menta mate', d:'Acabado vinílico en garaje con luz tropical', c:'Vinilos'},
+  {f:'img/renders/r09_vinilo_mint.jpg', t:'Vinilo verde menta mate', d:'Acabado vinílico en garaje con luz tropical', c:'Vinilos'},
   ];
   // render inicial diferido: asegura que todo (incl. module) esté listo
 window.addEventListener('load', function(){ setTimeout(function(){ if(typeof renderRenders==='function' && document.getElementById('rendersGrid')) renderRenders('Todos'); }, 100); });
