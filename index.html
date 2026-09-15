@@ -211,7 +211,14 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
 <!-- TAB: INFORMES -->
 <section id="tab-informes" class="hidden-tab max-w-[1600px] mx-auto px-4 py-5">
   <h2 class="font-black text-xl tracking-tight">📋 Informes del coche</h2>
-  <p class="text-[15px] muted mt-1">8 informes completos con datos verificados · doble click en el 3D también te informa</p>
+  <p class="text-[15px] muted mt-1"><span id="nInformes">9</span> informes completos con datos verificados · doble click en el 3D también te informa</p>
+  <div class="card p-4 mt-3 flex flex-wrap items-center justify-between gap-3" style="border-color:var(--accent)">
+    <div>
+      <div class="font-bold text-[15px]">📄 Informe PDF premium (15-sep-2026)</div>
+      <div class="text-[14px] muted">Portada editorial, pedido AutoDoc pagado con nºs de artículo, llantas candidatas y pendientes. Motor propio (Chrome + CSS).</div>
+    </div>
+    <a class="px-4 py-2 rounded-full font-bold text-[15px]" style="background:var(--accent);color:#0b0e14;text-decoration:none" href="Informe-Skoda-2026-09-15.pdf" download>⬇️ Descargar PDF</a>
+  </div>
   <div class="grid md:grid-cols-2 xl:grid-cols-2 gap-4 mt-4" id="informesAccordion"></div>
 </section>
 
@@ -993,6 +1000,7 @@ const INFORMES=[
   '<a href="https://www.oponeo.es/llantas-aluminio/17/5x100-00" target="_blank">Llantas 17" 5x100 — Oponeo →</a> · <a href="https://www.carhifi.eu/search?sSearch=angel+eyes+octavia" target="_blank">Angel Eyes — CarHifi →</a>'
  ]},
 ];
+var _nInf=document.getElementById('nInformes'); if(_nInf) _nInf.textContent=INFORMES.length;
 document.getElementById('informesAccordion').innerHTML=INFORMES.map((inf,i)=>
   `<details class="card p-4 group fade-in inf-ac"><summary class="cursor-pointer font-bold text-[16px] list-none flex items-center justify-between gap-2">${inf.t}<i class="ph ph-caret-down transition group-open:rotate-180"></i></summary>
   <p class="text-[15px] muted mt-1.5 mb-2">${inf.s}</p>
