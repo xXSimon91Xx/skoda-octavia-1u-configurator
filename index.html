@@ -1048,6 +1048,19 @@ function handlePieceClick(obj){
 
 // ===== RENDERS GRID =====
 const RENDERS_DATA = [
+  // ===== STUDIO 3D (generados con el motor Three.js del configurador, coche en negro piano) =====
+  {f:'img/renders/estudio/negro-3-4-delantero.jpg', t:'Studio 3D · 3/4 delantero', d:'Negro piano · llantas de serie · render del motor 3D', c:'Studio 3D'},
+  {f:'img/renders/estudio/negro-lateral.jpg',       t:'Studio 3D · lateral',        d:'Negro piano · perfil completo', c:'Studio 3D'},
+  {f:'img/renders/estudio/negro-3-4-trasero.jpg',   t:'Studio 3D · 3/4 trasero',    d:'Negro piano · vista trasera deportiva', c:'Studio 3D'},
+  {f:'img/renders/estudio/negro-frontal.jpg',       t:'Studio 3D · frontal',        d:'Negro piano · morro y faros', c:'Studio 3D'},
+  {f:'img/renders/estudio/negro-trasero.jpg',       t:'Studio 3D · trasero',        d:'Negro piano · zaga', c:'Studio 3D'},
+  {f:'img/renders/estudio/negro-detalle-rueda.jpg',  t:'Studio 3D · detalle de rueda', d:'Primer plano de la rueda delantera', c:'Studio 3D'},
+  {f:'img/renders/estudio/negro-detalle-morro.jpg',  t:'Studio 3D · detalle de morro', d:'Primer plano del frontal', c:'Studio 3D'},
+  {f:'img/renders/estudio/negro-bbs-3-4-delantero.jpg', t:'Studio 3D · con BBS CH', d:'Negro piano con llantas BBS CH 17" (modelo 3D real)', c:'Studio 3D'},
+  {f:'img/renders/estudio/negro-bbs-detalle-rueda.jpg', t:'Studio 3D · BBS CH detalle', d:'Primer plano de la BBS CH montada', c:'Studio 3D'},
+  {f:'img/renders/estudio/negro-bronce-3-4-delantero.jpg', t:'Studio 3D · 5 radios bronce', d:'Negro piano con llantas bronce de 5 radios', c:'Studio 3D'},
+  {f:'img/renders/estudio/negro-mesh-3-4-delantero.jpg', t:'Studio 3D · mesh negro', d:'Negro piano con llantas mesh', c:'Studio 3D'},
+  {f:'img/renders/estudio/negro-bbs-lateral.jpg',   t:'Studio 3D · BBS lateral',    d:'BBS CH en perfil', c:'Studio 3D'},
   // ===== GRIS (coche de serie 9102) =====
   {f:'img/renders/r01_steel_grey_studio.jpg', t:'Steel Grey 9102 (de serie)', d:'Estudio oscuro con focos y suelo espejo', c:'Gris'},
   {f:'img/renders/r05_rojo_torii.jpg', t:'Gris plata · torii y cerezos', d:'Coche GRIS real (el archivo decía «rojo» — la IA lo pintó gris)', c:'Gris'},
@@ -1094,7 +1107,7 @@ const RENDERS_DATA = [
 window.addEventListener('load', function(){ setTimeout(function(){ if(typeof renderRenders==='function' && document.getElementById('rendersGrid')) renderRenders('Todos'); }, 100); });
 // ===== FILTRO RENDERS POR COLOR =====
 let RENDER_CAT='Todos';
-const RENDER_CATS=['Todos','Gris','Negro','Blanco','Azul','Rojo','Verde','Púrpura','Vinilos'];
+const RENDER_CATS=['Todos','Studio 3D','Gris','Negro','Blanco','Azul','Rojo','Verde','Púrpura','Vinilos'];
 document.getElementById('renderFilters').innerHTML=RENDER_CATS.map(c=>
   `<button onclick="setRenderCat('${c}')" id="rc-${c}" class="px-3 py-1.5 rounded-full text-[13px] font-bold border transition" style="border-color:${c==='Todos'?'var(--accent)':'var(--border)'};background:${c==='Todos'?'var(--accent)':'transparent'};color:${c==='Todos'?'#0F172A':'var(--text)'}">${c}</button>`).join('');
 function setRenderCat(c){
