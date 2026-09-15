@@ -162,6 +162,15 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
           <label class="flex items-center gap-2 text-[15px] cursor-pointer"><input type="radio" name="rim" value="bronce" class="accent-amber-500"><span>5 Radios Bronce 17"</span></label>
           <label class="flex items-center gap-2 text-[15px] cursor-pointer"><input type="radio" name="rim" value="mesh" class="accent-amber-500"><span>Mesh Negro 18"</span></label>
         </div>
+        <div class="text-[13px] tracking-widest font-bold mt-3" style="color:var(--accent)">🛞 NORAUTO 17" 5×100 (reales)</div>
+        <div class="text-[12px] muted mt-0.5 mb-1.5">Del catálogo Norauto Les Gavarres · montaje en tienda</div>
+        <div class="space-y-1.5" id="norautoRimsPicker">
+          <label class="flex items-center gap-2 text-[15px] cursor-pointer"><input type="radio" name="rim" value="na-matrix" class="accent-amber-500"><img src="img/llantas/racer-matrix.jpg" alt="" loading="lazy" style="width:28px;height:28px;object-fit:contain;background:#fff;border-radius:6px"><span>RACER MATRIX · 145 €</span></label>
+          <label class="flex items-center gap-2 text-[15px] cursor-pointer"><input type="radio" name="rim" value="na-raptor" class="accent-amber-500"><img src="img/llantas/racer-raptor.jpg" alt="" loading="lazy" style="width:28px;height:28px;object-fit:contain;background:#fff;border-radius:6px"><span>RACER RAPTOR · 148 €</span></label>
+          <label class="flex items-center gap-2 text-[15px] cursor-pointer"><input type="radio" name="rim" value="na-five" class="accent-amber-500"><img src="img/llantas/racer-five.jpg" alt="" loading="lazy" style="width:28px;height:28px;object-fit:contain;background:#fff;border-radius:6px"><span>RACER FIVE · 148 € ✅sin anillos</span></label>
+          <label class="flex items-center gap-2 text-[15px] cursor-pointer"><input type="radio" name="rim" value="na-dezent" class="accent-amber-500"><img src="img/llantas/dezent-tr.jpg" alt="" loading="lazy" style="width:28px;height:28px;object-fit:contain;background:#fff;border-radius:6px"><span>DEZENT TR · 186 €</span></label>
+          <label class="flex items-center gap-2 text-[15px] cursor-pointer"><input type="radio" name="rim" value="na-oz" class="accent-amber-500"><img src="img/llantas/oz-ultraleggera.jpg" alt="" loading="lazy" style="width:28px;height:28px;object-fit:contain;background:#fff;border-radius:6px"><span>OZ ULTRALEGGERA · 512 €</span></label>
+        </div>
       </div>
       <div>
         <div class="text-[15px] tracking-widest font-bold muted">🪶 ALERÓN</div>
@@ -631,10 +640,12 @@ function applyPaint(p){
 }
 
 function applyRims(style){
+  const esNorauto = /^na-/.test(style);
   // show/hide original rim meshes (solo ruedas reales)
   getWheelAnchors().forEach(m=>{
     if(m&&m.visible!==undefined){m.visible=(style==='original');}
   });
+  if(esNorauto){ removeRimInstances(); applyProceduralRims(style); showToast('🛞 '+RIM_SPECS[style].n+' montada (4 ruedas)'); return; }
   // real 3D rim swap: load BBS_CH glb and clone at each wheel position
   removeRimInstances();
   if(style==='bbs' && gltfScene && window.__RIM_LOADER){
@@ -661,7 +672,7 @@ function applyRims(style){
       showToast('⚠️ Llanta 3D no cargó: '+ (e.message||e).slice(0,60),'warn');
       console.warn('rim load fail',e);
     });
-  } else if(style==='bronce'||style==='mesh'){
+  } else if(style==='bronce'||style==='mesh'||style==='original'){
     applyProceduralRims(style);
   }
 }
@@ -820,21 +831,69 @@ function applyTint(level){
   });
   showToast(level==='0'?'🪟 Cristales restaurados (sin tintar)':level==='50'?'🪟 Tintado 50% — legal en traseras':'🪟 Tintado 80% (MUY oscuro) — SOLO traseras ⚠️');
 }
+// ★★★ CATALOGO DE LLANTAS 3D (incluye las NORAUTO reales del catalogo 5x100) ★★★
+const RIM_SPECS = {
+  original: {n:'Originales (de fábrica)', radios:5,  grosor:0.052, colorAro:0xb9bec6, colorRad:0xa8aeb7, metal:0.9,  rough:0.28, cara:false, split:false, doble:false, buje:0.115},
+  bbs:      {n:'BBS CH Plata 17\"',      radios:10, grosor:0.030, colorAro:0xcfd4da, colorRad:0xc4c9d0, metal:0.95, rough:0.22, cara:true,  split:false, doble:false, buje:0.105},
+  bronce:   {n:'5 Radios Bronce 17\"',   radios:5,  grosor:0.078, colorAro:0xc8954e, colorRad:0xc8954e, metal:0.80, rough:0.32, cara:false, split:false, doble:false, buje:0.115},
+  mesh:     {n:'Mesh Negro 18\"',        radios:10, grosor:0.026, colorAro:0x15161a, colorRad:0x15161a, metal:0.85, rough:0.34, cara:false, split:true,  doble:false, buje:0.10},
+  // ── NORAUTO (catalogo real verificado 15-sep-2026, todos 5x100) ──
+  'na-matrix': {n:'RACER MATRIX 17\" · 145 €', radios:10, grosor:0.028, colorAro:0x1b1d22, colorRad:0x22252b, metal:0.92, rough:0.20, cara:true,  split:true,  doble:false, buje:0.10,  norauto:true},
+  'na-raptor': {n:'RACER RAPTOR 17\" · 148 €', radios:10, grosor:0.034, colorAro:0x1b1d22, colorRad:0x1b1d22, metal:0.92, rough:0.20, cara:true,  split:false, doble:true,  buje:0.10,  norauto:true},
+  'na-five':   {n:'RACER FIVE 17\" · 148 €',   radios:5,  grosor:0.082, colorAro:0x1b1d22, colorRad:0xb8bec6, metal:0.90, rough:0.24, cara:true,  split:false, doble:false, buje:0.115, norauto:true},
+  'na-dezent': {n:'DEZENT TR 17\" · 186 €',    radios:10, grosor:0.032, colorAro:0x1b1d22, colorRad:0x23262c, metal:0.90, rough:0.26, cara:true,  split:false, doble:true,  buje:0.10,  norauto:true},
+  'na-oz':     {n:'OZ ULTRALEGGERA 17\"',     radios:10, grosor:0.022, colorAro:0x141518, colorRad:0x141518, metal:0.88, rough:0.38, cara:false, split:false, doble:false, buje:0.095, norauto:true},
+};
+const RIN_R = 0.235;   // radio del rin (encaja dentro del neumatico del modelo, que llega a ~0.30)
+
 function buildRimGroup(style){
+  const s = RIM_SPECS[style] || RIM_SPECS['original'];
   const g=new THREE.Group();
-  const matAro=new THREE.MeshStandardMaterial({color:style==='bronce'?0xc8954e:0x15161a,metalness:0.75,roughness:0.35});
-  const matC=new THREE.MeshStandardMaterial({color:0x0e0e12,metalness:0.9,roughness:0.25});
-  const aro=new THREE.Mesh(new THREE.TorusGeometry(0.32,0.055,12,28),matAro);
-  g.add(aro);
-  const disc=new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.09,0.12,20),matC);
-  disc.rotation.x=Math.PI/2; g.add(disc);
-  const spokes = style==='bronce'?5:10;
-  for(let i=0;i<spokes;i++){
-    const a=(i/spokes)*Math.PI*2;
-    const sp=new THREE.Mesh(new THREE.BoxGeometry(style==='bronce'?0.06:0.03,0.42,0.09), style==='bronce'?matAro:matC);
-    sp.rotation.z=a; sp.position.set(Math.cos(a)*0.12, Math.sin(a)*0.12, 0);
-    g.add(sp);
+  const matAro = new THREE.MeshStandardMaterial({color:s.colorAro, metalness:s.metal, roughness:s.rough});
+  const matRad = new THREE.MeshStandardMaterial({color:s.colorRad, metalness:s.metal, roughness:s.rough});
+  const matCara= new THREE.MeshStandardMaterial({color:0xd6dbe1, metalness:0.98, roughness:0.12});   // cara pulida
+  const matOsc = new THREE.MeshStandardMaterial({color:0x0e0f12, metalness:0.6,  roughness:0.5});
+
+  // aro exterior + labio interior
+  const aro=new THREE.Mesh(new THREE.TorusGeometry(RIN_R, 0.020, 10, 40), matAro);
+  aro.rotation.y = Math.PI/2; g.add(aro);                       // el eje de la rueda es X
+  const labio=new THREE.Mesh(new THREE.TorusGeometry(RIN_R-0.024, 0.012, 8, 40), s.cara?matCara:matOsc);
+  labio.rotation.y = Math.PI/2; g.add(labio);
+
+  // disco de freno + pinza (realismo: antes no habia nada detras)
+  const disco=new THREE.Mesh(new THREE.CylinderGeometry(RIN_R*0.62, RIN_R*0.62, 0.018, 28), new THREE.MeshStandardMaterial({color:0x6b7078, metalness:0.95, roughness:0.42}));
+  disco.rotation.z=Math.PI/2; disco.position.x=-0.03; g.add(disco);
+  const pinza=new THREE.Mesh(new THREE.BoxGeometry(0.05,0.10,0.075), new THREE.MeshStandardMaterial({color:0xc0392b, metalness:0.4, roughness:0.5}));
+  pinza.position.set(-0.035, RIN_R*0.72, 0); g.add(pinza);
+
+  // radios
+  const n=s.radios;
+  for(let i=0;i<n;i++){
+    const a=(i/n)*Math.PI*2;
+    const anguloDoble = s.doble ? (0.055) : 0;   // pares gemelos/V
+    const offsets = s.doble ? [-anguloDoble, anguloDoble] : (s.split ? [-0.045, 0.045] : [0]);
+    offsets.forEach(off=>{
+      const radLong = RIN_R-0.055;
+      const sp=new THREE.Mesh(new THREE.BoxGeometry(0.032, radLong, s.grosor), s.cara && off===0 ? matCara : matRad);
+      sp.rotation.x = a+off;
+      const mid = radLong/2 + 0.045;
+      sp.position.set(0, Math.cos(a+off)*mid, Math.sin(a+off)*mid);
+      sp.rotation.y = 0;
+      g.add(sp);
+      // cara pulida sobre el radio (solo modelos con `cara`)
+      if(s.cara && !s.doble){
+        const cap=new THREE.Mesh(new THREE.BoxGeometry(0.036, radLong*0.96, s.grosor*0.42), matCara);
+        cap.rotation.x = a+off;
+        cap.position.set(0.019, Math.cos(a+off)*mid, Math.sin(a+off)*mid);
+        g.add(cap);
+      }
+    });
   }
+  // buje central (con logo)
+  const buje=new THREE.Mesh(new THREE.CylinderGeometry(s.buje, s.buje, 0.055, 20), matAro);
+  buje.rotation.z=Math.PI/2; g.add(buje);
+  const tapa=new THREE.Mesh(new THREE.CylinderGeometry(s.buje*0.62, s.buje*0.62, 0.058, 16), s.norauto?new THREE.MeshStandardMaterial({color:0xd8dde3,metalness:0.95,roughness:0.15}):matOsc);
+  tapa.rotation.z=Math.PI/2; tapa.position.x=0.004; g.add(tapa);
   return g;
 }
 function removeProcRims(){ __procRims.forEach(m=>{if(m.parent)m.parent.remove(m);}); __procRims=[]; }
