@@ -1436,7 +1436,7 @@ document.addEventListener('click', function(e){
   if(!window.matchMedia || !matchMedia('(hover:hover) and (pointer:fine)').matches){
     document.documentElement.classList.add('no-tilt3d'); return;
   }
-  var MAXD = 9, cur = null, raf = 0, lastEv = null;
+  var MAXD = 9, cur = null, raf = 0, lastEv = null, lastT = 0;
   function excluido(el){
     if(!el) return true;
     if(el.closest('#viewer3d, .leaflet-container')) return true;            // dentro del 3D o del mapa
@@ -1458,7 +1458,7 @@ document.addEventListener('click', function(e){
     return g;
   }
   function apply(){
-    raf = 0; window.__TILT_DEBUG.apply++;
+ window.__TILT_DEBUG.apply++;
     try{
       if(!cur || !lastEv) return;
       var r = cur.getBoundingClientRect();
@@ -1482,7 +1482,11 @@ document.addEventListener('click', function(e){
       if(cur){ cur.classList.add('tilt3d'); cur.classList.add('tilting'); window.__TILT_DEBUG.elegidos++; }
     }
     lastEv = e;
-    if(cur && !raf) raf = requestAnimationFrame(apply);
+    if(!cur) return;
+    var _now = (window.performance && performance.now) ? performance.now() : Date.now();
+    if(_now - lastT < 14) return;   // ~60fps, sin depender de requestAnimationFrame
+    lastT = _now;
+    apply();
   }, { passive: true });
   document.addEventListener('mouseleave', function(){ reset(cur); cur = null; }, { passive: true });
   window.addEventListener('scroll', function(){ if(cur){ reset(cur); cur = null; } }, { passive: true });
