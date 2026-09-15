@@ -885,7 +885,8 @@ function applyTint(level){
     });
   });
   // target de opacidad: 0(original/transparente) 50(medio) 80(MUY oscuro — traseras legal)
-  const target = level==='50' ? 0.50 : level==='80' ? 0.16 : null;
+  // BUG corregido: antes '50' ponia 0.50 y hacia Math.min(0.50, orig 0.30) -> nunca cambiaba nada
+  const target = (level==='50'||level==='80') ? OP : null;
   targets.forEach(m=>{
     const mats=Array.isArray(m.material)?m.material:[m.material];
     mats.forEach(mt=>{
@@ -895,7 +896,7 @@ function applyTint(level){
       if(target===null){
         mt.opacity=orig.op; mt.transparent=orig.tr; mt.depthWrite=false;
       }else{
-        mt.opacity=Math.min(target, orig.op);
+        mt.opacity=target;   // asignar directo (el Math.min anterior lo dejaba clavado en el valor original)
         mt.transparent=true;
         mt.depthWrite=false;
         mt.needsUpdate=true;
