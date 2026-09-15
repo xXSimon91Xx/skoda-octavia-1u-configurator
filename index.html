@@ -831,10 +831,13 @@ function applyProceduralRims(style){
 // ===== WHEEL ANCHORS: solo ruedas reales (filtro por altura; el glb trae 2 objetos 'rim' falsos en el interior) =====
 function getWheelAnchors(){
   const list = carNodes.rims.length ? carNodes.rims : rimGroups.map(r=>r[0]);
-  const out = [];
+  const cand = [];
   const p = new THREE.Vector3();
-  list.forEach(a=>{ if(a && a.visible !== undefined){ a.getWorldPosition(p); if(p.y < 0.55) out.push(a); } });
-  return out;
+  list.forEach(a=>{ if(a && a.visible !== undefined){ a.getWorldPosition(p); if(p.y < 0.55) cand.push({o:a,p:p.clone()}); } });
+  // deduplicar por posicion: rueda+neumatico comparten sitio -> 4 anclas exactas (antes salian 6-8)
+  const seen = {};
+  cand.forEach(c=>{ const k = Math.round(c.p.x*3)+'|'+Math.round(c.p.z*3); if(!seen[k]) seen[k]=c.o; });
+  return Object.keys(seen).slice(0,4).map(k=>seen[k]);
 }
 // ===== WHEEL POSITIONS for procedural rims =====
 function wheelPositions(){
