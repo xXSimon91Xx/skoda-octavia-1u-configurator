@@ -271,10 +271,10 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
       </div>
       <span class="tag" style="background:var(--accent);color:#070B14">✅ 5×100 SIN ADAPTADOR</span>
     </div>
-    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4" id="norautoGrid"></div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 mt-4" id="norautoGrid"></div>
     <div class="mt-3 pt-3 text-[14px] muted" style="border-top:1px solid var(--border)">
-      <b>Verificado:</b> 5×100 = anclaje exacto del Octavia 1U2 <b>→ NO hace falta adaptador</b> · ET35 dentro del rango legal (35-40) · neumático <b>225/45 R17</b> ·
-      buje: <b>confirmar en tienda</b> (si la llanta es 57,1 va directa; si es 65-73 necesitas anillos de centrado ~5-10 €).
+      <b>Verificado con ficha oficial Norauto (15-sep-2026):</b> 5×100 = anclaje exacto del Octavia 1U2 <b>→ NO hace falta adaptador</b> · ET35 dentro del rango legal (35-40) · neumático <b>225/45 R17</b> ·
+      buje: <b>la RACER FIVE es 57,1 mm (directa)</b>; en el resto confírmalo en tienda (si es 65-73 necesitas anillos ~5-10 €).
       <br>💡 <b>Ojo:</b> los RACER son marca propia → entra en los <b>«Días del Club Norauto» (-15% en productos Norauto, 14-27 sep)</b> si eres socio. Confírmalo en tienda.
     </div>
   </div>
@@ -1126,10 +1126,10 @@ document.getElementById('informesAccordion').innerHTML=INFORMES.map((inf,i)=>
 // ===== CATÁLOGO COMPRAS (grande) =====
 const CATALOGO=[
  // ⭐⭐ NORAUTO (Les Gavarres, Tarragona) — 17x7,5 5x100 · montaje en tienda · verificadas 15-sep-2026
- {n:'🔥 RACER ICE 7,5×17 ET35 5×100 — Negro mate', cat:'LANTAS', marca:'Norauto (Racer)', p:'135,00 €/ud · ~540 €/juego', c:'✓ 5×100 ET35 · 7,5J ✓ la medida justa · negra mate: encaja con carrocería negro mate · MONTAJE EN NORAUTO Tarragona', u:'https://www.norauto.es/p/llanta-de-aluminio-racer-ice-7.5x17-5x100-et35-negro-mate-2168392.html'},
- {n:'⭐ RACER MATRIX 7,5×17 ET35 5×100 — Brillo negro', cat:'LANTAS', marca:'Norauto (Racer)', p:'145,00 €/ud · ~580 €/juego', c:'✓ 5×100 ET35 · 7,5J ✓ · 10 radios negro con caras pulidas plateadas (rollo JDM) · MONTAJE EN NORAUTO', u:'https://www.norauto.es/p/llanta-de-aluminio-racer-matrix-7.5x17-5x100-et35-brillo-negro-2651798.html'},
+ {n:'⭐ RACER FIVE 7,5×17 ET35 5×100 — Brillo negro cara pulida', cat:'LANTAS', marca:'Norauto (Racer)', p:'148,00 €/ud · ~592 €/juego', c:'✓ 5×100 ET35 · 7,5J ✓ · BUJE 57,1 mm CONFIRMADO (montaje directo, sin anillos) · VERIFICADO en ficha Norauto 15-sep', u:'https://www.norauto.es/p/llanta-de-aluminio-racer-five-7.5x17-5x100-et35-brillo-negro-2651723.html'},
+ {n:'⭐ RACER MATRIX 7,5×17 ET35 5×100 — Brillo negro', cat:'LANTAS', marca:'Norauto (Racer)', p:'145,00 €/ud · ~580 €/juego', c:'✓ 5×100 ET35 · 7,5J ✓ · 10 radios negro con caras pulidas plateadas (rollo JDM) · VERIFICADO 15-sep', u:'https://www.norauto.es/p/llanta-de-aluminio-racer-matrix-7.5x17-5x100-et35-brillo-negro-2651798.html'},
  {n:'⭐ RACER RAPTOR 7,5×17 ET35 5×100 — Negro cara pulida', cat:'LANTAS', marca:'Norauto (Racer)', p:'148,00 €/ud · ~592 €/juego', c:'✓ 5×100 ET35 · 7,5J ✓ · el más JDM: negro brillante con borde de radios pulido · MONTAJE EN NORAUTO', u:'https://www.norauto.es/p/llanta-de-aluminio-racer-racer_raptor_noir_face_polie-7.5x17-5x100-et35-negro-pulido-2230645.html'},
- {n:'DEZENT TR 7×17 ET35 5×100 — Negro pulido', cat:'LANTAS', marca:'Dezent (Alemania)', p:'186,00 €/ud · ~744 €/juego', c:'✓ 5×100 ET35 · 7J (algo más estrecha que 7,5) · marca alemana con TÜV', u:'https://www.norauto.es/p/llanta-de-aluminio-dezent-tr-7x17-5x100-et35-frontal-negro-pulido-2207873.html'},
+ {n:'DEZENT TR 7×17 ET35 5×100 — Negro pulido', cat:'LANTAS', marca:'Dezent (Alemania)', p:'186,00 €/ud · ~744 €/juego', c:'✓ 5×100 ET35 · 7J (algo más estrecha que 7,5) · marca alemana con TÜV · VERIFICADO 15-sep', u:'https://www.norauto.es/p/llanta-de-aluminio-dezent-tr-7x17-5x100-et35-frontal-negro-pulido-2598177.html'},
  // OZ (premium, por si acaso)
  {n:'OZ SUPERTURISMO LM 7,5×17 ET35 5×100 — Negro mate letras plata', cat:'LANTAS', marca:'OZ Racing', p:'452,00 €/ud · ~1.808 €/juego', c:'✓ 5×100 ET35 · 7,5J · ICONO JDM (la llanta de los Clio Williams/306) · precio premium', u:'https://www.norauto.es/p/llanta-de-aluminio-oz-superturismo-lm-7.5x17-5x100-et35-letras-grises-plateadas-mate-464686.html'},
  // ── GUARDABARROS / BAJOS (los rotos de Simon) ──
@@ -1627,10 +1627,11 @@ document.addEventListener('click', function(e){
 
 // ═══ TARJETAS NORAUTO (15-sep-2026) — modelos 17x7,5 5x100 verificados ═══
 const NORAUTO=[
- {slug:'racer-ice', n:'RACER ICE', p:'135,00 €', color:'Negro mate', nota:'La más barata · encaja con carrocería negro mate', et:'ET35 · 7,5J', url:'https://www.norauto.es/p/llanta-de-aluminio-racer-ice-7.5x17-5x100-et35-negro-mate-2168392.html', badge:'💰 MEJOR PRECIO'},
- {slug:'racer-matrix', n:'RACER MATRIX', p:'145,00 €', color:'Brillo negro + caras pulidas', nota:'10 radios JDM · contraste con la carrocería', et:'ET35 · 7,5J', url:'https://www.norauto.es/p/llanta-de-aluminio-racer-matrix-7.5x17-5x100-et35-brillo-negro-2651798.html', badge:'⭐ LA MÁS JDM'},
- {slug:'raptor', n:'RACER RAPTOR', p:'148,00 €', color:'Negro + borde pulido', nota:'Negro brillante con radios pulidos estilo japonés', et:'ET35 · 7,5J', url:'https://www.norauto.es/p/llanta-de-aluminio-racer-racer_raptor_noir_face_polie-7.5x17-5x100-et35-negro-pulido-2230645.html', badge:'⭐ BORDE PULIDO'},
- {slug:'dezent-tr', n:'DEZENT TR', p:'186,00 €', color:'Negro pulido', nota:'Marca alemana con TÜV · 7J (algo más estrecha)', et:'ET35 · 7J', url:'https://www.norauto.es/p/llanta-de-aluminio-dezent-tr-7x17-5x100-et35-frontal-negro-pulido-2207873.html', badge:'🇩🇪 ALEMANA'}
+ {slug:'racer-matrix', n:'RACER MATRIX', p:'145,00 €', color:'Brillo negro + caras pulidas', nota:'10 radios con caras mecanizadas · máximo contraste con la carrocería negra', et:'ET35 · 7,5J', url:'https://www.norauto.es/p/llanta-de-aluminio-racer-matrix-7.5x17-5x100-et35-brillo-negro-2651798.html', badge:'⭐ LA MÁS JDM'},
+ {slug:'racer-raptor', n:'RACER RAPTOR', p:'148,00 €', color:'Negro + borde pulido', nota:'Negro brillante con los cantos de los radios pulidos', et:'ET35 · 7,5J', url:'https://www.norauto.es/p/llanta-de-aluminio-racer-racer_raptor_noir_face_polie-7.5x17-5x100-et35-negro-pulido-2230645.html', badge:'⭐ BORDE PULIDO'},
+ {slug:'racer-five', n:'RACER FIVE', p:'148,00 €', color:'Brillo negro + cara pulida', nota:'BUJE 57,1 mm confirmado → montaje DIRECTO, sin anillos de centrado', et:'ET35 · 7,5J', url:'https://www.norauto.es/p/llanta-de-aluminio-racer-five-7.5x17-5x100-et35-brillo-negro-2651723.html', badge:'✅ SIN ANILLOS'},
+ {slug:'dezent-tr', n:'DEZENT TR', p:'186,00 €', color:'Negro pulido', nota:'Marca alemana con TÜV · 7J (algo más estrecha que 7,5J)', et:'ET35 · 7J', url:'https://www.norauto.es/p/llanta-de-aluminio-dezent-tr-7x17-5x100-et35-frontal-negro-pulido-2598177.html', badge:'🇩🇪 ALEMANA'},
+ {slug:'oz-ultraleggera', n:'OZ ULTRALEGGERA', p:'512,00 €', color:'Negro mate', nota:'La leyenda · forjada, ligerísima · se sale de presupuesto pero es LA llanta', et:'ET35 · 7,5J', url:'https://www.norauto.es/p/llanta-de-aluminio-oz-ultraleggera-7.5x17-5x100-et35-negro-mate-819986.html', badge:'🏆 PREMIUM'}
 ];
 (function(){
   var g=document.getElementById('norautoGrid'); if(!g) return;
