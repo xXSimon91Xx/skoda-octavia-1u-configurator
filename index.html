@@ -261,7 +261,24 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
     </div>
     <div class="flex flex-wrap gap-1.5 mt-3" id="catalogoPills"></div>
   </div>
-  <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-3 mt-4" id="catalogoGrid"></div>
+  
+  <!-- ═══ SECCION NORAUTO (15-sep-2026) ═══ -->
+  <div class="card p-4 mt-4" style="border-color:var(--accent)">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <div>
+        <div class="font-black text-[17px]">🛞 Llantas 17×7,5 — Norauto Les Gavarres (Tarragona)</div>
+        <div class="text-[14px] muted mt-0.5">5×100 ET35 · <b>montaje en el propio Norauto</b> · sin adaptador · medida exacta del Octavia 1U</div>
+      </div>
+      <span class="tag" style="background:var(--accent);color:#070B14">✅ 5×100 SIN ADAPTADOR</span>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4" id="norautoGrid"></div>
+    <div class="mt-3 pt-3 text-[14px] muted" style="border-top:1px solid var(--border)">
+      <b>Verificado:</b> 5×100 = anclaje exacto del Octavia 1U2 <b>→ NO hace falta adaptador</b> · ET35 dentro del rango legal (35-40) · neumático <b>225/45 R17</b> ·
+      buje: <b>confirmar en tienda</b> (si la llanta es 57,1 va directa; si es 65-73 necesitas anillos de centrado ~5-10 €).
+      <br>💡 <b>Ojo:</b> los RACER son marca propia → entra en los <b>«Días del Club Norauto» (-15% en productos Norauto, 14-27 sep)</b> si eres socio. Confírmalo en tienda.
+    </div>
+  </div>
+<div class="grid md:grid-cols-2 xl:grid-cols-4 gap-3 mt-4" id="catalogoGrid"></div>
   <div class="text-[15px] muted mt-2 mb-4">Medida homologable sin proyecto: <b>7Jx17 ET36-40 5x100 · 225/45R17</b> (−0,03 % diámetro, medida RS 1U). ET35 = pasa si no sobresale. Anillos de centrado 5-10 € si buje ≠ 57,1.</div>
   <div class="grid md:grid-cols-2 gap-3 mt-4">
     <div class="card p-4"><div class="font-bold text-[15px]">💶 Escenarios completos</div>
@@ -1035,6 +1052,20 @@ document.getElementById('informesAccordion').innerHTML=INFORMES.map((inf,i)=>
 
 // ===== CATÁLOGO COMPRAS (grande) =====
 const CATALOGO=[
+ // ⭐⭐ NORAUTO (Les Gavarres, Tarragona) — 17x7,5 5x100 · montaje en tienda · verificadas 15-sep-2026
+ {n:'🔥 RACER ICE 7,5×17 ET35 5×100 — Negro mate', cat:'LANTAS', marca:'Norauto (Racer)', p:'135,00 €/ud · ~540 €/juego', c:'✓ 5×100 ET35 · 7,5J ✓ la medida justa · negra mate: encaja con carrocería negro mate · MONTAJE EN NORAUTO Tarragona', u:'https://www.norauto.es/p/llanta-de-aluminio-racer-ice-7.5x17-5x100-et35-negro-mate-2168392.html'},
+ {n:'⭐ RACER MATRIX 7,5×17 ET35 5×100 — Brillo negro', cat:'LANTAS', marca:'Norauto (Racer)', p:'145,00 €/ud · ~580 €/juego', c:'✓ 5×100 ET35 · 7,5J ✓ · 10 radios negro con caras pulidas plateadas (rollo JDM) · MONTAJE EN NORAUTO', u:'https://www.norauto.es/p/llanta-de-aluminio-racer-matrix-7.5x17-5x100-et35-brillo-negro-2651798.html'},
+ {n:'⭐ RACER RAPTOR 7,5×17 ET35 5×100 — Negro cara pulida', cat:'LANTAS', marca:'Norauto (Racer)', p:'148,00 €/ud · ~592 €/juego', c:'✓ 5×100 ET35 · 7,5J ✓ · el más JDM: negro brillante con borde de radios pulido · MONTAJE EN NORAUTO', u:'https://www.norauto.es/p/llanta-de-aluminio-racer-racer_raptor_noir_face_polie-7.5x17-5x100-et35-negro-pulido-2230645.html'},
+ {n:'DEZENT TR 7×17 ET35 5×100 — Negro pulido', cat:'LANTAS', marca:'Dezent (Alemania)', p:'186,00 €/ud · ~744 €/juego', c:'✓ 5×100 ET35 · 7J (algo más estrecha que 7,5) · marca alemana con TÜV', u:'https://www.norauto.es/p/llanta-de-aluminio-dezent-tr-7x17-5x100-et35-frontal-negro-pulido-2207873.html'},
+ // OZ (premium, por si acaso)
+ {n:'OZ SUPERTURISMO LM 7,5×17 ET35 5×100 — Negro mate letras plata', cat:'LANTAS', marca:'OZ Racing', p:'452,00 €/ud · ~1.808 €/juego', c:'✓ 5×100 ET35 · 7,5J · ICONO JDM (la llanta de los Clio Williams/306) · precio premium', u:'https://www.norauto.es/p/llanta-de-aluminio-oz-superturismo-lm-7.5x17-5x100-et35-letras-grises-plateadas-mate-464686.html'},
+ // ── GUARDABARROS / BAJOS (los rotos de Simon) ──
+ {n:'🛡️ Cubrecárter / protección bajo motor — BLIC 6601-02-0015863Q', cat:'EXTERIOR_KIT', marca:'BLIC', p:'10,99 €', c:'✓ PP · Octavia 1U 1996-2010 · ES LA TAPA QUE SE LE VOLÓ A SIMON (la del centro, bajo el motor)', u:'https://www.autodoc.es/blic/17485579'},
+ {n:'Protección bajo motor — OE 1U0805825A', cat:'EXTERIOR_KIT', marca:'OE Skoda', p:'9,28 €', c:'✓ Referencia ORIGINAL 1U0805825A · el más barato · recambioscoches.es', u:'https://www.recambioscoches.es/skoda/octavia-1u2/7909/15003/protector-antiempotramiento-del-motor'},
+ {n:'Pasarruedas / guardabarros interior DELANTERO IZQUIERDO — 1U0809961B', cat:'EXTERIOR_KIT', marca:'Kiauto', p:'13,90 €', c:'✓ OE 1U0809961B · Octavia 2000-2004 · el guardabarros roto', u:'https://www.kiauto.es/guardabarros-skoda-octavia-2000-2004-delantero-izquierdo-p0008714715500502'},
+ {n:'Pasarruedas / guardabarros interior DELANTERO DERECHO — 1U0809962D', cat:'EXTERIOR_KIT', marca:'Autodaz', p:'13,43 €', c:'✓ OE 1U0809962D · con descuento aplicado (-66%)', u:'https://www.autodaz.es/pieces-detachees/skoda/octavia/guardabarros'},
+ {n:'Pasarruedas delantero — AUTODOC (todos los lados)', cat:'EXTERIOR_KIT', marca:'VAN WEZEL / DIEDERICHS', p:'12,99-17,49 €', c:'✓ categoría completa paso de rueda Octavia 1U2 · elige lado izquierdo/derecho', u:'https://www.autodoc.es/repuestos/paso-de-rueda-10265/skoda/octavia/octavia-1u2'},
+ {n:'Cubre cárter METÁLICO (blindaje total) — opción premium', cat:'EXTERIOR_KIT', marca:'Scut Protection', p:'190-351 €', c:'aluminio 3 mm: 350,90 € · acero 2 mm: 190,30 € · para rally/badén, overkill para diario', u:'https://www.autodoc.es/scut-protection/26905308'},
  // ── LLANTAS (5x100 para Octavia 1U) ──
  // ═══════════════════════════════════════════════════════════════
  // ⭐ LLANTAS REALES — LINKS DIRECTOS VERIFICADOS (14-sep-2026)
@@ -1520,6 +1551,27 @@ document.addEventListener('click', function(e){
   }
   setTimeout(marcar, 1500);
 })();
+
+// ═══ TARJETAS NORAUTO (15-sep-2026) — modelos 17x7,5 5x100 verificados ═══
+const NORAUTO=[
+ {slug:'racer-ice', n:'RACER ICE', p:'135,00 €', color:'Negro mate', nota:'La más barata · encaja con carrocería negro mate', et:'ET35 · 7,5J', url:'https://www.norauto.es/p/llanta-de-aluminio-racer-ice-7.5x17-5x100-et35-negro-mate-2168392.html', badge:'💰 MEJOR PRECIO'},
+ {slug:'racer-matrix', n:'RACER MATRIX', p:'145,00 €', color:'Brillo negro + caras pulidas', nota:'10 radios JDM · contraste con la carrocería', et:'ET35 · 7,5J', url:'https://www.norauto.es/p/llanta-de-aluminio-racer-matrix-7.5x17-5x100-et35-brillo-negro-2651798.html', badge:'⭐ LA MÁS JDM'},
+ {slug:'raptor', n:'RACER RAPTOR', p:'148,00 €', color:'Negro + borde pulido', nota:'Negro brillante con radios pulidos estilo japonés', et:'ET35 · 7,5J', url:'https://www.norauto.es/p/llanta-de-aluminio-racer-racer_raptor_noir_face_polie-7.5x17-5x100-et35-negro-pulido-2230645.html', badge:'⭐ BORDE PULIDO'},
+ {slug:'dezent-tr', n:'DEZENT TR', p:'186,00 €', color:'Negro pulido', nota:'Marca alemana con TÜV · 7J (algo más estrecha)', et:'ET35 · 7J', url:'https://www.norauto.es/p/llanta-de-aluminio-dezent-tr-7x17-5x100-et35-frontal-negro-pulido-2207873.html', badge:'🇩🇪 ALEMANA'}
+];
+(function(){
+  var g=document.getElementById('norautoGrid'); if(!g) return;
+  g.innerHTML = NORAUTO.map(function(w){
+    return '<a href="'+w.url+'" target="_blank" rel="noopener" class="card tilt3d" style="text-decoration:none;color:inherit;overflow:hidden">'+
+      '<div style="background:#fff;padding:10px;display:flex;align-items:center;justify-content:center;height:150px"><img src="img/llantas/'+w.slug+'.jpg" alt="'+w.n+'" loading="lazy" style="max-width:100%;max-height:100%;object-fit:contain"></div>'+
+      '<div class="p-3"><div class="flex items-center justify-between gap-2"><div class="font-black text-[15px]">'+w.n+'</div><span class="text-[11px] font-bold px-2 py-0.5 rounded-full" style="background:var(--accent);color:#070B14">'+w.badge+'</span></div>'+
+      '<div class="text-[13px] muted mt-0.5">'+w.color+'</div>'+
+      '<div class="text-[15px] font-bold mt-1" style="color:var(--accent)">'+w.p+' <span class="text-[12px] muted">/ud</span></div>'+
+      '<div class="text-[12px] muted mt-1">'+w.et+' · 5×100 ✓</div>'+
+      '<div class="text-[12px] mt-1">'+w.nota+'</div></div></a>';
+  }).join('');
+})();
+
 </script>
 </body>
 </html>
