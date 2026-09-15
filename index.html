@@ -1438,10 +1438,10 @@ document.addEventListener('click', function(e){
   var MAXD = 9, cur = null, raf = 0, lastEv = null;
   function elegible(el){
     if(!el) return false;
-    if(el.closest('#viewer3d, .leaflet-container, #glCanvas, canvas')) return false;
-    if(el.style && el.style.overflowY === 'auto') return false;          // panel de controles con scroll
+    if(el.closest('#viewer3d, .leaflet-container, #glCanvas')) return false;
+    if(el.querySelector('#viewer3d, canvas, .leaflet-container, table')) return false;  // NO inclinar la card que CONTIENE el visor 3D/mapa/tabla
+    if(el.style && el.style.overflowY === 'auto') return false;
     if(el.scrollHeight > el.clientHeight + 8 && getComputedStyle(el).overflowY !== 'visible') return false;
-    if(el.closest('table')) return false;
     return true;
   }
   function reset(el){
