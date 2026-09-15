@@ -30,6 +30,18 @@ tailwind.config = { theme: { extend: {
 }
 body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 .card{background:var(--card);border:1px solid var(--border);border-radius:20px}
+/* ═══ 3D INTERACTIVO (15-sep-2026): tilt con raton + glare + parallax ═══ */
+.grid3d,.g3d{perspective:1500px}
+.card.tilt3d{transform-style:preserve-3d;position:relative;will-change:transform;
+  transition:transform .35s cubic-bezier(.22,.61,.36,1),box-shadow .35s,border-color .35s}
+.card.tilt3d.tilting{transition:transform .08s linear}
+.card .glare3d{position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;z-index:3}
+.card.tilting .glare3d{opacity:1}
+.card.tilt3d.tilting{box-shadow:0 26px 50px -20px rgba(0,0,0,.8);border-color:var(--accent)}
+.card.tilt3d img{transition:transform .35s cubic-bezier(.22,.61,.36,1);backface-visibility:hidden}
+.card.tilt3d.tilting img{transform:translate(calc(var(--mx,0) * -10px), calc(var(--my,0) * -10px)) scale(1.06)}
+@media (prefers-reduced-motion: reduce){.card.tilt3d{transition:none!important}}
+.no-tilt3d .card{transform:none!important}
 .muted{color:var(--muted)}
 .tab-btn{transition:all .2s}
 .tab-btn.active{background:var(--accent);color:#0F172A;font-weight:700}
@@ -1417,6 +1429,62 @@ document.addEventListener('click', function(e){
   var d = s.closest('details');
   document.querySelectorAll('#informesAccordion details').forEach(function(o){ if(o!==d) o.removeAttribute('open'); });
 });
+
+// ═══ TILT 3D (15-sep-2026) — no toca el visor Three.js, paneles con scroll ni el mapa ═══
+(function(){
+  if(!window.matchMedia || !matchMedia('(hover:hover) and (pointer:fine)').matches){
+    document.documentElement.classList.add('no-tilt3d'); return;
+  }
+  var MAXD = 9, cur = null, raf = 0, lastEv = null;
+  function elegible(el){
+    if(!el) return false;
+    if(el.closest('#viewer3d, .leaflet-container, #glCanvas, canvas')) return false;
+    if(el.style && el.style.overflowY === 'auto') return false;          // panel de controles con scroll
+    if(el.scrollHeight > el.clientHeight + 8 && getComputedStyle(el).overflowY !== 'visible') return false;
+    if(el.closest('table')) return false;
+    return true;
+  }
+  function reset(el){
+    if(!el) return;
+    el.classList.remove('tilting');
+    el.style.transform = ''; el.style.removeProperty('--mx'); el.style.removeProperty('--my');
+    var g = el.querySelector(':scope > .glare3d'); if(g) g.style.opacity = 0;
+  }
+  function glare(el){
+    var g = el.querySelector(':scope > .glare3d');
+    if(!g){ g = document.createElement('div'); g.className = 'glare3d'; el.appendChild(g); }
+    return g;
+  }
+  function apply(){
+    raf = 0;
+    if(!cur || !lastEv) return;
+    var r = cur.getBoundingClientRect();
+    if(r.width < 8 || r.height < 8) return;
+    var px = Math.max(-.5, Math.min(.5, (lastEv.clientX - r.left) / r.width - .5));
+    var py = Math.max(-.5, Math.min(.5, (lastEv.clientY - r.top) / r.height - .5));
+    cur.style.transform = 'perspective(1100px) rotateY(' + (px * MAXD * 2).toFixed(2) + 'deg) rotateX(' +
+      (-py * MAXD * 2).toFixed(2) + 'deg) translateZ(20px) scale(1.018)';
+    cur.style.setProperty('--mx', px.toFixed(3));
+    cur.style.setProperty('--my', py.toFixed(3));
+    var g = glare(cur); g.style.opacity = 1;
+    g.style.background = 'radial-gradient(360px circle at ' + ((px + .5) * 100).toFixed(1) + '% ' +
+      ((py + .5) * 100).toFixed(1) + '%, rgba(255,255,255,.14), rgba(255,255,255,.04) 42%, transparent 64%)';
+  }
+  document.addEventListener('mousemove', function(e){
+    var el = e.target && e.target.closest ? e.target.closest('.card') : null;
+    if(el && !el.classList.contains('tilt3d')){
+      if(el.parentElement) el.parentElement.classList.add('grid3d');
+      el.classList.add('tilt3d');
+    }
+    var t = (el && elegible(el)) ? el : null;
+    if(t !== cur){ reset(cur); cur = t; if(cur) cur.classList.add('tilting'); }
+    lastEv = e;
+    if(cur && !raf) raf = requestAnimationFrame(apply);
+  }, { passive: true });
+  document.addEventListener('mouseleave', function(){ reset(cur); cur = null; }, { passive: true });
+  window.addEventListener('scroll', function(){ if(cur){ reset(cur); cur = null; } }, { passive: true });
+})();
+
 </script>
 </body>
 </html>
