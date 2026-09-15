@@ -419,6 +419,27 @@ async function init3D(){
   }catch(_e){ console.warn('RoomEnvironment no disponible', _e); }
   // ★ PREMIUM: contact shadow (ancla el coche al suelo, sin plano opaco)
   window.__SCENE=scene; window.__RENDERER=renderer; // debug handle (verificacion automatizada)
+  window.__CAMERA=camera; window.__CONTROLS=controls;
+  // ★ Estudio de render: coloca la camara por azimut/elevacion/distancia y devuelve el frame
+  window.__studio=function(az,el,r,ty,tx){
+    ty=(ty===undefined)?0.62:ty; tx=tx||0;
+    var a=az*Math.PI/180, e=el*Math.PI/180;
+    var d=r*Math.cos(e);
+    camera.position.set(tx+d*Math.sin(a), ty+r*Math.sin(e), -d*Math.cos(a));
+    controls.target.set(tx,ty,0); controls.update(); camera.updateProjectionMatrix();
+    renderer.render(scene,camera);
+    return {az:az,el:el,r:r};
+  };
+  // ★ captura el canvas a resolucion de estudio (sin UI)
+  window.__shot=function(wpx,hpx){
+    var prevW=glCanvas.width, prevH=glCanvas.height;
+    renderer.setPixelRatio(1); renderer.setSize(wpx,hpx,false);
+    camera.aspect=wpx/hpx; camera.updateProjectionMatrix();
+    renderer.render(scene,camera);
+    var url=renderer.domElement.toDataURL('image/jpeg',0.92);
+    renderer.setSize(prevW,prevH,false); camera.aspect=prevW/prevH; camera.updateProjectionMatrix(); renderer.render(scene,camera);
+    return url;
+  };
   const shadowPlane=new THREE.Mesh(new THREE.PlaneGeometry(16,16), new THREE.ShadowMaterial({opacity:0.38}));
   shadowPlane.rotation.x=-Math.PI/2; shadowPlane.position.y=0.003; shadowPlane.receiveShadow=true; scene.add(shadowPlane);
   const hemi=new THREE.HemisphereLight(0xffffff,0x444466,0.35); scene.add(hemi);
