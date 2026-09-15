@@ -399,7 +399,7 @@ async function init3D(){
   renderer=new THREE.WebGLRenderer({canvas:glCanvas,antialias:true,alpha:true});
   renderer.setSize(w,h,false);
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  renderer.shadowMap.enabled=true; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05;
+  renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.28; if(THREE.SRGBColorSpace&&renderer.outputColorSpace!==undefined) renderer.outputColorSpace=THREE.SRGBColorSpace;
 
   camera=new THREE.PerspectiveCamera(45,w/h,0.1,100);
   camera.position.set(5.2,2.4,-6.5);
@@ -423,7 +423,7 @@ async function init3D(){
   shadowPlane.rotation.x=-Math.PI/2; shadowPlane.position.y=0.003; shadowPlane.receiveShadow=true; scene.add(shadowPlane);
   const hemi=new THREE.HemisphereLight(0xffffff,0x444466,0.35); scene.add(hemi);
   const key=new THREE.DirectionalLight(0xffffff,2.2); key.position.set(4,6,4); key.castShadow=true; scene.add(key);
-  const fill=new THREE.DirectionalLight(0x88aaff,0.5); fill.position.set(-5,2,-4); scene.add(fill);
+  const fill=new THREE.DirectionalLight(0x88aaff,0.85); fill.position.set(-5,2,-4); scene.add(fill);
   const rim=new THREE.DirectionalLight(0xffeedd,0.8); rim.position.set(0,1.2,6); scene.add(rim);
 
   const grid=new THREE.GridHelper(12,24,0x526079,0x31405a); // grid sutil (nada de plano negro)
