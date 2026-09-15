@@ -137,6 +137,11 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
         <div>
           <h1 class="font-black text-lg tracking-tight">Configurador 3D <span class="text-[15px] font-bold px-2 py-0.5 rounded-full" style="background:var(--accent);color:#0F172A">GLB REAL</span></h1>
           <p class="text-[15px] muted">Arrastra para orbitar · scroll para zoom · <b class="text-[15px]">doble click en una pieza</b> para info + compra</p>
+        <div class="mt-3 pt-3" style="border-top:1px solid var(--border)">
+          <div class="font-black text-[16px]">🛞 Cómo queda con cada llanta NORAUTO (render 3D real)</div>
+          <div class="text-[13px] muted mt-1 mb-3">Generado con el modelo 3D del coche en negro piano · <b>pincha una para probarla en el configurador</b></div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3" id="galeriaNorauto3D"></div>
+        </div>
         </div>
         <div class="flex items-center gap-2 text-[15px] font-bold">
           <span class="px-2.5 py-1 rounded-full" style="background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)" id="modelStatus">⏳ Cargando modelo…</span>
@@ -281,11 +286,7 @@ select,input[type=range]{background:var(--card);color:var(--text);border:1px sol
       <span class="tag" style="background:var(--accent);color:#070B14">✅ 5×100 SIN ADAPTADOR</span>
     </div>
     <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 mt-4" id="norautoGrid"></div>
-    <div class="mt-5">
-      <div class="font-black text-[16px] mb-2">🖼️ Cómo quedan en TU coche (negro piano)</div>
-      <div class="text-[13px] muted mb-3">Montaje sobre el modelo 3D real del Octavia 1U: cada llanta del catálogo encajada en la rueda delantera.</div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3" id="montajesGrid"></div>
-    </div>
+
     <div class="mt-3 pt-3 text-[14px] muted" style="border-top:1px solid var(--border)">
       <b>Verificado con ficha oficial Norauto (15-sep-2026):</b> 5×100 = anclaje exacto del Octavia 1U2 <b>→ NO hace falta adaptador</b> · ET35 dentro del rango legal (35-40) · neumático <b>225/45 R17</b> ·
       buje: <b>la RACER FIVE es 57,1 mm (directa)</b>; en el resto confírmalo en tienda (si es 65-73 necesitas anillos ~5-10 €).
@@ -1698,13 +1699,26 @@ const NORAUTO=[
  {slug:'oz-ultraleggera', n:'OZ ULTRALEGGERA', p:'512,00 €', color:'Negro mate', nota:'La leyenda · forjada, ligerísima · se sale de presupuesto pero es LA llanta', et:'ET35 · 7,5J', url:'https://www.norauto.es/p/llanta-de-aluminio-oz-ultraleggera-7.5x17-5x100-et35-negro-mate-819986.html', badge:'🏆 PREMIUM'}
 ];
 (function(){
-  var mg=document.getElementById('montajesGrid');
-  if(mg){
-    var MONT=[['racer-matrix','RACER MATRIX · 145 €'],['racer-raptor','RACER RAPTOR · 148 €'],['racer-five','RACER FIVE · 148 €'],['dezent-tr','DEZENT TR · 186 €'],['oz-ultraleggera','OZ ULTRALEGGERA · 512 €']];
-    mg.innerHTML = MONT.map(function(m){
-      return '<figure style="margin:0"><img src="img/renders/llantas-montadas/'+m[0]+'.jpg" alt="Octavia negro con '+m[1]+'" loading="lazy" decoding="async" style="width:100%;border-radius:12px;border:1px solid var(--border);display:block">'+
-        '<figcaption class="text-[12px] muted mt-1" style="text-align:center">'+m[1]+'</figcaption></figure>';
+  var gn=document.getElementById('galeriaNorauto3D');
+  if(gn){
+    var G=[['na-matrix','racer-matrix','RACER MATRIX','145 €'],['na-raptor','racer-raptor','RACER RAPTOR','148 €'],
+           ['na-five','racer-five','RACER FIVE','148 €'],['na-dezent','dezent-tr','DEZENT TR','186 €'],
+           ['na-oz','oz-ultraleggera','OZ ULTRALEGGERA','512 €']];
+    gn.innerHTML = G.map(function(x){
+      return '<button type="button" data-rimsel="'+x[0]+'" class="card" style="padding:0;overflow:hidden;cursor:pointer;text-align:left">'+
+        '<img src="img/renders/norauto-3d/'+x[1]+'-3-4.jpg" alt="Octavia negro con '+x[2]+'" loading="lazy" decoding="async" style="width:100%;display:block">'+
+        '<span class="block p-2"><span class="block font-black text-[13px]">'+x[2]+'</span>'+
+        '<span class="block text-[12px]" style="color:var(--accent)">'+x[3]+' · ver en 3D ↑</span></span></button>';
     }).join('');
+    gn.addEventListener('click',function(ev){
+      var b=ev.target.closest('[data-rimsel]'); if(!b) return;
+      var v=b.getAttribute('data-rimsel');
+      var r=document.querySelector('input[name=rim][value="'+v+'"]');
+      if(r){ r.checked=true; r.dispatchEvent(new Event('change',{bubbles:true})); }
+      var vis=document.getElementById('glCanvas');
+      if(vis&&vis.scrollIntoView) vis.scrollIntoView({behavior:'smooth',block:'center'});
+      if(window.showToast) showToast('🛞 Probando la llanta en el configurador');
+    });
   }
   var g=document.getElementById('norautoGrid'); if(!g) return;
   g.innerHTML = NORAUTO.map(function(w){
